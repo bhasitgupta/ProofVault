@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Cinzel:wght@600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,7 +6,11 @@
 
 :root {
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color-scheme: dark;
+  color-scheme: light;
+}
+
+.font-serif-judicial {
+  font-family: 'Cinzel', serif;
 }
 
 code, kbd, samp, pre, .font-mono {
@@ -14,107 +18,109 @@ code, kbd, samp, pre, .font-mono {
 }
 
 html {
-  background-color: #050608;
-  color: #f8fafc;
-  scroll-behavior: auto; /* Lenis controls smooth scroll */
+  background-color: #f7f4ed;
+  color: #1c1917;
+  scroll-behavior: auto; /* Managed by Lenis */
 }
 
 body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background-color: #050608;
+  background-color: #f7f4ed;
+  color: #1c1917;
   overflow-x: hidden;
 }
 
-/* Deep Obsidian background with subtle cyber nebula */
-.bg-obsidian {
-  background-color: #050608;
+/* Warm Beige & Parchment Ambient Backdrop */
+.bg-parchment {
+  background-color: #f7f4ed;
   background-image: 
-    radial-gradient(at 15% 15%, rgba(99, 102, 241, 0.12) 0px, transparent 45%),
-    radial-gradient(at 85% 20%, rgba(168, 85, 247, 0.10) 0px, transparent 45%),
-    radial-gradient(at 50% 85%, rgba(6, 182, 212, 0.08) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(185, 28, 28, 0.04) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(120, 53, 15, 0.05) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(245, 239, 230, 0.8) 0px, transparent 50%);
 }
 
-/* Frosted Smoked Glass Panels */
-.glass-obsidian {
-  background: rgba(13, 14, 20, 0.68);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
+/* Ivory Glassmorphism Panels */
+.glass-ivory {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(120, 53, 15, 0.12);
+  box-shadow: 0 10px 30px -10px rgba(69, 26, 3, 0.06), 0 1px 3px 0 rgba(0, 0, 0, 0.04);
 }
 
-.glass-obsidian-hover {
+.glass-ivory-hover {
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.glass-obsidian-hover:hover {
-  background: rgba(18, 20, 30, 0.82);
-  border-color: rgba(129, 140, 248, 0.35);
+.glass-ivory-hover:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(185, 28, 28, 0.35);
   transform: translateY(-3px);
-  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.9), 0 0 24px -4px rgba(99, 102, 241, 0.18);
+  box-shadow: 0 20px 40px -12px rgba(120, 53, 15, 0.12), 0 0 20px -2px rgba(185, 28, 28, 0.10);
 }
 
-/* Iridescent Cyber Border */
-.border-iridescent {
+/* Crimson & Umber Sovereign Border */
+.border-crimson-gold {
   border: 1px solid transparent;
-  background: linear-gradient(rgba(13, 14, 20, 0.85), rgba(13, 14, 20, 0.85)) padding-box,
-              linear-gradient(135deg, rgba(99, 102, 241, 0.5), rgba(168, 85, 247, 0.3), rgba(6, 182, 212, 0.4)) border-box;
+  background: linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)) padding-box,
+              linear-gradient(135deg, rgba(185, 28, 28, 0.5), rgba(217, 119, 6, 0.35), rgba(120, 53, 15, 0.4)) border-box;
 }
 
-/* High-tech security classification badges */
+/* Security Classification Badges (Light Theme) */
 .badge-secret {
-  background: rgba(244, 63, 94, 0.12);
-  color: #fb7185;
-  border: 1px solid rgba(244, 63, 94, 0.35);
-  text-shadow: 0 0 12px rgba(244, 63, 94, 0.4);
+  background: rgba(225, 29, 72, 0.08);
+  color: #be123c;
+  border: 1px solid rgba(225, 29, 72, 0.25);
+  font-weight: 700;
 }
 
 .badge-confidential {
-  background: rgba(245, 158, 11, 0.12);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.35);
-  text-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+  background: rgba(180, 83, 9, 0.08);
+  color: #92400e;
+  border: 1px solid rgba(180, 83, 9, 0.25);
+  font-weight: 700;
 }
 
 .badge-restricted {
-  background: rgba(16, 185, 129, 0.12);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  text-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+  background: rgba(21, 128, 61, 0.08);
+  color: #15803d;
+  border: 1px solid rgba(21, 128, 61, 0.25);
+  font-weight: 700;
 }
 
-/* Custom ultra-thin sleek scrollbar */
+/* Custom warm amber scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #050608;
+  background: #f1ede4;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e1f2b;
+  background: #d6cbba;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #4338ca;
+  background: #991b1b;
 }
 
-/* Pulse animation */
-@keyframes cyber-pulse {
+/* Seal glow animation */
+@keyframes seal-pulse {
   0%, 100% {
     opacity: 1;
     transform: scale(1);
   }
   50% {
-    opacity: 0.65;
-    transform: scale(1.04);
+    opacity: 0.75;
+    transform: scale(1.03);
   }
 }
 
-.animate-cyber-pulse {
-  animation: cyber-pulse 2.8s infinite ease-in-out;
+.animate-seal-pulse {
+  animation: seal-pulse 3s infinite ease-in-out;
 }
