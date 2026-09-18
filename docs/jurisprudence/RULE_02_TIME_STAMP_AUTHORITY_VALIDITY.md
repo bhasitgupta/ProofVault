@@ -5,3 +5,5 @@
 Timestamps must synchronize with National Physical Laboratory (NPL) India NTP servers.
 
 ### Drift Tolerance Window
+
+Maximum allowable clock drift between nodes is ±500 milliseconds.
