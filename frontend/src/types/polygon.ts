@@ -4,3 +4,10 @@ export interface PolygonAnchorReceipt {
   contractAddress: string;
   gasUsed: string;
 }
+
+export interface PolygonRpcNodeStatus {
+  rpcUrl: string;
+  latencyMs: number;
+  isAlive: boolean;
+  chainId: number;
+}
