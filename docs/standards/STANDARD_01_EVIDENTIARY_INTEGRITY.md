@@ -15,3 +15,5 @@ This standard mandates strict cryptographic controls for evidentiary artifacts.
 ### 1.3 Collision Resistance Guarantees
 
 Probability of collision under SHA-256 is less than 1 in 2^128.
+
+### 1.4 Periodic Recertification
