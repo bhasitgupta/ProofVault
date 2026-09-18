@@ -56,15 +56,19 @@ async def get_current_user(
 
 
 def get_ledger():
-    """Returns the appropriate LedgerAdapter based on LEDGER_BACKEND env."""
+    """Returns the appropriate LedgerAdapter based on LEDGER_BACKEND env (fabric, polygon, or dev)."""
     from app.config import get_settings
     settings = get_settings()
     if settings.LEDGER_BACKEND == "fabric":
         from app.ledger.fabric_client import FabricLedger
         return FabricLedger()
+    elif settings.LEDGER_BACKEND == "polygon":
+        from app.ledger.polygon_adapter import PolygonLedgerAdapter
+        return PolygonLedgerAdapter()
     else:
-        from app.ledger.dev_ledger import DevLedger
-        return DevLedger()
+        from app.ledger.polygon_adapter import PolygonLedgerAdapter
+        return PolygonLedgerAdapter()
+
 
 
 def get_vault():
