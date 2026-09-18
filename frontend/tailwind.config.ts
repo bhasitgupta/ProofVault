@@ -56,9 +56,10 @@ export default {
         },
       },
       fontFamily: {
-        serif: ['Cinzel', 'serif'],
-        sans: ['Plus Jakarta Sans', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        sans: ['"Public Sans"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+        serif: ['Merriweather', 'Georgia', 'serif'],
+        mono: ['"IBM Plex Mono"', 'monospace'],
+        gov: ['"Public Sans"', 'sans-serif'],
       },
     },
   },
