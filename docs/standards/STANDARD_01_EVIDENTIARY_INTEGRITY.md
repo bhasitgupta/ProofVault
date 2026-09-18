@@ -11,3 +11,5 @@ This standard mandates strict cryptographic controls for evidentiary artifacts.
 - Auxiliary: SHA-512 for high-security cases
 
 - Prohibited: MD5 and SHA-1 for legal admissibility
+
+### 1.3 Collision Resistance Guarantees
