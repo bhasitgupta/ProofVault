@@ -17,3 +17,5 @@ Every physical and digital touchpoint must be chronologically continuous.
 - Dual signoff between outgoing and incoming custody officers.
 
 - Automatic generation of electronic transfer manifest.
+
+### 2.4 Disposal & Retention Schedules
