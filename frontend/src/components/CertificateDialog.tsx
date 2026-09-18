@@ -18,30 +18,30 @@ export const CertificateDialog: React.FC<CertificateDialogProps> = ({ isOpen, on
   if (!isOpen || !certData) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-      <div className="bg-slate-900 border border-police-accent/40 rounded-xl max-w-lg w-full p-6 shadow-2xl space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-          <div className="flex items-center gap-2 text-emerald-400 font-bold">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/60 backdrop-blur-sm p-4 animate-in fade-in">
+      <div className="bg-white border-crimson-gold rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+        <div className="flex items-center justify-between border-b border-stone-200 pb-3">
+          <div className="flex items-center gap-2 text-emerald-700 font-serif-judicial font-bold">
             <FileCheck className="w-5 h-5" />
             <span>BSA §63 Evidence Certificate Issued</span>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white">
+          <button onClick={onClose} className="text-stone-400 hover:text-stone-700 transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="space-y-2 text-xs font-mono bg-slate-950 p-4 rounded-lg border border-slate-800 text-slate-300">
-          <div><span className="text-slate-500">Certificate ID:</span> {certData.cert_id}</div>
-          <div><span className="text-slate-500">Document ID:</span> {certData.doc_id}</div>
-          <div><span className="text-slate-500">PDF SHA-256:</span> {certData.pdf_hash}</div>
-          <div><span className="text-slate-500">Ledger TX:</span> {certData.ledger_tx_id}</div>
-          <div><span className="text-slate-500">Issued UTC:</span> {certData.issued_at}</div>
+        <div className="space-y-2 text-xs font-mono bg-parchment-50 p-4 rounded-xl border border-stone-200 text-stone-700">
+          <div><span className="text-stone-500 font-semibold">Certificate ID:</span> <span className="text-stone-900 font-bold">{certData.cert_id}</span></div>
+          <div><span className="text-stone-500 font-semibold">Document ID:</span> {certData.doc_id}</div>
+          <div><span className="text-stone-500 font-semibold">PDF SHA-256:</span> {certData.pdf_hash}</div>
+          <div><span className="text-stone-500 font-semibold">Ledger TX:</span> <span className="text-crimson-800 font-bold">{certData.ledger_tx_id}</span></div>
+          <div><span className="text-stone-500 font-semibold">Issued UTC:</span> {certData.issued_at}</div>
         </div>
 
         <div className="flex justify-end gap-3 pt-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg transition-colors"
+            className="px-4 py-2 text-xs bg-white hover:bg-parchment-100 text-stone-700 rounded-xl transition-colors border border-stone-200 shadow-sm"
           >
             Close
           </button>
@@ -49,7 +49,7 @@ export const CertificateDialog: React.FC<CertificateDialogProps> = ({ isOpen, on
             href={certData.download_url}
             target="_blank"
             rel="noreferrer"
-            className="flex items-center gap-2 px-4 py-2 text-xs bg-police-accent hover:bg-blue-600 text-white font-semibold rounded-lg transition-colors shadow-lg shadow-blue-500/20"
+            className="flex items-center gap-2 px-4 py-2 text-xs bg-crimson-800 hover:bg-crimson-700 text-white font-semibold rounded-xl transition-colors shadow-md shadow-crimson-900/15"
           >
             <Download className="w-3.5 h-3.5" />
             Download Signed PDF
@@ -59,3 +59,4 @@ export const CertificateDialog: React.FC<CertificateDialogProps> = ({ isOpen, on
     </div>
   );
 };
+export default CertificateDialog;
