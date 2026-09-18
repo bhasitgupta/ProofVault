@@ -11,3 +11,5 @@ Anchors deployed on Polygon Amoy (Testnet) and Polygon PoS Mainnet.
 - ProvenanceRegistry: Append-only custody logs.
 
 - AuditAnchorRegistry: Batch Merkle tree root publisher.
+
+### 3.3 Transaction Lifecycle
