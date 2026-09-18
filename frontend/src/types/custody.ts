@@ -21,3 +21,10 @@ export interface CustodianProfile {
   badgeNumber: string;
   clearanceLevel: number;
 }
+
+export interface EvidenceDossierSummary {
+  caseId: string;
+  title: string;
+  totalArtifacts: number;
+  isFrozen: boolean;
+}
