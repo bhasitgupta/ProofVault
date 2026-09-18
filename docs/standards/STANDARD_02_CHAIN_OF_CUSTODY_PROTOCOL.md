@@ -9,3 +9,5 @@ Every physical and digital touchpoint must be chronologically continuous.
 1. Document SHA-256 must match across all transactions.
 
 2. Previous event hash pointer must form unbroken hash chain.
+
+3. Timestamp must monotonically increase.
