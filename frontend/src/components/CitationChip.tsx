@@ -14,24 +14,25 @@ export const CitationChip: React.FC<CitationChipProps> = ({ citation, onClick })
   return (
     <button
       onClick={onClick}
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-mono border transition-all ${
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono border transition-all ${
         isVerified
-          ? 'bg-slate-800/90 hover:bg-slate-700/90 border-slate-600 text-slate-200'
-          : 'bg-red-950/80 border-red-500 text-red-300'
+          ? 'bg-white hover:bg-parchment-100 border-stone-200 text-stone-800 shadow-sm hover:border-crimson-700/40'
+          : 'bg-rose-50 border-rose-300 text-rose-800'
       }`}
     >
-      <FileText className="w-3.5 h-3.5 text-police-accent" />
+      <FileText className="w-3.5 h-3.5 text-crimson-800" />
       <span className="font-semibold">
         [{truncateHash(citation.doc_id, 4, 4)}:c{citation.chunk_index}]
       </span>
       {citation.page_number && (
-        <span className="text-[10px] text-slate-400">p.{citation.page_number}</span>
+        <span className="text-[10px] text-stone-500">p.{citation.page_number}</span>
       )}
       {isVerified ? (
-        <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
       ) : (
-        <AlertOctagon className="w-3 h-3 text-red-400" />
+        <AlertOctagon className="w-3 h-3 text-rose-600" />
       )}
     </button>
   );
 };
+export default CitationChip;
