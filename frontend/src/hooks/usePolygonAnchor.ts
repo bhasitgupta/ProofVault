@@ -7,3 +7,5 @@ export const usePolygonAnchor = () => {
 export const verifyAnchorReceipt = async (txHash: string): Promise<boolean> => {
   return txHash.startsWith('0x') && txHash.length === 66;
 };
+
+export const getEstimatedBlockTime = (): number => 2.1;
