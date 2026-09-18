@@ -14,3 +14,10 @@ export interface CustodyVerificationProof {
 }
 
 export type CustodyActionType = 'INGEST' | 'TRANSFER' | 'INSPECT' | 'EXTRACT' | 'LEGAL_HOLD' | 'DISPOSE';
+
+export interface CustodianProfile {
+  officerId: string;
+  name: string;
+  badgeNumber: string;
+  clearanceLevel: number;
+}
