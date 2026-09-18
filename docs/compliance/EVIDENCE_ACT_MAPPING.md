@@ -1,2 +1,4 @@
 
 ## Indian Evidence Act & BSA 2023 Cross-Walk Matrix
+
+| IEA 1872 | BSA 2023 | NYAYA-VAULT Implementation |
