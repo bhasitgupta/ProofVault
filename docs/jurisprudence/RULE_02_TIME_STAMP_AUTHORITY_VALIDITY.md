@@ -13,3 +13,5 @@ Maximum allowable clock drift between nodes is ±500 milliseconds.
 Time tokens anchored via X.509 TSA certificate with RSA-4096 or ECDSA P-384.
 
 ### Admissibility in Cross-Examination
+
+Court may call Designated Scientist to testify regarding NTP clock integrity.
