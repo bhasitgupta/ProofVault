@@ -9,3 +9,6 @@ storage_data/
 backend/storage_data/
 test_redteam_*.db
 backend/test_redteam_*.db
+*.db
+backend/*.db
+
