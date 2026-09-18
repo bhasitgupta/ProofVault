@@ -5,3 +5,6 @@ def compute_sha256(data: bytes) -> str:
 
 def compute_sha512(data: bytes) -> str:
     return hashlib.sha512(data).hexdigest()
+
+def compute_dual_hashes(data: bytes) -> dict:
+    return {'sha256': compute_sha256(data), 'sha512': compute_sha512(data)}
