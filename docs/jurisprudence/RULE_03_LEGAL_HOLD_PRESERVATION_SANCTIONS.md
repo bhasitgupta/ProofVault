@@ -7,3 +7,5 @@ Duty to preserve attaches immediately upon filing of FIR or court directive.
 ### Sanctions for Evidence Destruction
 
 Destruction of digital evidence punishable under Section 204 IPC / Section 238 BNS.
+
+### Adverse Inference Doctrine
