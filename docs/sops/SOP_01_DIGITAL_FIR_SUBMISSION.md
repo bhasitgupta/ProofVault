@@ -9,3 +9,5 @@ Standardizes the immediate electronic hashing of all exhibits attached to initia
 Investigating Officer (IO) must generate Section 63/65B certificate within 24 hours of seizure.
 
 ### Magistrate Acknowledgment
+
+Judicial Magistrate enters receipt hash into court docket database.
