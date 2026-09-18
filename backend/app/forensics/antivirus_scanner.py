@@ -11,3 +11,7 @@ class StorageQuarantineInspector:
 @staticmethod
     def quarantine_evidence(doc_id: str, reason: str) -> dict:
         return {'doc_id': doc_id, 'status': 'QUARANTINED', 'reason': reason}
+
+@staticmethod
+    def release_quarantine(doc_id: str, examiner_badge: str) -> dict:
+        return {'doc_id': doc_id, 'status': 'RELEASED', 'authorized_by': examiner_badge}
