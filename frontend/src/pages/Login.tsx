@@ -49,10 +49,10 @@ export const Login: React.FC = () => {
       <div className="max-w-4xl w-full grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
         
         {/* Left Telemetry Column (Sovereign Judicial Dossier) */}
-        <div className="lg:col-span-5 hidden lg:flex flex-col justify-between p-8 rounded-3xl glass-ivory border border-amber-900/15 shadow-xl relative overflow-hidden h-[540px]">
+        <div className="lg:col-span-5 hidden lg:flex flex-col justify-between p-8 rounded-3xl glass-ivory border border-mahogany-900/15 shadow-xl relative overflow-hidden h-[540px]">
           <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-100 text-red-900 text-xs font-mono border border-red-200">
-              <Landmark className="w-3.5 h-3.5 text-amber-700" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-crimson-50 text-crimson-900 text-xs font-mono border border-crimson-200">
+              <Landmark className="w-3.5 h-3.5 text-mahogany-700" />
               <span>MINISTRY OF HOME AFFAIRS</span>
             </div>
 
@@ -67,26 +67,26 @@ export const Login: React.FC = () => {
 
           {/* Legal Telemetry Badges */}
           <div className="space-y-3 font-mono text-xs">
-            <div className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200/70 space-y-1">
-              <div className="text-[10px] text-amber-900 font-bold uppercase tracking-wider flex items-center justify-between">
-                <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-red-700" /> ENVELOPE CIPHER</span>
-                <span className="text-red-800 font-black">AES-256-GCM</span>
+            <div className="p-3.5 rounded-2xl bg-parchment-100 border border-stone-200 space-y-1">
+              <div className="text-[10px] text-stone-800 font-bold uppercase tracking-wider flex items-center justify-between">
+                <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-crimson-700" /> ENVELOPE CIPHER</span>
+                <span className="text-crimson-800 font-black">AES-256-GCM</span>
               </div>
               <div className="text-[11px] text-stone-600 font-sans">Per-document DEK with doc_id AAD</div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200/70 space-y-1">
-              <div className="text-[10px] text-amber-900 font-bold uppercase tracking-wider flex items-center justify-between">
-                <span className="flex items-center gap-1.5"><Database className="w-3.5 h-3.5 text-amber-700" /> TRUST NETWORK</span>
-                <span className="text-red-800 font-black">POLYGON AMOY</span>
+            <div className="p-3.5 rounded-2xl bg-parchment-100 border border-stone-200 space-y-1">
+              <div className="text-[10px] text-stone-800 font-bold uppercase tracking-wider flex items-center justify-between">
+                <span className="flex items-center gap-1.5"><Database className="w-3.5 h-3.5 text-mahogany-700" /> TRUST NETWORK</span>
+                <span className="text-crimson-800 font-black">POLYGON AMOY</span>
               </div>
               <div className="text-[11px] text-stone-600 font-sans">Immutable cryptographic anchor root</div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-amber-50/80 border border-amber-200/70 space-y-1">
-              <div className="text-[10px] text-amber-900 font-bold uppercase tracking-wider flex items-center justify-between">
-                <span className="flex items-center gap-1.5"><Scale className="w-3.5 h-3.5 text-red-700" /> COURT ADMISSIBILITY</span>
-                <span className="text-red-800 font-black">BSA §63 / IEA §65B</span>
+            <div className="p-3.5 rounded-2xl bg-parchment-100 border border-stone-200 space-y-1">
+              <div className="text-[10px] text-stone-800 font-bold uppercase tracking-wider flex items-center justify-between">
+                <span className="flex items-center gap-1.5"><Scale className="w-3.5 h-3.5 text-crimson-700" /> COURT ADMISSIBILITY</span>
+                <span className="text-crimson-800 font-black">BSA §63 / IEA §65B</span>
               </div>
               <div className="text-[11px] text-stone-600 font-sans">Signed electronic certificate generation</div>
             </div>
@@ -103,10 +103,10 @@ export const Login: React.FC = () => {
           
           <div className="space-y-1">
             <div className="flex items-center justify-between">
-              <div className="inline-flex items-center gap-2 text-xs font-mono text-red-800 font-bold uppercase tracking-wider">
-                <Shield className="w-3.5 h-3.5 text-red-700" /> Institutional Verification
+              <div className="inline-flex items-center gap-2 text-xs font-mono text-crimson-800 font-bold uppercase tracking-wider">
+                <Shield className="w-3.5 h-3.5 text-crimson-700" /> Institutional Verification
               </div>
-              <span className="px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-amber-100 text-amber-900 border border-amber-200">
+              <span className="px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-amber-50 text-amber-900 border border-amber-200">
                 ZERO-TRUST MFA
               </span>
             </div>
@@ -119,8 +119,8 @@ export const Login: React.FC = () => {
           </div>
 
           {error && (
-            <div className="p-3.5 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-800 flex items-center gap-2.5">
-              <span className="w-2 h-2 rounded-full bg-red-600 animate-ping flex-shrink-0"></span>
+            <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-800 flex items-center gap-2.5">
+              <span className="w-2 h-2 rounded-full bg-rose-600 animate-ping flex-shrink-0"></span>
               <span className="font-medium">{error}</span>
             </div>
           )}
@@ -129,7 +129,7 @@ export const Login: React.FC = () => {
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center justify-between font-mono">
                 <span>OFFICIAL IDENTIFIER</span>
-                <span className="text-[10px] text-red-800">MSP BOUND</span>
+                <span className="text-[10px] text-crimson-800">MSP BOUND</span>
               </label>
               <div className="relative">
                 <User className="w-4 h-4 text-stone-400 absolute left-4 top-3.5" />
@@ -139,7 +139,7 @@ export const Login: React.FC = () => {
                   onChange={(e) => setUsername(e.target.value)}
                   required
                   placeholder="e.g. investigator_gupta"
-                  className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-2xl text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-red-700 focus:ring-2 focus:ring-red-700/15 transition-all font-mono"
+                  className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-2xl text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-crimson-700 focus:ring-2 focus:ring-crimson-700/15 transition-all font-mono"
                 />
               </div>
             </div>
@@ -147,7 +147,7 @@ export const Login: React.FC = () => {
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center justify-between font-mono">
                 <span>PASSPHRASE</span>
-                <span className="text-[10px] text-red-800">PBKDF2 CHALLENGE</span>
+                <span className="text-[10px] text-crimson-800">PBKDF2 CHALLENGE</span>
               </label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-stone-400 absolute left-4 top-3.5" />
@@ -157,7 +157,7 @@ export const Login: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="••••••••••••"
-                  className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-2xl text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-red-700 focus:ring-2 focus:ring-red-700/15 transition-all font-mono"
+                  className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-2xl text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-crimson-700 focus:ring-2 focus:ring-crimson-700/15 transition-all font-mono"
                 />
               </div>
             </div>
@@ -165,7 +165,7 @@ export const Login: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2.5 py-3.5 bg-gradient-to-r from-red-800 via-red-700 to-amber-900 hover:from-red-900 hover:via-red-800 hover:to-amber-950 disabled:opacity-50 text-white text-sm font-bold rounded-2xl transition-all shadow-lg shadow-red-900/20 hover:shadow-red-900/30 mt-2 cursor-pointer group"
+              className="w-full flex items-center justify-center gap-2.5 py-3.5 bg-gradient-to-r from-crimson-800 via-crimson-700 to-mahogany-900 hover:from-crimson-900 hover:via-crimson-800 hover:to-mahogany-950 disabled:opacity-50 text-white text-sm font-bold rounded-2xl transition-all shadow-lg shadow-crimson-900/20 hover:shadow-crimson-900/30 mt-2 cursor-pointer group"
             >
               <span>{loading ? 'Authenticating Security Gate...' : 'Authenticate Institutional Session'}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -176,7 +176,7 @@ export const Login: React.FC = () => {
           <div className="pt-4 border-t border-stone-200 space-y-2.5">
             <div className="flex items-center justify-between text-xs text-stone-600">
               <span className="flex items-center gap-1.5 font-bold font-mono text-stone-800">
-                <KeyRound className="w-3.5 h-3.5 text-amber-700" /> PRE-LOADED PERSONAS
+                <KeyRound className="w-3.5 h-3.5 text-mahogany-700" /> PRE-LOADED PERSONAS
               </span>
               <span className="text-[10px] text-stone-500">Tap to populate</span>
             </div>
@@ -191,13 +191,13 @@ export const Login: React.FC = () => {
                     onClick={() => selectRole(r.username)}
                     className={`p-2.5 rounded-xl text-left transition-all border ${
                       isSelected
-                        ? 'bg-red-50 border-red-300 shadow-sm'
+                        ? 'bg-crimson-50 border-crimson-300 shadow-sm'
                         : 'bg-stone-50/80 border-stone-200 hover:bg-stone-100/90'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="text-xs font-bold text-stone-900 truncate flex items-center gap-1">
-                        {isSelected && <CheckCircle className="w-3 h-3 text-red-700 flex-shrink-0" />}
+                        {isSelected && <CheckCircle className="w-3 h-3 text-crimson-700 flex-shrink-0" />}
                         <span className="truncate">{r.name}</span>
                       </div>
                       <span className="text-[9px] font-mono text-stone-500 font-bold">{r.msp}</span>
@@ -215,3 +215,4 @@ export const Login: React.FC = () => {
     </div>
   );
 };
+export default Login;
