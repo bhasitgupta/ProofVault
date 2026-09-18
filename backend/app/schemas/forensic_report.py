@@ -16,3 +16,8 @@ class BitstreamVerificationLog(BaseModel):
     acquisition_hash: str
     verification_hash: str
     is_match: bool
+
+class ForensicCertificateRequest(BaseModel):
+    document_id: str
+    case_id: str
+    format: str = 'PDF'
