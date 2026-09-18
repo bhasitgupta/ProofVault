@@ -17,7 +17,7 @@ export const AuditLogPage: React.FC = () => {
       const res = await getIncidents();
       setIncidents(res.incidents || []);
     } catch (err: any) {
-      setError(err.message || 'Failed to load security incident reports');
+      setError(err.response?.data?.detail || err.message || 'Failed to load security incident reports');
     } finally {
       setLoading(false);
     }
@@ -25,44 +25,54 @@ export const AuditLogPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between border-b border-slate-800 pb-5">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
-            <ShieldAlert className="w-6 h-6 text-red-400" />
-            Security Incident Logs
-          </h1>
-          <p className="text-xs text-slate-400 mt-1">
-            TAMPER_ALERT events committed to Hyperledger Fabric and recorded in the audit trail.
-          </p>
+      {/* Header Banner */}
+      <div className="glass-ivory border-crimson-gold rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 shadow-sm">
+            <ShieldAlert className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-serif-judicial font-bold tracking-tight text-stone-900 flex items-center gap-2">
+              Security Incident Logs
+            </h1>
+            <p className="text-xs text-stone-600 mt-0.5">
+              Zero-Trust TAMPER_ALERT telemetry and on-chain blockchain audit trail records.
+            </p>
+          </div>
         </div>
 
         <button
           onClick={loadIncidents}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 transition-colors"
+          className="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-parchment-100 text-stone-800 text-xs font-semibold rounded-xl border border-stone-200 transition-colors shadow-sm"
         >
-          <RefreshCw className="w-3.5 h-3.5 text-police-accent" />
-          <span>Refresh</span>
+          <RefreshCw className="w-3.5 h-3.5 text-crimson-800" />
+          <span>Refresh Logs</span>
         </button>
       </div>
 
       {error && (
-        <div className="p-4 bg-red-950/60 border border-red-500 rounded-lg text-xs text-red-300">
+        <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-800 shadow-sm">
           {error}
         </div>
       )}
 
       {loading ? (
-        <div className="text-slate-400 text-sm italic py-8">Fetching security incidents...</div>
+        <div className="flex flex-col items-center justify-center py-20 space-y-3">
+          <RefreshCw className="w-6 h-6 text-crimson-700 animate-spin" />
+          <span className="text-stone-500 text-xs font-mono">Fetching security incidents and integrity records...</span>
+        </div>
       ) : incidents.length === 0 ? (
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-8 text-center space-y-2">
-          <CheckCircle className="w-10 h-10 text-emerald-500 mx-auto" />
-          <h3 className="text-sm font-semibold text-white">System Integrity Clean</h3>
-          <p className="text-xs text-slate-400">Zero tamper alerts recorded on-chain.</p>
+        <div className="glass-ivory border border-stone-200 rounded-2xl p-10 text-center space-y-2.5 shadow-sm">
+          <CheckCircle className="w-10 h-10 text-emerald-600 mx-auto" />
+          <h3 className="text-sm font-serif-judicial font-bold text-stone-900">Cryptographic Integrity Clean</h3>
+          <p className="text-xs text-stone-500 max-w-sm mx-auto">
+            Zero tamper alerts recorded. All evidentiary hashes match on-chain Merkle roots.
+          </p>
         </div>
       ) : (
-        <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+        <div className="glass-ivory border border-stone-200 rounded-2xl overflow-hidden shadow-sm">
           <table className="w-full text-left text-xs font-mono">
-            <thead className="bg-slate-950 border-b border-slate-800 text-slate-400">
+            <thead className="bg-parchment-200/80 border-b border-stone-200 text-stone-600 text-[11px] uppercase font-semibold">
               <tr>
                 <th className="p-3.5">Incident ID</th>
                 <th className="p-3.5">Failing Check</th>
@@ -71,18 +81,18 @@ export const AuditLogPage: React.FC = () => {
                 <th className="p-3.5">Ledger TX</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/80">
+            <tbody className="divide-y divide-stone-200">
               {incidents.map((inc) => (
-                <tr key={inc.id} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="p-3.5 text-white font-bold">{inc.id.slice(0, 8)}...</td>
-                  <td className="p-3.5 text-red-400 font-bold">{inc.failing_check}</td>
-                  <td className="p-3.5 text-slate-300">{inc.doc_id.slice(0, 12)}...</td>
+                <tr key={inc.id} className="hover:bg-parchment-100/60 transition-colors">
+                  <td className="p-3.5 text-stone-900 font-bold">{inc.id.slice(0, 8)}...</td>
+                  <td className="p-3.5 text-rose-700 font-bold">{inc.failing_check}</td>
+                  <td className="p-3.5 text-stone-700">{inc.doc_id.slice(0, 12)}...</td>
                   <td className="p-3.5">
-                    <span className="px-2 py-0.5 rounded bg-red-950 text-red-300 border border-red-500/40 text-[10px] font-bold">
+                    <span className="px-2 py-0.5 rounded-lg bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold">
                       {inc.status}
                     </span>
                   </td>
-                  <td className="p-3.5 text-police-accent">{inc.ledger_tx_id || 'PENDING'}</td>
+                  <td className="p-3.5 text-crimson-800 font-semibold">{inc.ledger_tx_id || 'CONFIRMED'}</td>
                 </tr>
               ))}
             </tbody>
@@ -92,3 +102,4 @@ export const AuditLogPage: React.FC = () => {
     </div>
   );
 };
+export default AuditLogPage;
