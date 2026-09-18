@@ -4,7 +4,7 @@ import { Shield, Lock, User, ArrowRight } from 'lucide-react';
 import { login } from '../api/auth';
 
 export const Login: React.FC = () => {
-  const [username, setUsername] = useState('investigator_sharma');
+  const [username, setUsername] = useState('investigator_gupta');
   const [password, setPassword] = useState('SecurePass@2026');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);

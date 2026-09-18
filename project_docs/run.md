@@ -152,7 +152,7 @@ All default accounts share the password: **`SecurePass@2026`**
 | **Administrator** | `admin_sys` | System Administrator | PoliceMSP | Full Access (`SECRET`) |
 | **Supervisor** | `supervisor_kapoor` | SP K. Kapoor | PoliceMSP | `SECRET` |
 | **Forensic Analyst** | `forensic_ananya` | Dr. Ananya Iyer | ForensicsMSP | `SECRET` |
-| **Investigator** | `investigator_sharma` | Inspector R. Sharma | PoliceMSP | `CONFIDENTIAL` |
+| **Investigator** | `investigator_gupta` | Inspector Bhasit Gupta | PoliceMSP | `CONFIDENTIAL` |
 | **Legal Officer** | `legal_verma` | Public Prosecutor P. Verma | PoliceMSP | `CONFIDENTIAL` |
 | **Defense Lawyer** | `lawyer_advani` | Advocate S. Advani | PoliceMSP | `RESTRICTED` |
 
@@ -246,7 +246,7 @@ Only **`ADMIN`** and **`SUPERVISOR`** roles can create cases and manage assignme
 
 ### Step-by-Step Upload Flow
 
-1. Log in as an authorized user (`investigator_sharma` or `forensic_ananya`).
+1. Log in as an authorized user (`investigator_gupta` or `forensic_ananya`).
 2. Navigate to **"Ingest Evidence"** (`http://localhost:5173/upload`).
 3. Select an assigned **Target Case**.
 4. Choose **Document Type** (e.g., `FIR`, `FORENSIC_REPORT`, `SEIZURE_MEMO`, `WITNESS_STATEMENT`).
