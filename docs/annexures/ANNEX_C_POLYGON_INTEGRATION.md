@@ -9,3 +9,5 @@
 - **Block Confirmation Policy**: Minimum 5 block confirmations required for statutory finality.
 
 - **Fallback RPC Nodes**: Alchemy Amoy, Infura Polygon Amoy, PublicNode endpoints.
+
+- **Contract ABI Caching**: In-memory ABI caching with automatic contract binding via Web3.py.
