@@ -13,3 +13,5 @@ Protects raw evidence stored at rest on S3/MinIO/local disk.
 ### 4.3 Authenticated Additional Data (AAD)
 
 Document ID and Case ID bound as AAD to prevent ciphertext splicing.
+
+### 4.4 Nonce Generation
