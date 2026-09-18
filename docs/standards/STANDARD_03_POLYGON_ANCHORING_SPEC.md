@@ -9,3 +9,5 @@ Anchors deployed on Polygon Amoy (Testnet) and Polygon PoS Mainnet.
 - EvidenceRegistry: Immutable state storage.
 
 - ProvenanceRegistry: Append-only custody logs.
+
+- AuditAnchorRegistry: Batch Merkle tree root publisher.
