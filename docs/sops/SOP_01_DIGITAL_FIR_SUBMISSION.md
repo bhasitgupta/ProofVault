@@ -5,3 +5,5 @@
 Standardizes the immediate electronic hashing of all exhibits attached to initial police filings.
 
 ### Officer Responsibilities
+
+Investigating Officer (IO) must generate Section 63/65B certificate within 24 hours of seizure.
