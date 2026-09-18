@@ -5,3 +5,5 @@
 - `POST /api/v1/auth/mfa`: Verify phase-2 TOTP challenge.
 
 - `GET /api/v1/cases/`: List all accessible case dossiers for officer.
+
+- `POST /api/v1/documents/upload`: Ingest new digital evidence with forensic hashing.
