@@ -7,3 +7,5 @@
 - **Anvar P.V. v. P.K. Basheer (2014) 10 SCC 473** - Overruled State (NCT of Delhi) v. Navjot Sandhu on digital evidence proof.
 
 - **Information Technology Act, 2000 - Section 67C** - Preservation and retention of information by intermediaries.
+
+- **Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS) - Section 105** - Mandatory videography of search and seizure operations.
