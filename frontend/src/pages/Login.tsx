@@ -103,17 +103,17 @@ export const Login: React.FC = () => {
           
           <div className="space-y-1">
             <div className="flex items-center justify-between">
-              <div className="inline-flex items-center gap-2 text-xs font-mono text-crimson-800 font-bold uppercase tracking-wider">
-                <Shield className="w-3.5 h-3.5 text-crimson-700" /> Institutional Verification
+              <div className="inline-flex items-center gap-2 text-xs font-mono text-[#991b1b] font-extrabold uppercase tracking-wider">
+                <Shield className="w-4 h-4 text-[#991b1b]" /> Institutional Verification
               </div>
-              <span className="px-2.5 py-0.5 rounded-full text-[9px] font-mono font-bold bg-amber-50 text-amber-900 border border-amber-200">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-100 text-amber-950 border border-amber-300">
                 ZERO-TRUST MFA
               </span>
             </div>
             <h2 className="font-serif-judicial text-2xl sm:text-3xl font-black tracking-tight text-stone-900">
               Access NYAYA-VAULT
             </h2>
-            <p className="text-xs text-stone-500">
+            <p className="text-xs text-stone-600 font-medium">
               Provide institutional credentials to challenge security clearance.
             </p>
           </div>
@@ -129,7 +129,7 @@ export const Login: React.FC = () => {
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center justify-between font-mono">
                 <span>OFFICIAL IDENTIFIER</span>
-                <span className="text-[10px] text-crimson-800">MSP BOUND</span>
+                <span className="text-[10px] text-[#991b1b] font-bold">MSP BOUND</span>
               </label>
               <div className="relative">
                 <User className="w-4 h-4 text-stone-400 absolute left-4 top-3.5" />
@@ -139,7 +139,7 @@ export const Login: React.FC = () => {
                   onChange={(e) => setUsername(e.target.value)}
                   required
                   placeholder="e.g. investigator_gupta"
-                  className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-2xl text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-crimson-700 focus:ring-2 focus:ring-crimson-700/15 transition-all font-mono"
+                  className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-2xl text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-red-700 focus:ring-2 focus:ring-red-700/15 transition-all font-mono"
                 />
               </div>
             </div>
@@ -147,7 +147,7 @@ export const Login: React.FC = () => {
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1.5 flex items-center justify-between font-mono">
                 <span>PASSPHRASE</span>
-                <span className="text-[10px] text-crimson-800">PBKDF2 CHALLENGE</span>
+                <span className="text-[10px] text-[#991b1b] font-bold">PBKDF2 CHALLENGE</span>
               </label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-stone-400 absolute left-4 top-3.5" />
@@ -157,7 +157,7 @@ export const Login: React.FC = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   placeholder="••••••••••••"
-                  className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-2xl text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-crimson-700 focus:ring-2 focus:ring-crimson-700/15 transition-all font-mono"
+                  className="w-full pl-11 pr-4 py-3 bg-stone-50 border border-stone-200 rounded-2xl text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-red-700 focus:ring-2 focus:ring-red-700/15 transition-all font-mono"
                 />
               </div>
             </div>
@@ -165,10 +165,10 @@ export const Login: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2.5 py-3.5 bg-gradient-to-r from-crimson-800 via-crimson-700 to-mahogany-900 hover:from-crimson-900 hover:via-crimson-800 hover:to-mahogany-950 disabled:opacity-50 text-white text-sm font-bold rounded-2xl transition-all shadow-lg shadow-crimson-900/20 hover:shadow-crimson-900/30 mt-2 cursor-pointer group"
+              className="w-full flex items-center justify-center gap-2.5 py-3.5 bg-[#991b1b] hover:bg-[#7f1d1d] active:scale-[0.99] disabled:opacity-50 text-white text-sm font-bold rounded-2xl transition-all shadow-lg shadow-red-950/20 hover:shadow-red-950/30 mt-2 cursor-pointer group"
             >
               <span>{loading ? 'Authenticating Security Gate...' : 'Authenticate Institutional Session'}</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform text-white" />
             </button>
           </form>
 
