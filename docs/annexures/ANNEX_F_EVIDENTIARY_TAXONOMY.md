@@ -9,3 +9,4 @@
 - Class 8: Biometric Captures (AFIS Fingerprint, Iris Scan, Facial Embeddings).
 - Class 9: Encrypted Containers and Password-Protected Archives.
 - Class 10: Drone Reality and Photogrammetry Spatial Orthomosaics.
+- Class 11: Dark Web Forum Scrapes and PGP Signed Transcripts.
