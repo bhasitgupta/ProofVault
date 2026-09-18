@@ -7,3 +7,5 @@ Physical paper Panchnama / Seizure Memo must print SHA-256 hash in bold mono tex
 ### Witness Signatures
 
 Independent Panch witnesses sign across printed digital hash digest.
+
+### Barcode / QR Code Affixation
