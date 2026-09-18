@@ -3,3 +3,5 @@
 ### Mirror Copy Delivery
 
 Defense provided with exact bit-for-bit forensic image clone upon application.
+
+### Polygonscan Public Verification
