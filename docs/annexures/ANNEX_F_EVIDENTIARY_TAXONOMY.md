@@ -16,3 +16,4 @@
 - Class 15: Cryptocurrency Blockchain Wallet and Mixer Flow Graphs.
 - Class 16: Satellite Imagery and Remote Sensing Radar Sweeps.
 - Class 17: Electronic Voting Machine (EVM) Diagnostic Telemetry.
+- Class 18: Intercepted Voicemail and VoIP Session Audio Streams.
