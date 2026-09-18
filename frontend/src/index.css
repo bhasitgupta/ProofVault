@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -13,93 +13,108 @@ code, kbd, samp, pre, .font-mono {
   font-family: 'JetBrains Mono', monospace;
 }
 
-html, body {
+html {
+  background-color: #050608;
+  color: #f8fafc;
+  scroll-behavior: auto; /* Lenis controls smooth scroll */
+}
+
+body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background-color: #030712;
-  color: #f3f4f6;
+  background-color: #050608;
   overflow-x: hidden;
 }
 
-/* Background mesh ambient gradient */
-.bg-mesh-dark {
-  background-color: #030712;
+/* Deep Obsidian background with subtle cyber nebula */
+.bg-obsidian {
+  background-color: #050608;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(30, 58, 138, 0.18) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.12) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(15, 23, 42, 0.6) 0px, transparent 50%);
+    radial-gradient(at 15% 15%, rgba(99, 102, 241, 0.12) 0px, transparent 45%),
+    radial-gradient(at 85% 20%, rgba(168, 85, 247, 0.10) 0px, transparent 45%),
+    radial-gradient(at 50% 85%, rgba(6, 182, 212, 0.08) 0px, transparent 50%);
 }
 
-/* Glassmorphism panels */
-.glass-panel {
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(51, 65, 85, 0.45);
+/* Frosted Smoked Glass Panels */
+.glass-obsidian {
+  background: rgba(13, 14, 20, 0.68);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
 }
 
-.glass-panel-hover {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+.glass-obsidian-hover {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.glass-panel-hover:hover {
-  background: rgba(30, 41, 59, 0.7);
-  border-color: rgba(96, 165, 250, 0.4);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 30px -10px rgba(15, 23, 42, 0.8), 0 0 15px -3px rgba(59, 130, 246, 0.15);
+.glass-obsidian-hover:hover {
+  background: rgba(18, 20, 30, 0.82);
+  border-color: rgba(129, 140, 248, 0.35);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.9), 0 0 24px -4px rgba(99, 102, 241, 0.18);
 }
 
-/* Custom crisp scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* Iridescent Cyber Border */
+.border-iridescent {
+  border: 1px solid transparent;
+  background: linear-gradient(rgba(13, 14, 20, 0.85), rgba(13, 14, 20, 0.85)) padding-box,
+              linear-gradient(135deg, rgba(99, 102, 241, 0.5), rgba(168, 85, 247, 0.3), rgba(6, 182, 212, 0.4)) border-box;
 }
 
-::-webkit-scrollbar-track {
-  background: #090d16;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #334155;
-}
-
-/* Security clearance badges */
+/* High-tech security classification badges */
 .badge-secret {
-  background: rgba(225, 29, 72, 0.15);
+  background: rgba(244, 63, 94, 0.12);
   color: #fb7185;
-  border: 1px solid rgba(225, 29, 72, 0.35);
+  border: 1px solid rgba(244, 63, 94, 0.35);
+  text-shadow: 0 0 12px rgba(244, 63, 94, 0.4);
 }
 
 .badge-confidential {
-  background: rgba(217, 119, 6, 0.15);
+  background: rgba(245, 158, 11, 0.12);
   color: #fbbf24;
-  border: 1px solid rgba(217, 119, 6, 0.35);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  text-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
 }
 
 .badge-restricted {
-  background: rgba(16, 185, 129, 0.15);
+  background: rgba(16, 185, 129, 0.12);
   color: #34d399;
   border: 1px solid rgba(16, 185, 129, 0.35);
+  text-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
 }
 
-/* Micro animations */
-@keyframes pulse-glow {
+/* Custom ultra-thin sleek scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050608;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1e1f2b;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #4338ca;
+}
+
+/* Pulse animation */
+@keyframes cyber-pulse {
   0%, 100% {
     opacity: 1;
     transform: scale(1);
   }
   50% {
-    opacity: 0.6;
-    transform: scale(1.03);
+    opacity: 0.65;
+    transform: scale(1.04);
   }
 }
 
-.animate-pulse-glow {
-  animation: pulse-glow 3s infinite ease-in-out;
+.animate-cyber-pulse {
+  animation: cyber-pulse 2.8s infinite ease-in-out;
 }
