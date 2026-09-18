@@ -9,3 +9,5 @@ Defense provided with exact bit-for-bit forensic image clone upon application.
 Court inspects contract transaction on Polygonscan Amoy in open court.
 
 ### Hash Mismatch Rebuttal
+
+Any discrepancy between bitstream hash and ledger anchor invalidates exhibit admissibility.
