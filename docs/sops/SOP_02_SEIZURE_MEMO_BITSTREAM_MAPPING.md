@@ -3,3 +3,5 @@
 ### Physical Form Synchronicity
 
 Physical paper Panchnama / Seizure Memo must print SHA-256 hash in bold mono text.
+
+### Witness Signatures
