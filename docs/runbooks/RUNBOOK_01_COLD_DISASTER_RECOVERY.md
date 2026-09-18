@@ -11,3 +11,5 @@ Restore encrypted snapshot and verify HMAC integrity tag before launch.
 ### Step 3: Replay Polygon Blockchain Event Logs
 
 Query EvidenceRegistered and CustodyLogged events from genesis block.
+
+### Step 4: Reconcile Merkle Root Parity
