@@ -4,3 +4,4 @@
 - Class 3: Mobile Physical and Logical Extractions (Cellebrite, Oxygen).
 - Class 4: Volatile Memory Dump Bitstreams (LiME, Belkasoft).
 - Class 5: Cloud and SaaS Audit Trails (AWS CloudTrail, Google Workspace).
+- Class 6: Financial Ledger and Hawala Transaction Sheets.
