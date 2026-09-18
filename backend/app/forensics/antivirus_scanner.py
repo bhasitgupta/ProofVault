@@ -15,3 +15,7 @@ class StorageQuarantineInspector:
 @staticmethod
     def release_quarantine(doc_id: str, examiner_badge: str) -> dict:
         return {'doc_id': doc_id, 'status': 'RELEASED', 'authorized_by': examiner_badge}
+
+@staticmethod
+    def get_quarantine_policy() -> str:
+        return 'ISOLATE_ON_ANOMALY_OR_ENTROPY_THRESHOLD'
