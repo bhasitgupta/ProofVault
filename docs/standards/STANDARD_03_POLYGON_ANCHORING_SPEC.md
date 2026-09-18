@@ -15,3 +15,5 @@ Anchors deployed on Polygon Amoy (Testnet) and Polygon PoS Mainnet.
 ### 3.3 Transaction Lifecycle
 
 1. Transaction broadcast with EIP-1559 gas estimation.
+
+2. Mempool propagation and validator inclusion.
