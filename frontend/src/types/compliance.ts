@@ -11,3 +11,9 @@ export interface IEA65BFormAPayload {
   hashDigest: string;
   attestationDate: string;
 }
+
+export interface ForensicExhibitsSummary {
+  exhibitNumber: string;
+  seizureLocation: string;
+  officerName: string;
+}
