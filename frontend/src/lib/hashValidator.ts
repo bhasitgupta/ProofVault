@@ -5,3 +5,5 @@ export const formatTruncatedHash = (h: string): string => h.length > 16 ? `${h.s
 export const formatTxExplorerUrl = (tx: string): string => `https://amoy.polygonscan.com/tx/${tx}`;
 
 export const formatAddressUrl = (addr: string): string => `https://amoy.polygonscan.com/address/${addr}`;
+
+export const formatBlockUrl = (b: number): string => `https://amoy.polygonscan.com/block/${b}`;
