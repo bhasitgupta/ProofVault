@@ -18,3 +18,4 @@
 - Class 17: Electronic Voting Machine (EVM) Diagnostic Telemetry.
 - Class 18: Intercepted Voicemail and VoIP Session Audio Streams.
 - Class 19: Forensic Laboratory Expert Opinion Formal Affidavits.
+- Class 20: Judicial Certified Electronic Transcripts and Verdict Records.
