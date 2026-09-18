@@ -17,3 +17,5 @@ Anchors deployed on Polygon Amoy (Testnet) and Polygon PoS Mainnet.
 1. Transaction broadcast with EIP-1559 gas estimation.
 
 2. Mempool propagation and validator inclusion.
+
+3. 5-block confirmation receipt parsing.
