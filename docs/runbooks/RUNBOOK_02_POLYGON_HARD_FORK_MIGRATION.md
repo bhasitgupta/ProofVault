@@ -7,3 +7,5 @@ Monitor consensus health and block generation latency.
 ### Step 2: Switch to Secondary RPC Gateway
 
 Automatically redirect Web3 provider to Infura or Alchemy failover pool.
+
+### Step 3: Update Contract Proxies
