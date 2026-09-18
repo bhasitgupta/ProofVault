@@ -9,3 +9,5 @@ Attacker measures API response latency variance to deduce secret credential byte
 All token checks execute via hmac.compare_digest with strictly constant-time execution paths.
 
 ### Artificial Jitter Injection
+
+Randomized 2ms - 8ms jitter injected into cryptographic challenge endpoints.
