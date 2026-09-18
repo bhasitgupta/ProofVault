@@ -6,3 +6,8 @@ class ForensicScanResult(BaseModel):
     shannon_entropy: float
     is_quarantined: bool
     mime_type: str
+
+class AntivirusScanSummary(BaseModel):
+    engine: str = 'ClamAV-Forensics'
+    signatures_checked: int = 84210
+    threats_detected: List[str] = []
