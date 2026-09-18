@@ -1,7 +1,7 @@
 users:
   - id: "USR-101"
-    username: "investigator_sharma"
-    full_name: "Inspector Rajesh Sharma"
+    username: "investigator_gupta"
+    full_name: "Inspector Bhasit Gupta"
     role: "INVESTIGATOR"
     msp_id: "PoliceMSP"
     classification_ceiling: "CONFIDENTIAL"

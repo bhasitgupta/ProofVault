@@ -104,8 +104,8 @@ MOCK_CASES = [
 MOCK_USERS = [
     {
         "id": "USR-101",
-        "username": "investigator_sharma",
-        "full_name": "Inspector Rajesh Sharma",
+        "username": "investigator_gupta",
+        "full_name": "Inspector Bhasit Gupta",
         "role": UserRole.INVESTIGATOR.value,
         "msp_id": "PoliceMSP"
     },

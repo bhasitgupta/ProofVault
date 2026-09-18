@@ -3,7 +3,7 @@ Script: clean_and_inject_mock.py
 Purges all fake/test documents, quarantine files, and residual test cases.
 Injects ONLY the official mock case dataset and grants COMPLETE access to:
   - ADMIN (admin_sys / USR-001) -> Full clearance + All Cases
-  - INVESTIGATOR (investigator_sharma / USR-101) -> Secret clearance + All Cases
+  - INVESTIGATOR (investigator_gupta / USR-101) -> Secret clearance + All Cases
 """
 import os
 import sys
@@ -109,8 +109,8 @@ MOCK_CASES = [
 MOCK_USERS = [
     {
         "id": "USR-101",
-        "username": "investigator_sharma",
-        "full_name": "Inspector Rajesh Sharma",
+        "username": "investigator_gupta",
+        "full_name": "Inspector Bhasit Gupta",
         "role": UserRole.INVESTIGATOR.value,
         "msp_id": "PoliceMSP"
     },
@@ -527,7 +527,7 @@ async def clean_and_inject():
         # COMPLETE ACCESS for INVESTIGATOR (USR-101)
         for cid in all_case_ids:
             session.add(Assignment(id=f"ASG-INV-{cid}", user_id="USR-101", case_id=cid, is_active=True))
-        print("  [★] INVESTIGATOR (investigator_sharma / USR-101): Granted COMPLETE access to all 9 cases.")
+        print("  [★] INVESTIGATOR (investigator_gupta / USR-101): Granted COMPLETE access to all 9 cases.")
 
         # Standard assignments for other roles
         # Supervisor Kapoor -> all cases

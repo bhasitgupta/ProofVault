@@ -68,8 +68,8 @@ async def seed_data():
         users = [
             User(
                 id="USR-101",
-                username="investigator_sharma",
-                full_name="Inspector R. Sharma",
+                username="investigator_gupta",
+                full_name="Inspector Bhasit Gupta",
                 role=UserRole.INVESTIGATOR.value,
                 password_hash=default_pwd,
                 totp_secret="JBSWY3DPEHPK3PXP",
