@@ -5,6 +5,7 @@ __pycache__/
 *.pyo
 .pytest_cache/
 .env
-storage_data/quarantine/
+storage_data/
+backend/storage_data/
 test_redteam_*.db
 backend/test_redteam_*.db
