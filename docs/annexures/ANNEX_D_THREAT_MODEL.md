@@ -7,3 +7,5 @@
 - **Repudiation**: Defeated by non-repudiable on-chain custody transfer transactions.
 
 - **Information Disclosure**: Defeated by AES-256-GCM envelope encryption with per-dossier DEKs.
+
+- **Denial of Service**: Defeated by Redis token bucket rate limiters and decentralized storage fallback.
