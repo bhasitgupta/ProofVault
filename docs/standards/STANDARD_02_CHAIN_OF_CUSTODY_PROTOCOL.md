@@ -15,3 +15,5 @@ Every physical and digital touchpoint must be chronologically continuous.
 ### 2.3 Custody Handoff Procedures
 
 - Dual signoff between outgoing and incoming custody officers.
+
+- Automatic generation of electronic transfer manifest.
