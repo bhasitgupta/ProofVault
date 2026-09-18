@@ -11,3 +11,4 @@
 - Class 10: Drone Reality and Photogrammetry Spatial Orthomosaics.
 - Class 11: Dark Web Forum Scrapes and PGP Signed Transcripts.
 - Class 12: Vehicle Infotainment and Telematics CAN-bus Dumps.
+- Class 13: IoT and Smart Home Sensor Telemetry Records.
