@@ -13,3 +13,5 @@ Emergency judicial master keys split via Shamir's Secret Sharing (3 of 5 quorum)
 Root keys protected within FIPS 140-3 Level 3 tamper-resistant HSM boundary.
 
 ### Key Exfiltration Defense
+
+Export of unencrypted private keys strictly prohibited and cryptographically blocked.
