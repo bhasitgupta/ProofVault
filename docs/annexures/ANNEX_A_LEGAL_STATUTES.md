@@ -9,3 +9,5 @@
 - **Information Technology Act, 2000 - Section 67C** - Preservation and retention of information by intermediaries.
 
 - **Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS) - Section 105** - Mandatory videography of search and seizure operations.
+
+- **BNSS 2023 - Section 532** - Electronic communication of notices, summons, and judicial warrants.
