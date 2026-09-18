@@ -9,3 +9,5 @@ Adversary attempts to craft malicious PDF with identical hash to lawful warrant.
 NYAYA-VAULT pairs SHA-256 with Keccak-256 to eliminate single-algorithm collision vulnerabilities.
 
 ### Length Extension Defenses
+
+HMAC-SHA-256 and BLAKE2b used for transit tokens to defeat length extension attacks.
