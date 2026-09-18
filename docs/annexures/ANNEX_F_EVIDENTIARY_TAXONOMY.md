@@ -17,3 +17,4 @@
 - Class 16: Satellite Imagery and Remote Sensing Radar Sweeps.
 - Class 17: Electronic Voting Machine (EVM) Diagnostic Telemetry.
 - Class 18: Intercepted Voicemail and VoIP Session Audio Streams.
+- Class 19: Forensic Laboratory Expert Opinion Formal Affidavits.
