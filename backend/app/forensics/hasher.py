@@ -11,3 +11,6 @@ def compute_dual_hashes(data: bytes) -> dict:
 
 def verify_bitstream(original_hash: str, new_data: bytes) -> bool:
     return compute_sha256(new_data) == original_hash.lower()
+
+def format_forensic_fingerprint(sha256_hash: str) -> str:
+    return f'SHA256:{sha256_hash.upper()}'
