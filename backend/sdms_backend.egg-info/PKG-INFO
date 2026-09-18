@@ -1,0 +1,19 @@
+Metadata-Version: 2.4
+Name: sdms-backend
+Version: 0.1.0
+Summary: Secure Digital Document Management System
+Requires-Python: >=3.11
+Requires-Dist: fastapi
+Requires-Dist: uvicorn
+Requires-Dist: cryptography
+Requires-Dist: pyjwt
+Requires-Dist: pyotp
+Requires-Dist: qrcode
+Requires-Dist: sqlalchemy
+Requires-Dist: aiosqlite
+Requires-Dist: structlog
+Requires-Dist: reportlab
+Requires-Dist: jinja2
+Requires-Dist: pymupdf
+Requires-Dist: pydantic-settings
+Requires-Dist: python-multipart

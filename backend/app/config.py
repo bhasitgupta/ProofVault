@@ -13,12 +13,15 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
 
-    # Ledger & Blockchain
-    LEDGER_BACKEND: str = "polygon"   # "polygon" | "dev" | "fabric"
+    # Ledger & Blockchain (Polygon Amoy EVM)
+    LEDGER_BACKEND: str = "polygon"   # "polygon" | "dev"
     POLYGON_RPC_URL: str = "https://rpc-amoy.polygon.technology/"
     POLYGON_PRIVATE_KEY: str = ""
     POLYGON_EVIDENCE_REGISTRY_ADDRESS: str = ""
     POLYGON_PROVENANCE_REGISTRY_ADDRESS: str = ""
+    POLYGON_AUDIT_ANCHOR_REGISTRY_ADDRESS: str = ""
+    POLYGON_LEGAL_HOLD_REGISTRY_ADDRESS: str = ""
+    POLYGON_ACCESS_CONTROL_REGISTRY_ADDRESS: str = ""
 
     # Vault (prod: Hashicorp Vault Transit)
     VAULT_DEV_MODE: bool = True

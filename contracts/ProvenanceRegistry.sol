@@ -3,8 +3,9 @@ pragma solidity ^0.8.20;
 
 /**
  * @title ProvenanceRegistry
- * @dev Nyaya-Vault Chain of Custody & Audit Trail Contract for Polygon Amoy
- * Records sequential, cryptographically linked custody transactions.
+ * @notice Cryptographic Chain-of-Custody & Forensic Audit Trail for Nyaya-Vault (Polygon Amoy).
+ * Records sequential, cryptographically linked transfer and access events across institutional agencies.
+ * Governed by on-chain multi-admin architecture.
  */
 contract ProvenanceRegistry {
     struct CustodyEvent {
@@ -20,11 +21,20 @@ contract ProvenanceRegistry {
         bytes32 prevEventHash;
     }
 
-    address public owner;
-    mapping(address => bool) public authorizedWriters;
+    // --- On-Chain Multi-Admin & Role State ---
+    mapping(address => bool) public isAdmin;
+    uint256 public adminCount;
+    mapping(address => bool) public isWriter;
+
+    // --- Event Storage ---
     mapping(bytes32 => CustodyEvent) private _events;
     mapping(bytes32 => bytes32[]) private _docEventChain;
     mapping(string => bytes32[]) private _caseEventChain;
+
+    // --- Events ---
+    event AdminAdded(address indexed newAdmin, address indexed addedBy);
+    event AdminRemoved(address indexed admin, address indexed removedBy);
+    event WriterUpdated(address indexed writer, bool authorized, address indexed updatedBy);
 
     event CustodyLogged(
         bytes32 indexed eventId,
@@ -36,57 +46,98 @@ contract ProvenanceRegistry {
         uint256 timestamp
     );
 
+    // --- Modifiers ---
+    modifier onlyAdmin() {
+        require(isAdmin[msg.sender], "ProvenanceRegistry: caller not admin");
+        _;
+    }
+
     modifier onlyWriter() {
-        require(msg.sender == owner || authorizedWriters[msg.sender], "ProvenanceRegistry: unauthorized");
+        require(isAdmin[msg.sender] || isWriter[msg.sender], "ProvenanceRegistry: unauthorized");
         _;
     }
 
     constructor() {
-        owner = msg.sender;
-        authorizedWriters[msg.sender] = true;
+        isAdmin[msg.sender] = true;
+        isWriter[msg.sender] = true;
+        adminCount = 1;
+        emit AdminAdded(msg.sender, msg.sender);
+        emit WriterUpdated(msg.sender, true, msg.sender);
     }
 
-    function authorizeWriter(address writer) external {
-        require(msg.sender == owner, "Only owner");
-        authorizedWriters[writer] = true;
+    // ==========================================
+    // ON-CHAIN MULTI-ADMIN GOVERNANCE
+    // ==========================================
+
+    function addAdmin(address newAdmin) external onlyAdmin {
+        require(newAdmin != address(0), "Zero address");
+        require(!isAdmin[newAdmin], "Already admin");
+        isAdmin[newAdmin] = true;
+        adminCount++;
+        emit AdminAdded(newAdmin, msg.sender);
     }
 
-    function recordCustodyEvent(
-        bytes32 eventId,
-        bytes32 docIdHash,
-        string calldata caseId,
-        string calldata action,
-        string calldata actorId,
-        string calldata actorRole,
-        string calldata outcome,
-        string calldata reason
-    ) external onlyWriter {
-        require(_events[eventId].eventId == bytes32(0), "Event ID already exists");
+    function removeAdmin(address admin) external onlyAdmin {
+        require(adminCount > 1, "Cannot remove last admin");
+        require(isAdmin[admin], "Not admin");
+        isAdmin[admin] = false;
+        adminCount--;
+        emit AdminRemoved(admin, msg.sender);
+    }
+
+    function setWriter(address writer, bool authorized) external onlyAdmin {
+        require(writer != address(0), "Zero address");
+        isWriter[writer] = authorized;
+        emit WriterUpdated(writer, authorized, msg.sender);
+    }
+
+    function authorizeWriter(address writer) external onlyAdmin {
+        require(writer != address(0), "Zero address");
+        isWriter[writer] = true;
+        emit WriterUpdated(writer, true, msg.sender);
+    }
+
+    struct EventInput {
+        bytes32 eventId;
+        bytes32 docIdHash;
+        string caseId;
+        string action;
+        string actorId;
+        string actorRole;
+        string outcome;
+        string reason;
+    }
+
+    // ==========================================
+    // CHAIN-OF-CUSTODY RECORDING
+    // ==========================================
+
+    function recordCustodyEvent(EventInput calldata input) external onlyWriter {
+        require(_events[input.eventId].eventId == bytes32(0), "Event ID already exists");
 
         bytes32 prevHash = bytes32(0);
-        bytes32[] storage docChain = _docEventChain[docIdHash];
-        if (docChain.length > 0) {
-            prevHash = docChain[docChain.length - 1];
+        uint256 chainLen = _docEventChain[input.docIdHash].length;
+        if (chainLen > 0) {
+            prevHash = _docEventChain[input.docIdHash][chainLen - 1];
         }
 
-        CustodyEvent memory evt = CustodyEvent({
-            eventId: eventId,
-            docIdHash: docIdHash,
-            caseId: caseId,
-            action: action,
-            actorId: actorId,
-            actorRole: actorRole,
-            outcome: outcome,
-            reason: reason,
+        _events[input.eventId] = CustodyEvent({
+            eventId: input.eventId,
+            docIdHash: input.docIdHash,
+            caseId: input.caseId,
+            action: input.action,
+            actorId: input.actorId,
+            actorRole: input.actorRole,
+            outcome: input.outcome,
+            reason: input.reason,
             timestamp: block.timestamp,
             prevEventHash: prevHash
         });
 
-        _events[eventId] = evt;
-        _docEventChain[docIdHash].push(eventId);
-        _caseEventChain[caseId].push(eventId);
+        _docEventChain[input.docIdHash].push(input.eventId);
+        _caseEventChain[input.caseId].push(input.eventId);
 
-        emit CustodyLogged(eventId, docIdHash, caseId, action, actorId, outcome, block.timestamp);
+        emit CustodyLogged(input.eventId, input.docIdHash, input.caseId, input.action, input.actorId, input.outcome, block.timestamp);
     }
 
     function getEvent(bytes32 eventId) external view returns (CustodyEvent memory) {

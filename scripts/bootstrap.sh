@@ -27,3 +27,4 @@ python3 scripts/redteam.py
 echo "=================================================="
 echo "[✓] SDMS Bootstrap Successful! System Ready."
 echo "=================================================="
+

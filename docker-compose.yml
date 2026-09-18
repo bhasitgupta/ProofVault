@@ -23,11 +23,3 @@ services:
     depends_on:
       - backend
 
-  ledger-gateway:
-    build:
-      context: ./ledger-gateway
-      dockerfile: Dockerfile
-    ports:
-      - "3001:3001"
-    environment:
-      - PORT=3001
