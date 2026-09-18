@@ -11,3 +11,10 @@ export interface PolygonRpcNodeStatus {
   isAlive: boolean;
   chainId: number;
 }
+
+export interface MerkleInclusionProof {
+  leafHash: string;
+  merkleRoot: string;
+  proofPath: string[];
+  leafIndex: number;
+}
