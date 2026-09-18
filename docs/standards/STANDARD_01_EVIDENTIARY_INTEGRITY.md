@@ -17,3 +17,5 @@ This standard mandates strict cryptographic controls for evidentiary artifacts.
 Probability of collision under SHA-256 is less than 1 in 2^128.
 
 ### 1.4 Periodic Recertification
+
+Evidence held over 5 years must receive Merkle timestamp refresh.
