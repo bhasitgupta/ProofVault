@@ -7,3 +7,5 @@ Deploy hardened Linux OS with FIPS 140-3 cryptographic modules enabled.
 ### Step 2: Restore SQLite / PostgreSQL Metadata
 
 Restore encrypted snapshot and verify HMAC integrity tag before launch.
+
+### Step 3: Replay Polygon Blockchain Event Logs
