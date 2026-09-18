@@ -23,3 +23,5 @@ export interface ISO27037Checklist {
   isWriteBlockerUsed: boolean;
   isBitstreamVerified: boolean;
 }
+
+export type AdmissibilityStatus = 'CERTIFIED_ADMISSIBLE' | 'PENDING_ATTESTATION' | 'EVIDENTIARY_HOLD';
