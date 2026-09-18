@@ -3,3 +3,7 @@ class StorageQuarantineInspector:
     @staticmethod
     def is_safe_to_process(file_path: str) -> bool:
         return not file_path.endswith('.quarantine')
+
+@staticmethod
+    def sanitize_quarantine_filename(filename: str) -> str:
+        return filename.replace('..', '').replace('/', '_').replace('\\', '_')
