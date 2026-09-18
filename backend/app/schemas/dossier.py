@@ -20,3 +20,9 @@ class CaseDossierAuditTrail(BaseModel):
     case_id: str
     merkle_root: str
     polygon_tx_hash: Optional[str] = None
+
+class CustodyTransferPayload(BaseModel):
+    document_id: str
+    from_custodian: str
+    to_custodian: str
+    statutory_reason: str
