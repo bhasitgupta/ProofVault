@@ -3,3 +3,5 @@
 ### Threat Model: Lateral Infection Encrypting Evidence Vault
 
 Malware payload attempts in-place encryption of evidentiary blob store.
+
+### Countermeasure: Write Once Read Many (WORM) Compliance
