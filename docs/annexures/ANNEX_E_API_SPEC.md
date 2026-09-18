@@ -11,3 +11,5 @@
 - `GET /api/v1/documents/{id}/verify`: Cryptographically verify document hash on Polygon ledger.
 
 - `GET /api/v1/custody/{doc_id}`: Retrieve chronological chain-of-custody timeline.
+
+- `POST /api/v1/certificates/section65b`: Generate statutory PDF/JSON Section 65B/63 certificate.
