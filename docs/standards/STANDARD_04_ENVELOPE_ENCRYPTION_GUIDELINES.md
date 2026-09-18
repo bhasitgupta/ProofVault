@@ -3,3 +3,5 @@
 ### 4.1 Threat Context
 
 Protects raw evidence stored at rest on S3/MinIO/local disk.
+
+### 4.2 Key Hierarchy
