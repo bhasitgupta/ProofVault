@@ -10,3 +10,5 @@
 | Section 45A | Section 39 | Forensic examiner opinion & bitstream validation |
 
 | Section 67A | Section 61 | Electronic signature verification via secp256k1 |
+
+| Section 85B | Section 84 | Presumption of electronic records integrity |
