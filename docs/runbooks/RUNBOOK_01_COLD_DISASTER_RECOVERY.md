@@ -13,3 +13,5 @@ Restore encrypted snapshot and verify HMAC integrity tag before launch.
 Query EvidenceRegistered and CustodyLogged events from genesis block.
 
 ### Step 4: Reconcile Merkle Root Parity
+
+Compute local Merkle tree and assert equality with on-chain root.
