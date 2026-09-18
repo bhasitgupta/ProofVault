@@ -3,3 +3,5 @@
 ### Purpose
 
 Standardizes the immediate electronic hashing of all exhibits attached to initial police filings.
+
+### Officer Responsibilities
