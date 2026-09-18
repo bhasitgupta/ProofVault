@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { Shield, Folder, Upload, HelpCircle, ShieldAlert, LogOut, FileText, Lock, Radio, Activity, Cpu } from 'lucide-react';
+import { Shield, Folder, Upload, HelpCircle, ShieldAlert, LogOut, FileText, Lock, Radio, Activity, Scale, Award } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { Login } from './pages/Login';
 import { MfaChallenge } from './pages/MfaChallenge';
@@ -28,35 +28,36 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
   const navItems = [
     { to: '/', label: 'Dossiers', icon: Folder, active: location.pathname === '/' },
     { to: '/documents', label: 'Evidence Vault', icon: FileText, active: location.pathname.startsWith('/documents') },
-    { to: '/ask', label: 'Verifiable AI', icon: HelpCircle, active: location.pathname === '/ask' },
-    { to: '/upload', label: 'Ingest Anchor', icon: Upload, active: location.pathname === '/upload', highlight: true },
-    { to: '/incidents', label: 'Chain Telemetry', icon: ShieldAlert, active: location.pathname === '/incidents' },
+    { to: '/ask', label: 'Judicial AI', icon: HelpCircle, active: location.pathname === '/ask' },
+    { to: '/upload', label: 'Ingest Evidence', icon: Upload, active: location.pathname === '/upload', highlight: true },
+    { to: '/incidents', label: 'Chain of Custody', icon: ShieldAlert, active: location.pathname === '/incidents' },
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-obsidian text-slate-100 relative selection:bg-indigo-500/30 selection:text-indigo-200">
-      {/* Interactive 3D Canvas Background */}
+    <div className="min-h-screen flex flex-col bg-parchment text-stone-900 relative selection:bg-red-500/20 selection:text-red-950">
+      {/* 3D Armillary Gyroscope Canvas */}
       <ThreeCanvas />
 
-      {/* Floating Island Header */}
+      {/* Floating Ivory Island Header */}
       <header className="sticky top-3 z-40 max-w-7xl mx-auto px-4 sm:px-6 w-full pointer-events-none">
-        <div className="glass-obsidian rounded-2xl border border-white/10 px-5 h-16 flex items-center justify-between shadow-2xl shadow-black/80 backdrop-blur-2xl pointer-events-auto transition-all">
+        <div className="glass-ivory rounded-2xl px-5 h-16 flex items-center justify-between shadow-lg shadow-amber-950/5 pointer-events-auto transition-all">
+          
           <div className="flex items-center gap-6">
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500/20 via-purple-500/20 to-cyan-500/20 border border-indigo-500/40 flex items-center justify-center group-hover:border-indigo-400 transition-all shadow-lg shadow-indigo-500/10">
-                <Shield className="w-5 h-5 text-indigo-400 group-hover:scale-110 transition-transform" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-800 to-amber-900 text-white flex items-center justify-center shadow-md shadow-red-950/20 group-hover:scale-105 transition-transform">
+                <Scale className="w-5 h-5 text-amber-200" />
               </div>
               <div className="leading-tight">
                 <div className="flex items-center gap-2">
-                  <span className="font-black tracking-tight text-white text-sm bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-100 to-indigo-200">
+                  <span className="font-serif-judicial font-black tracking-wider text-red-900 text-base">
                     NYAYA-VAULT
                   </span>
-                  <span className="px-1.5 py-0.5 rounded text-[8px] font-mono font-extrabold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-red-100 text-red-800 border border-red-200">
                     MHA SIH26190
                   </span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-mono tracking-wider">
-                  Judicial Provenance Trust Layer
+                <span className="text-[10px] text-stone-600 font-mono tracking-wide">
+                  Sovereign Digital Provenance Trust Layer
                 </span>
               </div>
             </Link>
@@ -70,10 +71,10 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                     to={item.to}
                     className={`px-3.5 py-2 rounded-xl flex items-center gap-2 transition-all duration-200 ${
                       item.active
-                        ? 'bg-gradient-to-r from-indigo-600/30 to-purple-600/20 text-indigo-300 border border-indigo-500/40 shadow-lg shadow-indigo-500/15'
+                        ? 'bg-red-50 text-red-800 border border-red-200/80 shadow-sm font-bold'
                         : item.highlight
-                        ? 'text-emerald-400 hover:bg-emerald-950/40 hover:text-emerald-300 border border-emerald-500/25'
-                        : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                        ? 'text-amber-800 hover:bg-amber-50 hover:text-amber-900 border border-amber-200'
+                        : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -87,11 +88,11 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                   to="/admin"
                   className={`px-3 py-2 rounded-xl flex items-center gap-1.5 transition-colors ${
                     location.pathname === '/admin'
-                      ? 'bg-purple-600/25 text-purple-300 border border-purple-500/40'
-                      : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                      ? 'bg-purple-50 text-purple-900 border border-purple-200 font-bold'
+                      : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
                   }`}
                 >
-                  <Lock className="w-3.5 h-3.5 text-purple-400" />
+                  <Lock className="w-3.5 h-3.5 text-purple-700" />
                   <span>Admin</span>
                 </Link>
               )}
@@ -99,30 +100,30 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
           </div>
 
           <div className="flex items-center gap-3.5">
-            {/* Live Telemetry Pills */}
+            {/* Live Trust Telemetry */}
             <div className="hidden sm:flex items-center gap-2">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-950/40 border border-indigo-500/30 text-[10px] font-mono text-indigo-300">
-                <Radio className="w-3 h-3 text-cyan-400 animate-pulse" />
-                <span>11ms</span>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-stone-100 border border-stone-200 text-[10px] font-mono text-stone-600">
+                <Radio className="w-3 h-3 text-red-600 animate-pulse" />
+                <span>9ms</span>
               </div>
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-950/40 border border-emerald-500/30 text-[10px] font-mono text-emerald-400">
-                <Activity className="w-3 h-3 text-emerald-400" />
-                <span>POLYGON ANCHOR</span>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-50 border border-red-200 text-[10px] font-mono text-red-800 font-bold">
+                <Award className="w-3 h-3 text-amber-600" />
+                <span>POLYGON ANCHORED</span>
               </div>
             </div>
 
             {user && (
-              <div className="flex items-center gap-2.5 pl-3 border-l border-white/10">
+              <div className="flex items-center gap-2.5 pl-3 border-l border-stone-200">
                 <div className="text-right font-mono text-xs">
-                  <div className="text-white font-semibold text-xs leading-none">{user.username}</div>
-                  <div className="text-[9px] text-indigo-400 font-bold uppercase mt-0.5 tracking-wider">{user.role}</div>
+                  <div className="text-stone-900 font-bold text-xs leading-none">{user.username}</div>
+                  <div className="text-[9px] text-red-700 font-extrabold uppercase mt-0.5 tracking-wider">{user.role}</div>
                 </div>
               </div>
             )}
 
             <button
               onClick={handleLogout}
-              className="p-2.5 hover:bg-rose-950/50 border border-transparent hover:border-rose-500/30 rounded-xl text-slate-400 hover:text-rose-400 transition-all cursor-pointer"
+              className="p-2.5 hover:bg-red-100/60 border border-transparent hover:border-red-200 rounded-xl text-stone-500 hover:text-red-700 transition-all cursor-pointer"
               title="Terminate Session"
             >
               <LogOut className="w-4 h-4" />
@@ -136,17 +137,17 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
         {children}
       </main>
 
-      {/* Modern Status Footer */}
-      <footer className="border-t border-white/5 py-4 bg-obsidian/90 backdrop-blur-xl relative z-10 text-xs text-slate-400 font-mono">
+      {/* Warm Ivory Judicial Footer */}
+      <footer className="border-t border-stone-200 py-4 bg-white/70 backdrop-blur-xl relative z-10 text-xs text-stone-600 font-mono">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Cpu className="w-3.5 h-3.5 text-indigo-400" />
-            <span>NYAYA-VAULT • Zero-Trust Electronic Evidence Trust Architecture • BSA §63 & IEA §65B Certified</span>
+            <Scale className="w-3.5 h-3.5 text-red-700" />
+            <span>NYAYA-VAULT • Electronic Evidence Management • Bharatiya Sakshya Adhiniyam §63 & IEA §65B Admissible</span>
           </div>
-          <div className="text-slate-500 text-[11px] flex items-center gap-2">
-            <span>Engineered by Bhasit Gupta</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-            <span>POLYGON AMOY READY</span>
+          <div className="text-stone-500 text-[11px] flex items-center gap-2">
+            <span>Authored by Bhasit Gupta</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-red-600"></span>
+            <span>POLYGON AMOY LAYER</span>
           </div>
         </div>
       </footer>
