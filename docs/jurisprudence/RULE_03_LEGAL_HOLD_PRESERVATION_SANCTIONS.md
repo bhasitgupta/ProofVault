@@ -13,3 +13,5 @@ Destruction of digital evidence punishable under Section 204 IPC / Section 238 B
 Failure to produce verifiable Polygon blockchain custody receipts permits adverse inference.
 
 ### Automated Smart Contract Lock
+
+NYAYA-VAULT LegalHoldRegistry smart contract executes irreversible preservation lock.
