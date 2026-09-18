@@ -9,3 +9,5 @@
 4. **Forensic Image Verification**: E01 and raw dd format bitstream verification matches original device checksum.
 
 5. **Faraday Isolation**: Mobile phones and wireless-enabled devices enclosed in RF-shielded bags.
+
+6. **Chain of Custody Document (Form F-10)**: Physical and digital counter-signatures on every handoff.
