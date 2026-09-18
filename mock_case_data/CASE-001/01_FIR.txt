@@ -1,0 +1,32 @@
+FIRST INFORMATION REPORT (FIR)
+Case No: CC/2026/00147
+Police Station: Rajpur Cyber Crime Police Station
+District: Rajpur
+Date of Registration: 03-Feb-2026
+Time: 11:20 hrs
+Act(s) & Section(s): IT Act 2000 Sec 66C, 66D; IPC Sec 420
+
+Complainant: Ramesh Kumar
+Age/Sex: 42 / Male
+Address: 12 MG Road, Rajpur
+Contact: 98XXXXXX21
+
+Nature of Complaint:
+The complainant states that on 01-Feb-2026 at approximately 19:45 hrs, he received a
+call from a person claiming to represent "Trustline Bank Customer Support" who
+requested him to share a one-time password (OTP) to "verify a suspicious login
+attempt." After sharing the OTP, the complainant noticed three unauthorized
+transactions totalling INR 4,85,000 debited from his savings account
+(A/C No. XXXXXXXX2231) within 12 minutes. The complainant immediately called the
+bank helpline and blocked the account, then approached the police station to
+register this complaint.
+
+Suspected Mode: Voice phishing (vishing) followed by unauthorized fund transfer.
+
+Action Taken:
+FIR registered under Sec 66C (identity theft) and 66D (cheating by personation
+using computer resource) of the IT Act, and Sec 420 IPC. Case assigned to
+Inspector Priya Sharma, Cyber Crime Cell, for investigation.
+
+Signature: Ramesh Kumar (Complainant)
+Registering Officer: Inspector Priya Sharma

@@ -1,0 +1,27 @@
+STATEMENT OF SUSPECT (Recorded under Sec 161 CrPC)
+Reference No: SS/2026/0147
+Case No: CC/2026/00147
+Name of Suspect: Ajay Verma
+Age/Sex: 29 / Male
+Address: 45 Nehru Nagar, Rajpur
+Date of Statement: 15-Feb-2026
+Recorded by: Inspector Priya Sharma
+
+Statement:
+"I opened the Trustline Bank account in January 2026 after being contacted on a
+messaging app by a person known to me only as 'Rohit' who offered me INR 5,000
+per transaction if I allowed money to be routed through my account and withdrew
+it in cash. I was told the money was for a 'business settlement.' On 01-Feb-2026,
+I received a message from Rohit instructing me to expect three credits and to
+withdraw the amount immediately in cash and hand it to a person who would meet me
+near Rajpur Bus Stand. I withdrew the amounts as instructed and handed the cash
+to an unknown man on a motorcycle. I did not know at the time that the funds were
+proceeds of fraud. I have not been able to provide any further contact details
+for 'Rohit' beyond the messaging app handle, which appears to have been deleted
+after the transaction."
+
+Officer's Note: Suspect's phone was seized for forensic analysis to attempt
+recovery of the deleted messaging app data (see Evidence Report ER/2026/0147).
+
+Signature: Ajay Verma
+Witnessed by: Inspector Priya Sharma

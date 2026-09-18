@@ -1,0 +1,33 @@
+INVESTIGATION REPORT
+Case No: CC/2026/00147
+Investigating Officer: Inspector Priya Sharma
+Report Date: 20-Feb-2026
+
+Summary of Investigation:
+1. Statement of complainant Ramesh Kumar recorded on 03-Feb-2026, confirming the
+   sequence of the phishing call and OTP disclosure.
+2. Call Detail Record (CDR) for the number used to contact the complainant
+   (+91-7XXXXXXXX4) was requisitioned from the telecom provider. The number was
+   found to be registered on a fake ID and was active for only 6 days before the
+   incident, consistent with a "burner SIM" pattern.
+3. Bank Transaction Report obtained from Trustline Bank (see Document 03) shows
+   three transfers to a mule account (A/C No. YYYYYYYY7790) held in the name of
+   Ajay Verma at Trustline Bank, Rajpur Branch.
+4. Ajay Verma was traced through the mule account KYC details and detained for
+   questioning on 15-Feb-2026. His statement is recorded separately (Document 04).
+5. A mobile phone and a laptop were seized from Ajay Verma's residence at
+   45 Nehru Nagar, Rajpur, under seizure memo SM/2026/0091. Forensic imaging of
+   the seized devices is documented in the Evidence Report (Document 05).
+6. Preliminary findings indicate Ajay Verma acted as a "mule account operator" for
+   a larger, yet-unidentified vishing syndicate; funds were withdrawn in cash
+   within 2 hours of credit and the trail beyond that point could not be traced
+   through banking channels alone.
+
+Cross-References: FIR CC/2026/00147; Bank Transaction Report BTR/2026/0147;
+Seizure Memo SM/2026/0091; Suspect Statement SS/2026/0147; Evidence Report
+ER/2026/0147.
+
+Status: Under investigation. Recommend forensic analysis of seized devices and
+tracing of syndicate beyond mule account layer.
+
+Signature: Inspector Priya Sharma

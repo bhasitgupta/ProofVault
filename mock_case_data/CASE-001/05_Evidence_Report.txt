@@ -1,0 +1,30 @@
+DIGITAL EVIDENCE / FORENSIC REPORT
+Reference No: ER/2026/0147
+Case No: CC/2026/00147
+Prepared by: Forensic Science Laboratory, Cyber Division
+Date: 28-Feb-2026
+
+Items Examined:
+  1. Mobile phone (IMEI ending 4471) seized from Ajay Verma under SM/2026/0091
+  2. Laptop (Serial ending RJ-3390) seized from Ajay Verma under SM/2026/0091
+
+Findings:
+- Mobile phone: Messaging app data partially recovered. Deleted conversation
+  thread with contact "Rohit_biz" recovered, confirming instructions to open
+  the mule account and the cash-handover instructions matching the suspect's
+  statement (SS/2026/0147).
+- IP logs associated with the messaging app account show the contact "Rohit_biz"
+  last active from an IP address geolocated outside Rajpur district; further
+  tracing requires inter-state coordination and is beyond the scope of this
+  report.
+- Laptop: No direct evidence of involvement found; used primarily for the
+  suspect's unrelated freelance work.
+- Hash values of all extracted data have been recorded and sealed per standard
+  forensic chain-of-custody procedure (Hash: SHA256 recorded in evidence log,
+  sealed exhibit EX/2026/0147-A and EX/2026/0147-B).
+
+Conclusion: Evidence corroborates the suspect's account of acting as a mule
+account operator. Recommend the case be escalated for inter-state cyber
+coordination to trace "Rohit_biz" and the wider syndicate.
+
+Signature: Forensic Examiner, FSL Cyber Division

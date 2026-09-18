@@ -1,0 +1,30 @@
+BANK TRANSACTION REPORT
+Reference No: BTR/2026/0147
+Issued by: Trustline Bank, Legal & Compliance Department
+Issued to: Rajpur Cyber Crime Police Station, re: Case CC/2026/00147
+Date of Issue: 10-Feb-2026
+
+Account Holder (Victim): Ramesh Kumar
+Account No: XXXXXXXX2231
+
+Transaction Log (01-Feb-2026):
+  Time 19:52 hrs | Debit INR 1,95,000 | To A/C YYYYYYYY7790 (Ajay Verma, Trustline
+    Bank, Rajpur Branch) | Mode: IMPS | Ref: IMP2026020119521
+  Time 19:58 hrs | Debit INR 1,90,000 | To A/C YYYYYYYY7790 | Mode: IMPS |
+    Ref: IMP2026020119582
+  Time 20:04 hrs | Debit INR 1,00,000 | To A/C YYYYYYYY7790 | Mode: IMPS |
+    Ref: IMP2026020120043
+
+Beneficiary Account Summary:
+  A/C No: YYYYYYYY7790
+  Holder Name: Ajay Verma
+  Branch: Trustline Bank, Rajpur Branch
+  Account Opened: 18-Jan-2026 (16 days before incident)
+  Withdrawal Activity: INR 4,70,000 withdrawn via 3 ATM transactions between
+    21:10 hrs and 21:45 hrs on 01-Feb-2026, at ATMs located within a 2 km radius
+    of Rajpur Bus Stand.
+
+Remarks: Account opening pattern (recently opened, immediate large inflow,
+rapid full withdrawal) is consistent with known mule-account typology.
+
+Authorised Signatory: Compliance Officer, Trustline Bank

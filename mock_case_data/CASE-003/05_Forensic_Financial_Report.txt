@@ -1,0 +1,32 @@
+FORENSIC FINANCIAL REPORT
+Reference No: FFR/2026/0034
+Case No: FF/2026/00034
+Prepared by: Forensic Accounting Unit, Economic Offences Wing
+Date: 20-May-2026
+
+Scope: Tracing of funds received in accounts ZZZZZZZZ4410 and WWWWWWWW9981
+from Sunita Enterprises and other depositors, per complaint FF/2026/00034.
+
+Findings:
+1. Account ZZZZZZZZ4410 (Deepak Malhotra, personal account) received a total
+   of INR 8,50,000 from the complainant and an estimated INR 14,00,000
+   cumulatively from at least four other unidentified depositors between
+   August 2025 and January 2026, based on transaction narration patterns.
+2. Account WWWWWWWW9981 (D.M. Advisory Services) received the complainant's
+   remaining INR 9,50,000. Of this, approximately 70% was transferred onward
+   within 48 hours of receipt to a third account, A/C VVVVVVVV5567, held at an
+   out-of-state bank branch, consistent with the suspect's account of routing
+   funds to "Mr. Kapoor."
+3. Account VVVVVVVV5567 KYC details list a name that could not be verified
+   against any valid government ID on record, indicating likely use of forged
+   or stolen identity documents to open the account.
+4. No evidence of registered trading activity (derivatives or otherwise) was
+   found linked to Account VVVVVVVV5567 through the information available to
+   this unit; further inquiry with the relevant stock exchange/broker records
+   is recommended.
+
+Conclusion: Fund trail supports a layered fraud structure. Recommend
+inter-bank and inter-state coordination to identify the holder of Account
+VVVVVVVV5567 ("Mr. Kapoor") and to identify other affected depositors.
+
+Signature: Forensic Accountant, Economic Offences Wing

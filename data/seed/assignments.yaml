@@ -1,0 +1,40 @@
+assignments:
+  - user_id: "USR-101"
+    case_id: "CASE-101"
+    is_active: true
+
+  - user_id: "USR-101"
+    case_id: "CASE-102"
+    is_active: true
+
+  - user_id: "USR-102"
+    case_id: "CASE-101"
+    is_active: true
+
+  - user_id: "USR-102"
+    case_id: "CASE-103"
+    is_active: true
+
+  - user_id: "USR-103"
+    case_id: "CASE-101"
+    is_active: true
+
+  - user_id: "USR-103"
+    case_id: "CASE-104"
+    is_active: true
+
+  - user_id: "USR-104"
+    case_id: "CASE-101"
+    is_active: true
+
+  - user_id: "USR-104"
+    case_id: "CASE-102"
+    is_active: true
+
+  - user_id: "USR-104"
+    case_id: "CASE-103"
+    is_active: true
+
+  - user_id: "USR-105"
+    case_id: "CASE-104"
+    is_active: true

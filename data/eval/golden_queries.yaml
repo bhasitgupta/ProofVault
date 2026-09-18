@@ -1,0 +1,26 @@
+queries:
+  - id: "EVAL-001"
+    query: "What evidence links the suspect IP to the centralized vault infiltration?"
+    case_id: "CASE-101"
+    required_role: "INVESTIGATOR"
+    expected_doc_type: "FIR"
+    must_include_keywords:
+      - "198.51.100.22"
+      - "unauthorised"
+
+  - id: "EVAL-002"
+    query: "What was the forensic conclusion regarding the seized firearm and ballistic markings?"
+    case_id: "CASE-103"
+    required_role: "FORENSIC_ANALYST"
+    expected_doc_type: "FORENSIC_REPORT"
+    must_include_keywords:
+      - "ballistic"
+      - "precision"
+
+  - id: "EVAL-003"
+    query: "Summarize the witness statement concerning the vehicle seen leaving the scene."
+    case_id: "CASE-101"
+    required_role: "INVESTIGATOR"
+    expected_doc_type: "WITNESS_STATEMENT"
+    must_include_keywords:
+      - "witness"

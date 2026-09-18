@@ -1,0 +1,32 @@
+CALL DETAIL RECORD (CDR) SUMMARY
+Reference No: CDR/2026/0212
+Case No: MP/2026/00212
+Requisitioned from: Telecom Service Provider, re: Mobile No. 9XXXXXXXX3
+  (Kavita Sharma)
+Date of Report: 18-May-2026
+
+Summary of Activity, 11-May-2026:
+  08:20 hrs - Tower location: Green Park residential area (near home)
+  08:45 hrs - Tower location: Rajpur Central Market (en route)
+  09:10 hrs - Tower location: Rajpur Government College vicinity
+  11:05 hrs - Incoming call from Ritu Nair, duration 0 sec (unanswered)
+  12:40 hrs - Tower location: Rajpur Bus Stand
+  12:52 hrs - Outgoing call to an unregistered/prepaid number
+    (+91-8XXXXXXXX9), duration 6 min 12 sec
+  13:02 hrs - Last recorded tower activity: Rajpur Bus Stand; device
+    subsequently switched off / out of network
+
+Analysis:
+- The unregistered prepaid number contacted at 12:52 hrs was activated only
+  4 days prior to the call and has had no other recorded activity, consistent
+  with a temporary/burner SIM.
+- Tower data confirms the missing person's last confirmed location as Rajpur
+  Bus Stand at 13:02 hrs on 11-May-2026, consistent with witness Ritu Nair's
+  account of an online contact referred to as "Sam."
+- No further network activity has been recorded on this number after
+  13:02 hrs, 11-May-2026.
+
+Recommendation: Trace ownership and activation details of the prepaid number;
+review CCTV coverage at Rajpur Bus Stand for the 12:30-13:15 hrs window.
+
+Signature: Inspector Lata Menon

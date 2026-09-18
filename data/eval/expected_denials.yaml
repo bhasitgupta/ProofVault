@@ -1,0 +1,26 @@
+denials:
+  - id: "DENY-001"
+    description: "Lawyer requesting Confidential document"
+    role: "LAWYER"
+    requested_classification: "CONFIDENTIAL"
+    case_id: "CASE-104"
+    assigned_case_ids: ["CASE-104"]
+    expected_status: 403
+    expected_reason: "CLEARANCE_EXCEEDED"
+
+  - id: "DENY-002"
+    description: "Investigator requesting unassigned case"
+    role: "INVESTIGATOR"
+    requested_classification: "CONFIDENTIAL"
+    case_id: "CASE-999"
+    assigned_case_ids: ["CASE-101", "CASE-102"]
+    expected_status: 403
+    expected_reason: "UNASSIGNED_CASE"
+
+  - id: "DENY-003"
+    description: "Tampered document retrieval attempt"
+    role: "SUPERVISOR"
+    doc_id: "TAMPERED_DOC_ID"
+    expected_status: 200
+    expected_tamper_detected: true
+    expected_answer: null

@@ -1,0 +1,23 @@
+TRANSACTION STATEMENT (Complainant-Provided)
+Reference No: TS/2026/0034
+Case No: FF/2026/00034
+Submitted by: Anil Mehta, Sunita Enterprises
+Date Submitted: 05-Apr-2026
+
+Instalment-wise Transfer Record (Sunita Enterprises to Deepak Malhotra /
+associated accounts):
+  1. 14-Aug-2025 | INR 3,00,000 | NEFT to A/C ZZZZZZZZ4410 (Deepak Malhotra)
+  2. 02-Sep-2025 | INR 4,50,000 | NEFT to A/C ZZZZZZZZ4410
+  3. 20-Sep-2025 | INR 2,00,000 | NEFT to A/C WWWWWWWW9981 (D.M. Advisory
+     Services, a proprietorship linked to Deepak Malhotra per GST records)
+  4. 10-Oct-2025 | INR 5,00,000 | NEFT to A/C WWWWWWWW9981
+  5. 05-Nov-2025 | INR 3,00,000 | NEFT to A/C ZZZZZZZZ4410
+  6. 22-Dec-2025 | INR 2,50,000 | NEFT to A/C WWWWWWWW9981
+  7. 18-Jan-2026 | INR 2,50,000 | NEFT to A/C ZZZZZZZZ4410
+
+Total Transferred: INR 22,50,000
+
+Remarks: Complainant has retained bank transfer receipts for all seven
+instalments, submitted as supporting annexures to this statement.
+
+Signature: Anil Mehta

@@ -1,0 +1,29 @@
+CCTV ANALYSIS REPORT
+Reference No: CCTV/2026/0089
+Case No: TH/2026/00089
+Prepared by: Sub-Inspector Vikram Rao, with technical assistance from District
+  Cyber Cell
+Date: 15-Mar-2026
+
+Sources Reviewed:
+  1. Lake View Colony main gate camera (footage 20:00-22:00 hrs, 10-Mar-2026)
+  2. ABC General Store camera, 200m from Colony main gate (same time window)
+
+Findings:
+- Main gate camera (Cam-1) recorded a male individual matching the description
+  given by witness Suresh Babu entering the colony on foot at 20:47 hrs and
+  exiting at 21:38 hrs, consistent with the estimated time of the burglary.
+- ABC General Store camera (Cam-2) captured a clearer frontal view of the same
+  individual at 21:41 hrs. Facial features partially visible; jacket matches
+  witness description.
+- The individual was subsequently identified through local intelligence sources
+  as Rakesh Yadav, previously known to police in an unrelated case of
+  house-breaking in the neighbouring Sunrise Colony (2024).
+- Still frames extracted and hash-sealed as Exhibit EX/2026/0089-CCTV1 and
+  EX/2026/0089-CCTV2.
+
+Conclusion: CCTV evidence corroborates witness statement and identifies Rakesh
+Yadav as the primary suspect. Recommend suspect be traced and detained for
+questioning.
+
+Signature: Sub-Inspector Vikram Rao

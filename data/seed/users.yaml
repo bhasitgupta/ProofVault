@@ -1,0 +1,48 @@
+users:
+  - id: "USR-101"
+    username: "investigator_sharma"
+    full_name: "Inspector Rajesh Sharma"
+    role: "INVESTIGATOR"
+    msp_id: "PoliceMSP"
+    classification_ceiling: "CONFIDENTIAL"
+    is_active: true
+
+  - id: "USR-102"
+    username: "forensic_ananya"
+    full_name: "Dr. Ananya Iyer"
+    role: "FORENSIC_ANALYST"
+    msp_id: "ForensicsMSP"
+    classification_ceiling: "SECRET"
+    is_active: true
+
+  - id: "USR-103"
+    username: "legal_verma"
+    full_name: "Advocate S. Verma"
+    role: "LEGAL_OFFICER"
+    msp_id: "JudiciaryMSP"
+    classification_ceiling: "CONFIDENTIAL"
+    is_active: true
+
+  - id: "USR-104"
+    username: "supervisor_kapoor"
+    full_name: "DCP Vikram Kapoor"
+    role: "SUPERVISOR"
+    msp_id: "PoliceMSP"
+    classification_ceiling: "SECRET"
+    is_active: true
+
+  - id: "USR-105"
+    username: "lawyer_advani"
+    full_name: "Defense Counsel M. Advani"
+    role: "LAWYER"
+    msp_id: "LegalCounselMSP"
+    classification_ceiling: "RESTRICTED"
+    is_active: true
+
+  - id: "USR-106"
+    username: "admin_sys"
+    full_name: "SDMS Root Administrator"
+    role: "ADMIN"
+    msp_id: "PoliceMSP"
+    classification_ceiling: "SECRET"
+    is_active: true
