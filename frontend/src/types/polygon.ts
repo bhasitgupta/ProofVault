@@ -25,3 +25,9 @@ export interface SmartContractRoleClearance {
   grantedBy: string;
   timestamp: number;
 }
+
+export interface GasStrategyEstimation {
+  maxFeePerGas: bigint;
+  maxPriorityFeePerGas: bigint;
+  baseFee: bigint;
+}
