@@ -11,3 +11,5 @@ Bitstream image MD5 and SHA-256 must match original seizure physical drive.
 ### Write-Blocker Serial Number Recording
 
 Physical write-blocker serial number and firmware revision must appear in Form 65B.
+
+### Defense Scrutiny Standard
