@@ -9,3 +9,5 @@ Overseas evidence requests channeled through Ministry of External Affairs (MEA).
 Adherence to bilateral digital evidence preservation treaties and safeguards.
 
 ### Sovereign Data Localization
+
+Classified sovereign evidence dockets must never leave Indian territorial jurisdiction.
