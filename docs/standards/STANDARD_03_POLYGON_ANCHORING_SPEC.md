@@ -21,3 +21,5 @@ Anchors deployed on Polygon Amoy (Testnet) and Polygon PoS Mainnet.
 3. 5-block confirmation receipt parsing.
 
 ### 3.4 Gas Optimization
+
+Batching 100 evidentiary events per Merkle root reduces cost by 99%.
