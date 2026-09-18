@@ -18,3 +18,10 @@ export interface MerkleInclusionProof {
   proofPath: string[];
   leafIndex: number;
 }
+
+export interface SmartContractRoleClearance {
+  account: string;
+  roleKeccak: string;
+  grantedBy: string;
+  timestamp: number;
+}
