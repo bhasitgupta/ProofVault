@@ -5,3 +5,5 @@
 2. **Hardware Write-Blockers**: Physical Tableau or WiebeTech write blockers mandatory for all SATA/NVMe acquisitions.
 
 3. **Dual Hash Calculation**: Simultaneous MD5 and SHA-256 computation to eliminate collision disputes.
+
+4. **Forensic Image Verification**: E01 and raw dd format bitstream verification matches original device checksum.
