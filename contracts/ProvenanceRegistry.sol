@@ -145,8 +145,27 @@ contract ProvenanceRegistry {
         return _events[eventId];
     }
 
-    function getDocumentEvents(bytes32 docIdHash) external view returns (bytes32[] memory) {
+    function getDocumentEvents(bytes32 docIdHash) public view returns (bytes32[] memory) {
         return _docEventChain[docIdHash];
+    }
+
+    function getDocumentHistory(bytes32 docIdHash) external view returns (bytes32[] memory) {
+        return _docEventChain[docIdHash];
+    }
+
+    function verifyChainIntegrity(bytes32 docIdHash, bytes32 expectedLatestHash) external view returns (bool) {
+        bytes32[] storage chain = _docEventChain[docIdHash];
+        uint256 len = chain.length;
+        if (len == 0) return false;
+        if (chain[len - 1] != expectedLatestHash) return false;
+
+        bytes32 expectedPrev = bytes32(0);
+        for (uint256 i = 0; i < len; i++) {
+            CustodyEvent storage ev = _events[chain[i]];
+            if (ev.prevEventHash != expectedPrev) return false;
+            expectedPrev = ev.eventId;
+        }
+        return true;
     }
 
     function getCaseEvents(string calldata caseId) external view returns (bytes32[] memory) {

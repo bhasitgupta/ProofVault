@@ -178,6 +178,9 @@ contract EvidenceRegistry {
         require(_evidence[docIdHash].exists, "EvidenceRegistry: document not found");
         Status prev = _evidence[docIdHash].status;
         require(prev != Status.SHREDDED, "EvidenceRegistry: cannot modify shredded document");
+        if (prev == Status.LEGAL_HOLD) {
+            require(newStatus == Status.ACTIVE, "EvidenceRegistry: document under legal hold; lift hold first");
+        }
         _evidence[docIdHash].status = newStatus;
         emit EvidenceStatusUpdated(docIdHash, prev, newStatus, msg.sender, block.timestamp);
     }
@@ -214,7 +217,32 @@ contract EvidenceRegistry {
         return _evidence[docIdHash].merkleRoot == candidateRoot;
     }
 
+    /**
+     * @notice Verifies directional RFC 6962 SHA-256 Merkle inclusion proof.
+     * Matches TRD §11/§13 and SDMS Merkle tree specification.
+     */
     function verifyChunkProof(
+        bytes32 leaf,
+        bytes32[] calldata proof,
+        bool[] calldata isLeft,
+        bytes32 root
+    ) public pure returns (bool) {
+        require(proof.length == isLeft.length, "EvidenceRegistry: length mismatch");
+        bytes32 computedHash = leaf;
+        for (uint256 i = 0; i < proof.length; i++) {
+            if (isLeft[i]) {
+                computedHash = sha256(abi.encodePacked(bytes1(0x01), proof[i], computedHash));
+            } else {
+                computedHash = sha256(abi.encodePacked(bytes1(0x01), computedHash, proof[i]));
+            }
+        }
+        return computedHash == root;
+    }
+
+    /**
+     * @notice Verifies sorted SHA-256 Merkle proof (alternative pairing standard).
+     */
+    function verifyChunkProofSorted(
         bytes32 leaf,
         bytes32[] calldata proof,
         bytes32 root
@@ -223,9 +251,9 @@ contract EvidenceRegistry {
         for (uint256 i = 0; i < proof.length; i++) {
             bytes32 proofElement = proof[i];
             if (computedHash <= proofElement) {
-                computedHash = keccak256(abi.encodePacked(computedHash, proofElement));
+                computedHash = sha256(abi.encodePacked(bytes1(0x01), computedHash, proofElement));
             } else {
-                computedHash = keccak256(abi.encodePacked(proofElement, computedHash));
+                computedHash = sha256(abi.encodePacked(bytes1(0x01), proofElement, computedHash));
             }
         }
         return computedHash == root;
