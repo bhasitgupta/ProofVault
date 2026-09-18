@@ -6,3 +6,5 @@
 [x] Zero-Trust session validation with 30-minute expiration.
 
 [x] Anti-tamper Merkle roots anchored to Polygon Amoy.
+
+[x] SQL injection defense via parameterized SQLAlchemy models.
