@@ -12,3 +12,5 @@ export interface CustodyVerificationProof {
   blockNumber: number;
   isAnchored: boolean;
 }
+
+export type CustodyActionType = 'INGEST' | 'TRANSFER' | 'INSPECT' | 'EXTRACT' | 'LEGAL_HOLD' | 'DISPOSE';
