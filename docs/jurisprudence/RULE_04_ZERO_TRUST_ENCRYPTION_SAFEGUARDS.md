@@ -7,3 +7,5 @@ Database administrators must never hold document decryption keys (DEKs).
 ### Split-Knowledge Secret Sharing
 
 Emergency judicial master keys split via Shamir's Secret Sharing (3 of 5 quorum).
+
+### Hardware Security Modules
