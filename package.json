@@ -5,6 +5,7 @@
   "description": "NYAYA-VAULT — Secure Digital Document Management & Provenance Platform",
   "scripts": {
     "dev": "npm run dev --prefix frontend",
+    "backend": "py -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --app-dir backend",
     "build": "npm run build --prefix frontend",
     "preview": "npm run preview --prefix frontend"
   },

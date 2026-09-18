@@ -10,6 +10,9 @@ import sys
 import shutil
 import asyncio
 
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
+
 # Ensure backend directory is in python path
 BACKEND_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backend"))
 sys.path.insert(0, BACKEND_DIR)
@@ -508,6 +511,8 @@ async def clean_and_inject():
                 )
                 session.add(u)
             else:
+                existing.username = u_data["username"]
+                existing.full_name = u_data["full_name"]
                 existing.is_active = True
                 existing.mfa_enrolled = True
                 existing.password_hash = default_pwd
