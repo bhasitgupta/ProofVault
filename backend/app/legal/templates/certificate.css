@@ -1,0 +1,140 @@
+/* SDMS BSA Section 63 Legal Certificate Stylesheet */
+@page {
+    size: A4 portrait;
+    margin: 20mm 15mm 20mm 15mm;
+}
+
+body {
+    font-family: 'Times New Roman', Times, serif;
+    color: #111827;
+    line-height: 1.4;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+}
+
+.certificate-container {
+    border: 3px double #1f2937;
+    padding: 24px;
+    background: #ffffff;
+}
+
+.header {
+    text-align: center;
+    border-bottom: 2px solid #374151;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+}
+
+.header .emblem {
+    font-weight: bold;
+    letter-spacing: 2px;
+    font-size: 14px;
+    color: #4b5563;
+    margin-bottom: 6px;
+}
+
+.header h1 {
+    font-size: 18px;
+    margin: 4px 0;
+    text-transform: uppercase;
+    color: #111827;
+}
+
+.header h2 {
+    font-size: 15px;
+    margin: 4px 0;
+    color: #1e3a8a;
+}
+
+.header h3 {
+    font-size: 12px;
+    margin: 4px 0;
+    color: #4b5563;
+    font-weight: normal;
+}
+
+.cert-meta {
+    display: flex;
+    justify-content: space-between;
+    background-color: #f3f4f6;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-bottom: 16px;
+}
+
+.section {
+    margin-bottom: 18px;
+}
+
+.section h4 {
+    font-size: 13px;
+    margin: 0 0 8px 0;
+    color: #1e3a8a;
+    border-bottom: 1px solid #e5e7eb;
+    padding-bottom: 4px;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+.data-table th, .data-table td {
+    border: 1px solid #d1d5db;
+    padding: 6px 10px;
+    text-align: left;
+}
+
+.data-table th {
+    background-color: #f9fafb;
+    width: 35%;
+    font-weight: 600;
+}
+
+.data-table code {
+    font-family: monospace;
+    font-size: 11px;
+    word-break: break-all;
+}
+
+.declaration p {
+    font-size: 12px;
+    text-align: justify;
+    line-height: 1.5;
+}
+
+.footer {
+    margin-top: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    border-top: 1px solid #9ca3af;
+    padding-top: 14px;
+}
+
+.signature-block {
+    font-size: 11px;
+}
+
+.signature {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: bold;
+    margin: 8px 0;
+    padding: 6px;
+    background: #e5e7eb;
+    display: inline-block;
+}
+
+.qr-block {
+    text-align: center;
+    font-size: 10px;
+}
+
+.qr-code {
+    width: 80px;
+    height: 80px;
+}
+

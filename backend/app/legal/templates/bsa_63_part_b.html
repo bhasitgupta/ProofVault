@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BSA §63 Certificate - Part B</title>
+    <link rel="stylesheet" href="certificate.css">
+</head>
+<body>
+    <div class="certificate-container">
+        <header class="header">
+            <div class="emblem">EMBLEM OF INDIA</div>
+            <h1>BHARATIYA SAKSHYA ADHINIYAM, 2023</h1>
+            <h2>SCHEDULE (SECTION 63) — PART B</h2>
+            <h3>CERTIFICATE BY AN EXPERT IN CHARGE OF COMPUTER SYSTEM</h3>
+        </header>
+
+        <div class="cert-meta">
+            <p><strong>Certificate ID:</strong> {{ cert_id }}</p>
+            <p><strong>Issued At:</strong> {{ issued_at }}</p>
+            <p><strong>Forensic Reference:</strong> CFSL/{{ case_id }}</p>
+        </div>
+
+        <section class="section">
+            <h4>1. Device & Technical Environment Affirmation</h4>
+            <p>
+                The Secure Digital Document Management System (SDMS) hardware cluster, cryptographic key management system (KMS),
+                and permissioned ledger nodes operated within calibrated normal operational parameters during evidence ingestion and custody.
+            </p>
+            <table class="data-table">
+                <tr><th>Hardware Node ID</th><td>{{ node_id or 'SDMS-NODE-PRIMARY' }}</td></tr>
+                <tr><th>Ledger Channel</th><td>dochash-channel / access-channel</td></tr>
+                <tr><th>Encryption Standard</th><td>AES-256-GCM Envelope (SP 800-38D)</td></tr>
+                <tr><th>Merkle Hashing Standard</th><td>RFC 6962 Domain Separated SHA-256</td></tr>
+            </table>
+        </section>
+
+        <section class="section">
+            <h4>2. Cryptographic Attestation</h4>
+            <table class="data-table">
+                <tr><th>Document UUID</th><td>{{ doc_id }}</td></tr>
+                <tr><th>Committed Merkle Root</th><td><code>{{ chunk_merkle_root }}</code></td></tr>
+                <tr><th>Ledger Block Reference</th><td><code>{{ ledger_tx_id }}</code></td></tr>
+                <tr><th>TSA RFC 3161 Token Hash</th><td><code>{{ tsa_token_hash }}</code></td></tr>
+            </table>
+        </section>
+
+        <section class="section declaration">
+            <h4>3. Expert Affirmation under BSA §63(4)(c)</h4>
+            <p>
+                I, <strong>{{ expert_name or 'Forensic Examiner' }}</strong>, designated as <strong>{{ expert_designation or 'Senior Forensic Specialist' }}</strong>,
+                certify that the computer system was in good working condition during the period of ingestion, and the cryptographic chain of custody
+                proves beyond mathematical doubt that no unauthorized access, modification, or data corruption occurred.
+            </p>
+        </section>
+
+        <footer class="footer">
+            <div class="signature-block">
+                <p>Expert Sign-off & Forensic Seal:</p>
+                <div class="signature">{{ expert_id or 'CERTIFIED_EXPERT_PKI' }}</div>
+                <p>Date: {{ issued_at }}</p>
+            </div>
+            <div class="qr-block">
+                <img src="{{ qr_code_uri }}" alt="Verification QR Code" class="qr-code">
+                <p>Scan to verify on-chain</p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
+

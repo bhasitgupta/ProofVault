@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BSA §63 Certificate - Part A</title>
+    <link rel="stylesheet" href="certificate.css">
+</head>
+<body>
+    <div class="certificate-container">
+        <header class="header">
+            <div class="emblem">EMBLEM OF INDIA</div>
+            <h1>BHARATIYA SAKSHYA ADHINIYAM, 2023</h1>
+            <h2>SCHEDULE (SECTION 63) — PART A</h2>
+            <h3>CERTIFICATE BY THE PERSON PRODUCING / OPERATING THE DEVICE</h3>
+        </header>
+
+        <div class="cert-meta">
+            <p><strong>Certificate ID:</strong> {{ cert_id }}</p>
+            <p><strong>Issued At:</strong> {{ issued_at }}</p>
+            <p><strong>Case File / FIR:</strong> {{ case_id }}</p>
+        </div>
+
+        <section class="section">
+            <h4>1. Identification of Electronic Record</h4>
+            <table class="data-table">
+                <tr><th>Document ID</th><td>{{ doc_id }}</td></tr>
+                <tr><th>Original Filename</th><td>{{ filename }}</td></tr>
+                <tr><th>Document Classification</th><td>{{ classification }}</td></tr>
+                <tr><th>MIME Type</th><td>{{ mime_type }}</td></tr>
+                <tr><th>Total Evidence Chunks</th><td>{{ chunk_count }}</td></tr>
+            </table>
+        </section>
+
+        <section class="section">
+            <h4>2. Cryptographic Hashes & Ledger Anchor</h4>
+            <table class="data-table">
+                <tr><th>Canonical Content Hash (SHA-256)</th><td><code>{{ content_hash }}</code></td></tr>
+                <tr><th>AES-256-GCM Blob Hash (SHA-256)</th><td><code>{{ blob_hash }}</code></td></tr>
+                <tr><th>Domain-Separated Merkle Root</th><td><code>{{ chunk_merkle_root }}</code></td></tr>
+                <tr><th>Ledger Anchoring Tx ID</th><td><code>{{ ledger_tx_id }}</code></td></tr>
+            </table>
+        </section>
+
+        <section class="section declaration">
+            <h4>3. Statutory Affirmation under BSA §63(4)(a)</h4>
+            <p>
+                I, <strong>{{ issuer_name }}</strong>, holding the position of <strong>{{ issuer_designation }}</strong>,
+                do hereby certify that the electronic record described above was produced and ingested into the Secure Digital
+                Document Management System (SDMS) in the regular course of official activities. The computer terminal and cryptographic
+                pipeline operated with full integrity, with zero unauthorized tampering or alteration.
+            </p>
+        </section>
+
+        <footer class="footer">
+            <div class="signature-block">
+                <p>Digital Signature / Cryptographic Anchor:</p>
+                <div class="signature">{{ issuer_id }}</div>
+                <p>Date: {{ issued_at }}</p>
+            </div>
+            <div class="qr-block">
+                <img src="{{ qr_code_uri }}" alt="Verification QR Code" class="qr-code">
+                <p>Scan to verify on-chain</p>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
+
