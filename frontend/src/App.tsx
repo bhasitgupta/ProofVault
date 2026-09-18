@@ -44,15 +44,15 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
           
           <div className="flex items-center gap-6">
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-800 to-amber-900 text-white flex items-center justify-center shadow-md shadow-red-950/20 group-hover:scale-105 transition-transform">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-crimson-800 via-crimson-900 to-mahogany-900 text-white flex items-center justify-center shadow-md shadow-crimson-950/20 group-hover:scale-105 transition-transform">
                 <Scale className="w-5 h-5 text-amber-200" />
               </div>
               <div className="leading-tight">
                 <div className="flex items-center gap-2">
-                  <span className="font-serif-judicial font-black tracking-wider text-red-900 text-base">
+                  <span className="font-serif-judicial font-black tracking-wider text-crimson-900 text-base">
                     NYAYA-VAULT
                   </span>
-                  <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-red-100 text-red-800 border border-red-200">
+                  <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-crimson-50 text-crimson-800 border border-crimson-200">
                     MHA SIH26190
                   </span>
                 </div>
@@ -71,9 +71,9 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                     to={item.to}
                     className={`px-3.5 py-2 rounded-xl flex items-center gap-2 transition-all duration-200 ${
                       item.active
-                        ? 'bg-red-50 text-red-800 border border-red-200/80 shadow-sm font-bold'
+                        ? 'bg-crimson-50 text-crimson-800 border border-crimson-200 shadow-sm font-bold'
                         : item.highlight
-                        ? 'text-amber-800 hover:bg-amber-50 hover:text-amber-900 border border-amber-200'
+                        ? 'text-mahogany-800 hover:bg-mahogany-50 hover:text-mahogany-900 border border-mahogany-200'
                         : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
                     }`}
                   >
@@ -88,11 +88,11 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                   to="/admin"
                   className={`px-3 py-2 rounded-xl flex items-center gap-1.5 transition-colors ${
                     location.pathname === '/admin'
-                      ? 'bg-purple-50 text-purple-900 border border-purple-200 font-bold'
+                      ? 'bg-mahogany-50 text-mahogany-900 border border-mahogany-200 font-bold'
                       : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
                   }`}
                 >
-                  <Lock className="w-3.5 h-3.5 text-purple-700" />
+                  <Lock className="w-3.5 h-3.5 text-mahogany-700" />
                   <span>Admin</span>
                 </Link>
               )}
@@ -103,10 +103,10 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
             {/* Live Trust Telemetry */}
             <div className="hidden sm:flex items-center gap-2">
               <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-stone-100 border border-stone-200 text-[10px] font-mono text-stone-600">
-                <Radio className="w-3 h-3 text-red-600 animate-pulse" />
+                <Radio className="w-3 h-3 text-crimson-600 animate-pulse" />
                 <span>9ms</span>
               </div>
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-50 border border-red-200 text-[10px] font-mono text-red-800 font-bold">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-crimson-50 border border-crimson-200 text-[10px] font-mono text-crimson-800 font-bold">
                 <Award className="w-3 h-3 text-amber-600" />
                 <span>POLYGON ANCHORED</span>
               </div>
@@ -116,14 +116,14 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
               <div className="flex items-center gap-2.5 pl-3 border-l border-stone-200">
                 <div className="text-right font-mono text-xs">
                   <div className="text-stone-900 font-bold text-xs leading-none">{user.username}</div>
-                  <div className="text-[9px] text-red-700 font-extrabold uppercase mt-0.5 tracking-wider">{user.role}</div>
+                  <div className="text-[9px] text-crimson-700 font-extrabold uppercase mt-0.5 tracking-wider">{user.role}</div>
                 </div>
               </div>
             )}
 
             <button
               onClick={handleLogout}
-              className="p-2.5 hover:bg-red-100/60 border border-transparent hover:border-red-200 rounded-xl text-stone-500 hover:text-red-700 transition-all cursor-pointer"
+              className="p-2.5 hover:bg-crimson-50 border border-transparent hover:border-crimson-200 rounded-xl text-stone-500 hover:text-crimson-800 transition-all cursor-pointer"
               title="Terminate Session"
             >
               <LogOut className="w-4 h-4" />
