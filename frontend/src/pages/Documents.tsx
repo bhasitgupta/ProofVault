@@ -149,17 +149,9 @@ export const DocumentsPage: React.FC = () => {
   const handleDownload = async (docId: string, filename: string) => {
     setDownloadingId(docId);
     try {
-      const blob = await downloadDocumentFile(docId);
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      await downloadDocumentFile(docId, filename);
     } catch (err: any) {
-      alert(err.response?.data?.detail || 'Failed to download encrypted evidence payload.');
+      alert(err.message || 'Failed to download encrypted evidence payload.');
     } finally {
       setDownloadingId(null);
     }
