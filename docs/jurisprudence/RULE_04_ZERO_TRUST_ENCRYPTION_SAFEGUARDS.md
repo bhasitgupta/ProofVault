@@ -3,3 +3,5 @@
 ### Custodian Key Isolation
 
 Database administrators must never hold document decryption keys (DEKs).
+
+### Split-Knowledge Secret Sharing
