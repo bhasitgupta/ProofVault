@@ -13,4 +13,7 @@ backend/test_redteam_*.db
 backend/*.db
 scripts/generate_contributions.py
 *contribution*
+*.bin
+contracts/artifacts/
+contracts/cache/
 

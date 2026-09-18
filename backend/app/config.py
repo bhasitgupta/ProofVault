@@ -19,9 +19,6 @@ class Settings(BaseSettings):
     POLYGON_PRIVATE_KEY: str = ""
     POLYGON_EVIDENCE_REGISTRY_ADDRESS: str = ""
     POLYGON_PROVENANCE_REGISTRY_ADDRESS: str = ""
-    POLYGON_AUDIT_ANCHOR_REGISTRY_ADDRESS: str = ""
-    POLYGON_LEGAL_HOLD_REGISTRY_ADDRESS: str = ""
-    POLYGON_ACCESS_CONTROL_REGISTRY_ADDRESS: str = ""
 
     # Vault (prod: Hashicorp Vault Transit)
     VAULT_DEV_MODE: bool = True

@@ -4,26 +4,27 @@ pragma solidity ^0.8.20;
 /**
  * @title EvidenceRegistry
  * @notice Core Electronic Evidence & Merkle Root Registry for Nyaya-Vault (Polygon Amoy / EVM).
- * Anchors document Merkle roots, plaintext content hashes, and metadata for BSA §63 admissibility.
+ * Strictly adheres to SIH26190 Technical Requirements Document (TRD §12.1 & §13) and SRS §6.6.
+ * Anchors document Merkle roots, plaintext content hashes, batch rollups, and statutory hold statuses.
  * Enforces on-chain decentralized multi-admin governance and minting authorization.
  */
 contract EvidenceRegistry {
-    enum Classification { RESTRICTED, CONFIDENTIAL, SECRET }
+    enum Status { REGISTERED, ACTIVE, SUPERSEDED, LEGAL_HOLD, SHREDDED }
 
     struct EvidenceRecord {
         bytes32 docIdHash;
-        bytes32 merkleRoot;
         bytes32 contentHash;
+        bytes32 merkleRoot;
         bytes32 blobHash;
         string caseId;
-        Classification classification;
-        uint256 chunkCount;
+        uint256 batchId;
         uint256 registeredAt;
+        Status status;
         address registrar;
         bool exists;
     }
 
-    // --- On-Chain Multi-Admin & Role State ---
+    // --- On-Chain Multi-Admin & Registrar State ---
     mapping(address => bool) public isAdmin;
     uint256 public adminCount;
     mapping(address => bool) public isRegistrar;
@@ -40,9 +41,9 @@ contract EvidenceRegistry {
     event EvidenceRegistered(
         bytes32 indexed docIdHash,
         bytes32 indexed merkleRoot,
+        bytes32 contentHash,
         string caseId,
-        Classification classification,
-        uint256 chunkCount,
+        uint256 batchId,
         uint256 timestamp,
         address indexed registrar
     );
@@ -51,10 +52,16 @@ contract EvidenceRegistry {
         bytes32 indexed docIdHash,
         bytes32 indexed merkleRoot,
         string caseId,
-        Classification classification,
-        uint256 chunkCount,
         uint256 timestamp,
         address indexed registrar
+    );
+
+    event EvidenceStatusUpdated(
+        bytes32 indexed docIdHash,
+        Status previousStatus,
+        Status newStatus,
+        address indexed updatedBy,
+        uint256 timestamp
     );
 
     // --- Modifiers ---
@@ -102,42 +109,31 @@ contract EvidenceRegistry {
         emit RegistrarUpdated(registrar, authorized, msg.sender);
     }
 
-    function authorizeRegistrar(address registrar) external onlyAdmin {
-        require(registrar != address(0), "Zero address");
-        isRegistrar[registrar] = true;
-        emit RegistrarUpdated(registrar, true, msg.sender);
-    }
-
-    function revokeRegistrar(address registrar) external onlyAdmin {
-        isRegistrar[registrar] = false;
-        emit RegistrarUpdated(registrar, false, msg.sender);
-    }
-
     // ==========================================
-    // EVIDENCE REGISTRATION & MINTING
+    // EVIDENCE REGISTRATION & MINTING (TRD §12.1)
     // ==========================================
 
     function registerEvidence(
         bytes32 docIdHash,
-        bytes32 merkleRoot,
         bytes32 contentHash,
+        bytes32 merkleRoot,
         bytes32 blobHash,
         string calldata caseId,
-        Classification classification,
-        uint256 chunkCount
+        uint256 batchId
     ) public onlyAuthorized {
         require(!_evidence[docIdHash].exists, "EvidenceRegistry: document already registered");
         require(merkleRoot != bytes32(0), "EvidenceRegistry: invalid merkle root");
+        require(contentHash != bytes32(0), "EvidenceRegistry: invalid content hash");
 
         _evidence[docIdHash] = EvidenceRecord({
             docIdHash: docIdHash,
-            merkleRoot: merkleRoot,
             contentHash: contentHash,
+            merkleRoot: merkleRoot,
             blobHash: blobHash,
             caseId: caseId,
-            classification: classification,
-            chunkCount: chunkCount,
+            batchId: batchId,
             registeredAt: block.timestamp,
+            status: Status.REGISTERED,
             registrar: msg.sender,
             exists: true
         });
@@ -147,9 +143,9 @@ contract EvidenceRegistry {
         emit EvidenceRegistered(
             docIdHash,
             merkleRoot,
+            contentHash,
             caseId,
-            classification,
-            chunkCount,
+            batchId,
             block.timestamp,
             msg.sender
         );
@@ -158,8 +154,6 @@ contract EvidenceRegistry {
             docIdHash,
             merkleRoot,
             caseId,
-            classification,
-            chunkCount,
             block.timestamp,
             msg.sender
         );
@@ -167,19 +161,52 @@ contract EvidenceRegistry {
 
     function mintEvidence(
         bytes32 docIdHash,
-        bytes32 merkleRoot,
         bytes32 contentHash,
+        bytes32 merkleRoot,
         bytes32 blobHash,
         string calldata caseId,
-        Classification classification,
-        uint256 chunkCount
+        uint256 batchId
     ) external onlyAuthorized {
-        registerEvidence(docIdHash, merkleRoot, contentHash, blobHash, caseId, classification, chunkCount);
+        registerEvidence(docIdHash, contentHash, merkleRoot, blobHash, caseId, batchId);
     }
+
+    // ==========================================
+    // STATUTORY LIFECYCLE & LEGAL HOLD
+    // ==========================================
+
+    function updateStatus(bytes32 docIdHash, Status newStatus) public onlyAuthorized {
+        require(_evidence[docIdHash].exists, "EvidenceRegistry: document not found");
+        Status prev = _evidence[docIdHash].status;
+        require(prev != Status.SHREDDED, "EvidenceRegistry: cannot modify shredded document");
+        _evidence[docIdHash].status = newStatus;
+        emit EvidenceStatusUpdated(docIdHash, prev, newStatus, msg.sender, block.timestamp);
+    }
+
+    function imposeLegalHold(bytes32 docIdHash) external onlyAuthorized {
+        updateStatus(docIdHash, Status.LEGAL_HOLD);
+    }
+
+    function liftLegalHold(bytes32 docIdHash) external onlyAuthorized {
+        updateStatus(docIdHash, Status.ACTIVE);
+    }
+
+    function isUnderLegalHold(bytes32 docIdHash) external view returns (bool) {
+        if (!_evidence[docIdHash].exists) return false;
+        return _evidence[docIdHash].status == Status.LEGAL_HOLD;
+    }
+
+    // ==========================================
+    // VERIFICATION & AUDIT (TRD §12.1 & §13)
+    // ==========================================
 
     function getEvidence(bytes32 docIdHash) external view returns (EvidenceRecord memory) {
         require(_evidence[docIdHash].exists, "EvidenceRegistry: evidence not found");
         return _evidence[docIdHash];
+    }
+
+    function verifyContentHash(bytes32 docIdHash, bytes32 candidateHash) external view returns (bool) {
+        if (!_evidence[docIdHash].exists) return false;
+        return _evidence[docIdHash].contentHash == candidateHash;
     }
 
     function verifyMerkleRoot(bytes32 docIdHash, bytes32 candidateRoot) external view returns (bool) {
@@ -187,7 +214,11 @@ contract EvidenceRegistry {
         return _evidence[docIdHash].merkleRoot == candidateRoot;
     }
 
-    function verifyChunkProof(bytes32 leaf, bytes32[] calldata proof, bytes32 root) public pure returns (bool) {
+    function verifyChunkProof(
+        bytes32 leaf,
+        bytes32[] calldata proof,
+        bytes32 root
+    ) public pure returns (bool) {
         bytes32 computedHash = leaf;
         for (uint256 i = 0; i < proof.length; i++) {
             bytes32 proofElement = proof[i];

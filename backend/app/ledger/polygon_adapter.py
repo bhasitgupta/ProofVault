@@ -22,18 +22,12 @@ class PolygonLedgerAdapter:
         private_key: Optional[str] = None,
         evidence_registry_address: Optional[str] = None,
         provenance_registry_address: Optional[str] = None,
-        audit_anchor_registry_address: Optional[str] = None,
-        legal_hold_registry_address: Optional[str] = None,
-        access_control_registry_address: Optional[str] = None,
     ):
         self.chain_id = 80002
         self.rpc_url = rpc_url or os.getenv("POLYGON_RPC_URL", "https://rpc-amoy.polygon.technology/")
         self.private_key = private_key or os.getenv("POLYGON_PRIVATE_KEY")
         self.evidence_contract_addr = evidence_registry_address or os.getenv("POLYGON_EVIDENCE_REGISTRY_ADDRESS", "0x71C676d1d4E1492dE8203E7e1273934dDE606a24")
         self.provenance_contract_addr = provenance_registry_address or os.getenv("POLYGON_PROVENANCE_REGISTRY_ADDRESS", "0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
-        self.audit_anchor_contract_addr = audit_anchor_registry_address or os.getenv("POLYGON_AUDIT_ANCHOR_REGISTRY_ADDRESS", "0x345ca3e014Aaf5caA4519D84e41e9b062e3B3a5B")
-        self.legal_hold_contract_addr = legal_hold_registry_address or os.getenv("POLYGON_LEGAL_HOLD_REGISTRY_ADDRESS", "0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF")
-        self.access_control_contract_addr = access_control_registry_address or os.getenv("POLYGON_ACCESS_CONTROL_REGISTRY_ADDRESS", "0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69")
         
         # Internal local storage and validation delegate
         self._dev_ledger = DevLedger()
@@ -57,18 +51,6 @@ class PolygonLedgerAdapter:
     @property
     def provenance_contract_address(self) -> str:
         return self.provenance_contract_addr or "0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7"
-
-    @property
-    def audit_anchor_contract_address(self) -> str:
-        return self.audit_anchor_contract_addr or "0x345ca3e014Aaf5caA4519D84e41e9b062e3B3a5B"
-
-    @property
-    def legal_hold_contract_address(self) -> str:
-        return self.legal_hold_contract_addr or "0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF"
-
-    @property
-    def access_control_contract_address(self) -> str:
-        return self.access_control_contract_addr or "0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69"
 
     def record_document_hash(self, doc_id: str, doc_hash: str) -> Dict[str, Any]:
         tx_hash = self._generate_evm_tx_hash("polygon:doc_hash", f"{doc_id}:{doc_hash}")
