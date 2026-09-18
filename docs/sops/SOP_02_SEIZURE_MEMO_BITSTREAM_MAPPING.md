@@ -9,3 +9,5 @@ Physical paper Panchnama / Seizure Memo must print SHA-256 hash in bold mono tex
 Independent Panch witnesses sign across printed digital hash digest.
 
 ### Barcode / QR Code Affixation
+
+Tamper-evident evidence bags affixed with QR code linking to Polygon Amoy custody receipt.
