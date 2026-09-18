@@ -19,3 +19,5 @@ Every physical and digital touchpoint must be chronologically continuous.
 - Automatic generation of electronic transfer manifest.
 
 ### 2.4 Disposal & Retention Schedules
+
+Disposal requires explicit judicial decree under CrPC / BNSS.
