@@ -5,3 +5,5 @@
 - **Chain ID**: `80002` (EIP-155 compliant)
 
 - **Gas Strategy**: Dynamic EIP-1559 maxFeePerGas and maxPriorityFeePerGas estimation.
+
+- **Block Confirmation Policy**: Minimum 5 block confirmations required for statutory finality.
