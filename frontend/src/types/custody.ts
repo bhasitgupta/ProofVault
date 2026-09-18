@@ -5,3 +5,10 @@ export interface CustodyRecord {
   timestamp: number;
   txHash: string;
 }
+
+export interface CustodyVerificationProof {
+  docHash: string;
+  merkleRoot: string;
+  blockNumber: number;
+  isAnchored: boolean;
+}
