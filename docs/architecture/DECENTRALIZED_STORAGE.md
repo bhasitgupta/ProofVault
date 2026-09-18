@@ -6,3 +6,5 @@
 - Tier 2: S3 / MinIO WORM compliance storage for sealed exhibits.
 
 - Tier 3: IPFS / Filecoin archive for cross-jurisdiction discovery.
+
+- Tier 4: Polygon Amoy for immutable Merkle root commitments.
