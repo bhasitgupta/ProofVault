@@ -15,3 +15,8 @@ class CaseDossierSealRequest(BaseModel):
     court_order_reference: str
     magistrate_badge: str
     seal_duration_days: int = 365
+
+class CaseDossierAuditTrail(BaseModel):
+    case_id: str
+    merkle_root: str
+    polygon_tx_hash: Optional[str] = None
