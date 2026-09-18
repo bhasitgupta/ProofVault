@@ -1,0 +1,19 @@
+{
+  "name": "access-contract",
+  "version": "1.0.0",
+  "description": "Hyperledger Fabric smart contract for immutable audit trails (access-channel)",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "fabric-chaincode-node start"
+  },
+  "dependencies": {
+    "fabric-contract-api": "^2.5.4",
+    "fabric-shim": "^2.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  }
+}
