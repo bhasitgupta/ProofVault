@@ -14,3 +14,4 @@
 - Class 13: IoT and Smart Home Sensor Telemetry Records.
 - Class 14: SCADA and Industrial Control System Event Logs.
 - Class 15: Cryptocurrency Blockchain Wallet and Mixer Flow Graphs.
+- Class 16: Satellite Imagery and Remote Sensing Radar Sweeps.
