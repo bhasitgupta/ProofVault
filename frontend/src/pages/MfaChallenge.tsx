@@ -101,10 +101,10 @@ export const MfaChallenge: React.FC = () => {
           <button
             type="submit"
             disabled={loading || totpCode.length !== 6}
-            className="w-full flex items-center justify-center gap-2.5 py-3.5 bg-gradient-to-r from-crimson-800 via-crimson-700 to-mahogany-900 hover:from-crimson-900 hover:via-crimson-800 hover:to-mahogany-950 disabled:opacity-50 text-white text-sm font-bold rounded-2xl transition-all shadow-lg shadow-crimson-900/20 hover:shadow-crimson-900/30 cursor-pointer"
+            className="w-full flex items-center justify-center gap-2.5 py-3.5 bg-[#991b1b] hover:bg-[#7f1d1d] active:scale-[0.99] disabled:opacity-50 text-white text-sm font-bold rounded-2xl transition-all shadow-lg shadow-red-950/20 hover:shadow-red-950/30 cursor-pointer group"
           >
             <span>{loading ? 'Validating Token Hash...' : 'Complete Phase 2 Verification'}</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform text-white" />
           </button>
         </form>
 
