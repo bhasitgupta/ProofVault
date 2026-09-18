@@ -1,1 +1,3 @@
 ## Annexure B: Forensic Laboratory Evidence Handling Protocols
+
+1. **First Responder Golden Hour**: Immediate volatile RAM capture via LiME or WinPmem.
