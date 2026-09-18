@@ -13,3 +13,9 @@ class ChatMessageArtifact(BaseModel):
     recipient_id: str
     message_body: str
     message_timestamp: str
+
+class LocationGeoPoint(BaseModel):
+    lat: float
+    lng: float
+    accuracy_meters: float
+    captured_at: str
