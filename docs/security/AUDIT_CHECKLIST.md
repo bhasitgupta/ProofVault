@@ -8,3 +8,5 @@
 [x] Anti-tamper Merkle roots anchored to Polygon Amoy.
 
 [x] SQL injection defense via parameterized SQLAlchemy models.
+
+[x] Content Security Policy (CSP) headers strictly configured.
