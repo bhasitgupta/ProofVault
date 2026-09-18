@@ -98,43 +98,43 @@ export const DocumentsPage: React.FC = () => {
       });
       setDocuments(data);
     } catch (err: any) {
-      setError(err.message || 'Failed to load documents');
+      setError(err.response?.data?.detail || 'Failed to fetch evidence documents.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Filter documents in memory with search query
+  // Filtered in-memory documents based on searchQuery
   const filteredDocuments = useMemo(() => {
     if (!searchQuery.trim()) return documents;
-    const q = searchQuery.toLowerCase();
+    const q = searchQuery.toLowerCase().trim();
     return documents.filter(
-      (d) =>
-        d.filename.toLowerCase().includes(q) ||
-        d.case_id.toLowerCase().includes(q) ||
-        d.doc_id.toLowerCase().includes(q) ||
-        d.doc_type.toLowerCase().includes(q)
+      (doc) =>
+        doc.filename.toLowerCase().includes(q) ||
+        doc.case_id.toLowerCase().includes(q) ||
+        doc.doc_id.toLowerCase().includes(q) ||
+        doc.doc_type.toLowerCase().includes(q)
     );
   }, [documents, searchQuery]);
 
+  // Counts
   const accessibleCount = documents.filter((d) => d.has_access !== false).length;
   const restrictedCount = documents.filter((d) => d.has_access === false).length;
 
+  // Handlers
   const handleOpenPreview = async (doc: DocumentRecord) => {
-    if (doc.has_access === false) {
-      alert(`Access Denied: Your role (${user?.role}) does not have sufficient clearance to access this ${doc.classification} document.`);
-      return;
-    }
     setActivePreviewDocId(doc.doc_id);
     setPreviewLoading(true);
     setPreviewError(null);
+    setPreviewData(null);
     setVerifyResult(null);
     setActiveTab('preview');
+
     try {
-      const p = await getDocumentPreview(doc.doc_id);
-      setPreviewData(p);
+      const preview = await getDocumentPreview(doc.doc_id);
+      setPreviewData(preview);
     } catch (err: any) {
-      setPreviewError(err.message || 'Failed to load file preview');
+      setPreviewError(err.response?.data?.detail || 'Access denied or unable to decrypt preview.');
     } finally {
       setPreviewLoading(false);
     }
@@ -144,37 +144,34 @@ export const DocumentsPage: React.FC = () => {
     setActivePreviewDocId(null);
     setPreviewData(null);
     setPreviewError(null);
-    setVerifyResult(null);
   };
 
-  const handleCopyPreviewText = () => {
-    if (!previewData?.preview_text) return;
-    navigator.clipboard.writeText(previewData.preview_text);
-    setCopiedText(true);
-    setTimeout(() => setCopiedText(false), 2000);
-  };
-
-  const handleDownload = async (docId: string, filename: string, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
+  const handleDownload = async (docId: string, filename: string) => {
     setDownloadingId(docId);
     try {
-      await downloadDocumentFile(docId, filename);
+      const blob = await downloadDocumentFile(docId);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
     } catch (err: any) {
-      alert(`Download failed: ${err.message}`);
+      alert(err.response?.data?.detail || 'Failed to download encrypted evidence payload.');
     } finally {
       setDownloadingId(null);
     }
   };
 
-  const handleVerify = async (docId: string, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
+  const handleVerify = async (docId: string) => {
     setVerifying(true);
     try {
-      const res = await verifyDocument(docId);
-      setVerifyResult(res);
-      setActiveTab('verify');
+      const result = await verifyDocument(docId);
+      setVerifyResult(result);
     } catch (err: any) {
-      alert(`Verification failed: ${err.message}`);
+      alert(err.response?.data?.detail || 'Verification request failed.');
     } finally {
       setVerifying(false);
     }
@@ -183,43 +180,51 @@ export const DocumentsPage: React.FC = () => {
   const handleIssueCert = async (docId: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     try {
-      const res = await issueCertificate(docId);
-      setCertData(res);
+      const cert = await issueCertificate(docId);
+      setCertData(cert);
       setIsCertOpen(true);
     } catch (err: any) {
-      alert(`Certificate issuance failed: ${err.message}`);
+      alert(err.response?.data?.detail || 'Failed to generate BSA §63 certificate.');
+    }
+  };
+
+  const handleCopyPreviewText = () => {
+    if (previewData?.preview_text) {
+      navigator.clipboard.writeText(previewData.preview_text);
+      setCopiedText(true);
+      setTimeout(() => setCopiedText(false), 2000);
     }
   };
 
   const getFileIcon = (docType: string) => {
     switch (docType) {
       case 'FIR':
-        return <FileText className="w-6 h-6 text-blue-400" />;
+        return <FileText className="w-5 h-5 text-crimson-700" />;
       case 'FORENSIC_REPORT':
-        return <FileCheck className="w-6 h-6 text-emerald-400" />;
+        return <Shield className="w-5 h-5 text-mahogany-700" />;
       case 'SEIZURE_MEMO':
-        return <FileSignature className="w-6 h-6 text-amber-400" />;
+        return <FileSignature className="w-5 h-5 text-amber-700" />;
       case 'WITNESS_STATEMENT':
-        return <FileText className="w-6 h-6 text-purple-400" />;
+        return <FileText className="w-5 h-5 text-stone-700" />;
       default:
-        return <FileCode className="w-6 h-6 text-slate-400" />;
+        return <FileCode className="w-5 h-5 text-stone-600" />;
     }
   };
 
   return (
     <div className="space-y-6">
       {/* ── Top Header & Role Clearance Banner ─────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
+      <div className="glass-ivory border-crimson-gold rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-police-blue/40 border border-police-accent/50 rounded-xl">
-              <Folder className="w-6 h-6 text-police-accent" />
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-crimson-50 border border-crimson-200 rounded-xl">
+              <Folder className="w-6 h-6 text-crimson-800" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+              <h1 className="text-2xl font-serif-judicial font-bold tracking-tight text-stone-900 flex items-center gap-2">
                 Evidence Files Explorer
               </h1>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <p className="text-xs text-stone-600 mt-0.5">
                 Role-gated repository browser with cryptographic zero-trust verification.
               </p>
             </div>
@@ -228,18 +233,18 @@ export const DocumentsPage: React.FC = () => {
 
         {/* User Role & Clearance Badge */}
         <div className="flex flex-wrap items-center gap-2.5">
-          <div className="px-3.5 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs font-mono shadow">
-            <div className="text-[10px] text-slate-500 uppercase tracking-wider">Active Clearance Scope</div>
+          <div className="px-3.5 py-2 rounded-xl bg-parchment-100 border border-stone-200 text-xs font-mono shadow-sm">
+            <div className="text-[10px] text-stone-500 uppercase tracking-wider font-semibold">Active Clearance Scope</div>
             <div className="flex items-center gap-2 mt-0.5">
-              <span className="font-bold text-police-accent">{user?.role}</span>
-              <span className="text-slate-600">•</span>
-              <span className="text-emerald-400 font-semibold">{roleClearance[user?.role || ''] || user?.role}</span>
+              <span className="font-bold text-crimson-800">{user?.role}</span>
+              <span className="text-stone-400">•</span>
+              <span className="text-emerald-700 font-semibold">{roleClearance[user?.role || ''] || user?.role}</span>
             </div>
           </div>
 
           <button
             onClick={() => navigate('/upload')}
-            className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-emerald-600/20 transition-all"
+            className="flex items-center gap-1.5 px-4 py-2 bg-crimson-800 hover:bg-crimson-700 text-white text-xs font-semibold rounded-xl shadow-md shadow-crimson-900/10 transition-all"
           >
             <Folder className="w-4 h-4" />
             <span>Ingest File</span>
@@ -248,22 +253,22 @@ export const DocumentsPage: React.FC = () => {
       </div>
 
       {/* ── Filter Bar & View Controls ─────────────────────────────── */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+      <div className="glass-ivory rounded-2xl p-4 sm:p-5 shadow-sm space-y-3.5 border border-stone-200/80">
         <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
           {/* Search Input */}
           <div className="relative flex-1 w-full">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search files by name, case ID, or document ID..."
-              className="w-full pl-10 pr-4 py-2 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-police-accent"
+              className="w-full pl-10 pr-4 py-2 bg-white border border-stone-200 rounded-xl text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-crimson-700 shadow-inner"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-700"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -273,29 +278,29 @@ export const DocumentsPage: React.FC = () => {
           {/* View Toggles & Accessible-Only Switch */}
           <div className="flex items-center gap-3 w-full md:w-auto justify-between md:justify-end">
             {/* Role Access Filter Toggle */}
-            <label className="flex items-center gap-2 text-xs font-medium text-slate-300 cursor-pointer select-none bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 hover:border-slate-700">
+            <label className="flex items-center gap-2 text-xs font-medium text-stone-700 cursor-pointer select-none bg-white px-3 py-2 rounded-xl border border-stone-200 hover:border-stone-300 shadow-sm">
               <input
                 type="checkbox"
                 checked={accessibleOnly}
                 onChange={(e) => setAccessibleOnly(e.target.checked)}
-                className="rounded border-slate-700 text-police-accent focus:ring-0 focus:ring-offset-0 bg-slate-900"
+                className="rounded border-stone-300 text-crimson-700 focus:ring-0 focus:ring-offset-0"
               />
               <span className="flex items-center gap-1.5">
                 {accessibleOnly ? (
-                  <Unlock className="w-3.5 h-3.5 text-emerald-400" />
+                  <Unlock className="w-3.5 h-3.5 text-emerald-600" />
                 ) : (
-                  <Lock className="w-3.5 h-3.5 text-amber-400" />
+                  <Lock className="w-3.5 h-3.5 text-amber-600" />
                 )}
-                <span>{accessibleOnly ? 'Accessible Files Only' : 'Show All (incl. Locked)'}</span>
+                <span>{accessibleOnly ? 'Accessible Only' : 'Show Locked Files'}</span>
               </span>
             </label>
 
             {/* Grid / Table View Switch */}
-            <div className="flex items-center bg-slate-950 p-1 rounded-xl border border-slate-800">
+            <div className="flex items-center bg-parchment-200 p-1 rounded-xl border border-stone-200">
               <button
                 onClick={() => setViewMode('grid')}
                 className={`p-1.5 rounded-lg transition-colors ${
-                  viewMode === 'grid' ? 'bg-slate-800 text-police-accent shadow' : 'text-slate-400 hover:text-white'
+                  viewMode === 'grid' ? 'bg-white text-crimson-800 shadow-sm' : 'text-stone-500 hover:text-stone-900'
                 }`}
                 title="Grid View"
               >
@@ -304,7 +309,7 @@ export const DocumentsPage: React.FC = () => {
               <button
                 onClick={() => setViewMode('table')}
                 className={`p-1.5 rounded-lg transition-colors ${
-                  viewMode === 'table' ? 'bg-slate-800 text-police-accent shadow' : 'text-slate-400 hover:text-white'
+                  viewMode === 'table' ? 'bg-white text-crimson-800 shadow-sm' : 'text-stone-500 hover:text-stone-900'
                 }`}
                 title="Table View"
               >
@@ -315,7 +320,7 @@ export const DocumentsPage: React.FC = () => {
         </div>
 
         {/* Dropdown Filters & Stats */}
-        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-800/80 text-xs">
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-stone-200 text-xs">
           <div className="flex flex-wrap items-center gap-2">
             {/* Case Filter */}
             <select
@@ -324,7 +329,7 @@ export const DocumentsPage: React.FC = () => {
                 setSelectedCase(e.target.value);
                 setSearchParams(e.target.value ? { case: e.target.value } : {});
               }}
-              className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-300 text-xs focus:outline-none focus:border-police-accent font-mono"
+              className="bg-white border border-stone-200 rounded-xl px-3 py-1.5 text-stone-700 text-xs focus:outline-none focus:border-crimson-700 font-mono shadow-sm"
             >
               <option value="">All Cases ({cases.length})</option>
               {cases.map((c) => (
@@ -338,7 +343,7 @@ export const DocumentsPage: React.FC = () => {
             <select
               value={selectedClassification}
               onChange={(e) => setSelectedClassification(e.target.value)}
-              className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-300 text-xs focus:outline-none focus:border-police-accent"
+              className="bg-white border border-stone-200 rounded-xl px-3 py-1.5 text-stone-700 text-xs focus:outline-none focus:border-crimson-700 shadow-sm"
             >
               <option value="">All Classifications</option>
               <option value="RESTRICTED">RESTRICTED</option>
@@ -350,7 +355,7 @@ export const DocumentsPage: React.FC = () => {
             <select
               value={selectedDocType}
               onChange={(e) => setSelectedDocType(e.target.value)}
-              className="bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-300 text-xs focus:outline-none focus:border-police-accent"
+              className="bg-white border border-stone-200 rounded-xl px-3 py-1.5 text-stone-700 text-xs focus:outline-none focus:border-crimson-700 shadow-sm"
             >
               <option value="">All Document Types</option>
               <option value="FIR">First Information Report (FIR)</option>
@@ -367,7 +372,7 @@ export const DocumentsPage: React.FC = () => {
                   setSelectedDocType('');
                   setSearchParams({});
                 }}
-                className="text-police-accent hover:underline text-xs flex items-center gap-1 ml-1"
+                className="text-crimson-700 hover:text-crimson-800 hover:underline text-xs flex items-center gap-1 ml-1 font-semibold"
               >
                 Reset filters
               </button>
@@ -375,14 +380,14 @@ export const DocumentsPage: React.FC = () => {
           </div>
 
           {/* Count Breakdown */}
-          <div className="flex items-center gap-2 font-mono text-[11px] text-slate-400">
+          <div className="flex items-center gap-2 font-mono text-[11px] text-stone-600">
             <span>Showing <strong>{filteredDocuments.length}</strong> files</span>
-            <span className="text-slate-600">•</span>
-            <span className="text-emerald-400">✓ {accessibleCount} accessible</span>
+            <span className="text-stone-300">•</span>
+            <span className="text-emerald-700 font-semibold">✓ {accessibleCount} accessible</span>
             {restrictedCount > 0 && (
               <>
-                <span className="text-slate-600">•</span>
-                <span className="text-red-400">✕ {restrictedCount} locked</span>
+                <span className="text-stone-300">•</span>
+                <span className="text-rose-700 font-semibold">✕ {restrictedCount} locked</span>
               </>
             )}
           </div>
@@ -391,23 +396,23 @@ export const DocumentsPage: React.FC = () => {
 
       {/* ── Error Banner ───────────────────────────────────────────── */}
       {error && (
-        <div className="p-4 bg-red-950/60 border border-red-500/50 rounded-xl text-xs text-red-300 flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
+        <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-800 flex items-center gap-2.5">
+          <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       {/* ── Documents Content ──────────────────────────────────────── */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-16 space-y-3">
-          <RefreshCw className="w-6 h-6 text-police-accent animate-spin" />
-          <span className="text-slate-400 text-xs font-mono">Evaluating cryptographic permissions & loading files...</span>
+        <div className="flex flex-col items-center justify-center py-20 space-y-3">
+          <RefreshCw className="w-6 h-6 text-crimson-700 animate-spin" />
+          <span className="text-stone-500 text-xs font-mono">Evaluating cryptographic permissions & loading files...</span>
         </div>
       ) : filteredDocuments.length === 0 ? (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center space-y-3">
-          <FileText className="w-10 h-10 text-slate-600 mx-auto" />
-          <h3 className="text-sm font-semibold text-slate-300">No Evidence Documents Found</h3>
-          <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
+        <div className="glass-ivory rounded-2xl p-12 text-center space-y-3 border border-stone-200">
+          <FileText className="w-10 h-10 text-stone-400 mx-auto" />
+          <h3 className="text-sm font-serif-judicial font-bold text-stone-800">No Evidence Documents Found</h3>
+          <p className="text-xs text-stone-500 max-w-md mx-auto leading-relaxed">
             {accessibleOnly
               ? `No accessible documents found matching your filter criteria within your clearance level (${user?.role}).`
               : 'No documents match the specified search and filter criteria.'}
@@ -424,15 +429,15 @@ export const DocumentsPage: React.FC = () => {
               <div
                 key={doc.doc_id}
                 onClick={() => handleOpenPreview(doc)}
-                className={`rounded-2xl border p-4.5 flex flex-col justify-between transition-all group relative cursor-pointer ${
+                className={`glass-ivory glass-ivory-hover rounded-2xl p-5 flex flex-col justify-between transition-all group relative cursor-pointer border ${
                   isAccessible
-                    ? 'bg-slate-900/90 border-slate-800 hover:border-police-accent/60 hover:bg-slate-900 shadow-lg'
-                    : 'bg-slate-950/80 border-red-900/30 opacity-70 hover:opacity-90'
+                    ? 'border-stone-200 hover:border-crimson-700/40'
+                    : 'border-rose-200/60 bg-stone-50/80 opacity-70 hover:opacity-90'
                 }`}
               >
                 {/* Lock Overlay for Restricted Files */}
                 {!isAccessible && (
-                  <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-0.5 rounded bg-red-950 border border-red-800 text-red-400 text-[10px] font-mono font-bold">
+                  <div className="absolute top-3 right-3 flex items-center gap-1 px-2 py-0.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 text-[10px] font-mono font-bold">
                     <Lock className="w-3 h-3" />
                     <span>LOCKED</span>
                   </div>
@@ -441,11 +446,11 @@ export const DocumentsPage: React.FC = () => {
                 <div className="space-y-3">
                   {/* Top: Icon + Case Tag + Classification Badge */}
                   <div className="flex items-start justify-between gap-2">
-                    <div className="p-2.5 bg-slate-950 border border-slate-800 rounded-xl group-hover:border-police-accent/40 transition-colors">
+                    <div className="p-2.5 bg-parchment-100 border border-stone-200 rounded-xl group-hover:border-crimson-600/30 transition-colors">
                       {getFileIcon(doc.doc_type)}
                     </div>
                     {isAccessible && (
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${badge.bg} ${badge.text}`}>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg border ${badge.bg} ${badge.text}`}>
                         {doc.classification}
                       </span>
                     )}
@@ -453,14 +458,14 @@ export const DocumentsPage: React.FC = () => {
 
                   {/* File Title & Case */}
                   <div>
-                    <div className="flex items-center gap-1.5 text-[11px] font-mono text-police-accent font-semibold mb-0.5">
+                    <div className="flex items-center gap-1.5 text-[11px] font-mono text-crimson-800 font-semibold mb-0.5">
                       <span>{doc.case_id}</span>
-                      <span className="text-slate-600">•</span>
-                      <span className="text-slate-400">{doc.doc_type}</span>
+                      <span className="text-stone-300">•</span>
+                      <span className="text-stone-500">{doc.doc_type}</span>
                     </div>
                     <h3
-                      className={`text-sm font-semibold leading-snug line-clamp-2 transition-colors ${
-                        isAccessible ? 'text-white group-hover:text-police-accent' : 'text-slate-400'
+                      className={`text-sm font-semibold truncate transition-colors ${
+                        isAccessible ? 'text-stone-900 group-hover:text-crimson-800' : 'text-stone-500'
                       }`}
                       title={doc.filename}
                     >
@@ -468,30 +473,27 @@ export const DocumentsPage: React.FC = () => {
                     </h3>
                   </div>
 
-                  {/* Meta: Size, Chunks, Ledger Status */}
-                  <div className="grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-400 pt-2 border-t border-slate-800/80">
-                    <div>
-                      <span className="text-slate-500">Size:</span> <span>{formatBytes(doc.size_bytes)}</span>
+                  {/* Cryptographic Footprint Preview */}
+                  <div className="p-2.5 rounded-xl bg-parchment-100/70 border border-stone-200/70 space-y-1 font-mono text-[10px]">
+                    <div className="flex items-center justify-between text-stone-500">
+                      <span>DOC ID:</span>
+                      <span className="text-stone-700">{truncateHash(doc.doc_id, 4, 4)}</span>
                     </div>
-                    <div>
-                      <span className="text-slate-500">Chunks:</span> <span>{doc.chunk_count}</span>
+                    <div className="flex items-center justify-between text-stone-500">
+                      <span>MERKLE:</span>
+                      <span className="text-emerald-700 font-semibold truncate max-w-[120px]" title={doc.chunk_merkle_root}>
+                        {truncateHash(doc.chunk_merkle_root, 4, 4)}
+                      </span>
                     </div>
-                    <div className="col-span-2 truncate text-slate-500">
-                      <span>Root:</span> <span className="text-slate-400">{truncateHash(doc.chunk_merkle_root, 6, 6)}</span>
+                    <div className="flex items-center justify-between text-stone-500">
+                      <span>SIZE:</span>
+                      <span className="text-stone-700">{formatBytes(doc.size_bytes)}</span>
                     </div>
                   </div>
-
-                  {/* Access Reason if Restricted */}
-                  {!isAccessible && (
-                    <div className="p-2 rounded bg-red-950/50 border border-red-900/40 text-[10px] text-red-300 font-mono flex items-center gap-1.5">
-                      <ShieldAlert className="w-3.5 h-3.5 text-red-400 shrink-0" />
-                      <span className="truncate">{doc.access_reason || 'Requires higher clearance'}</span>
-                    </div>
-                  )}
                 </div>
 
-                {/* Bottom Action Toolbar */}
-                <div className="pt-3 mt-3 border-t border-slate-800/80 flex items-center justify-between gap-1.5">
+                {/* Bottom Card Actions */}
+                <div className="pt-3 mt-3 border-t border-stone-200/80 flex items-center justify-between gap-1.5">
                   {isAccessible ? (
                     <>
                       <button
@@ -499,39 +501,46 @@ export const DocumentsPage: React.FC = () => {
                           e.stopPropagation();
                           handleOpenPreview(doc);
                         }}
-                        className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white rounded-lg text-xs font-semibold transition-colors"
+                        className="flex-1 flex items-center justify-center gap-1 py-1.5 px-2 bg-parchment-100 hover:bg-parchment-200 text-stone-700 hover:text-stone-900 rounded-lg text-xs font-semibold transition-colors border border-stone-200"
+                        title="Decrypted View"
                       >
-                        <Eye className="w-3.5 h-3.5 text-police-accent" />
-                        <span>Preview</span>
+                        <Eye className="w-3.5 h-3.5 text-crimson-700" />
+                        <span>Inspect</span>
                       </button>
 
                       <button
-                        onClick={(e) => handleDownload(doc.doc_id, doc.filename, e)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDownload(doc.doc_id, doc.filename);
+                        }}
                         disabled={downloadingId === doc.doc_id}
-                        className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors"
-                        title="Download Decrypted File"
+                        className="p-1.5 bg-parchment-100 hover:bg-parchment-200 text-stone-700 hover:text-stone-900 rounded-lg transition-colors border border-stone-200"
+                        title="Download Payload"
                       >
                         <Download className="w-3.5 h-3.5" />
                       </button>
 
                       <button
-                        onClick={(e) => handleVerify(doc.doc_id, e)}
-                        className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleVerify(doc.doc_id);
+                        }}
+                        className="p-1.5 bg-parchment-100 hover:bg-parchment-200 text-stone-700 hover:text-stone-900 rounded-lg transition-colors border border-stone-200"
                         title="Verify Merkle Proof"
                       >
-                        <RefreshCw className="w-3.5 h-3.5 text-emerald-400" />
+                        <RefreshCw className="w-3.5 h-3.5 text-emerald-600" />
                       </button>
 
                       <button
                         onClick={(e) => handleIssueCert(doc.doc_id, e)}
-                        className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors"
+                        className="p-1.5 bg-parchment-100 hover:bg-parchment-200 text-stone-700 hover:text-stone-900 rounded-lg transition-colors border border-stone-200"
                         title="Issue BSA §63 Certificate"
                       >
-                        <FileCheck className="w-3.5 h-3.5 text-police-gold" />
+                        <FileCheck className="w-3.5 h-3.5 text-amber-700" />
                       </button>
                     </>
                   ) : (
-                    <span className="text-[10px] font-mono text-red-400 flex items-center gap-1 mx-auto py-1">
+                    <span className="text-[10px] font-mono text-rose-700 flex items-center gap-1 mx-auto py-1">
                       <Lock className="w-3 h-3" /> Requires {doc.classification} Clearance
                     </span>
                   )}
@@ -542,22 +551,22 @@ export const DocumentsPage: React.FC = () => {
         </div>
       ) : (
         /* ── Table View ────────────────────────────────────────────── */
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+        <div className="glass-ivory rounded-2xl overflow-hidden shadow-sm border border-stone-200">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs font-mono">
-              <thead className="bg-slate-950 border-b border-slate-800 text-slate-400 text-[11px] uppercase tracking-wider">
+              <thead className="bg-parchment-200/80 border-b border-stone-200 text-stone-600 text-[11px] uppercase tracking-wider font-semibold">
                 <tr>
-                  <th className="py-3 px-4">Evidence File</th>
-                  <th className="py-3 px-3">Case ID</th>
-                  <th className="py-3 px-3">Classification</th>
-                  <th className="py-3 px-3">Type</th>
-                  <th className="py-3 px-3">Size</th>
-                  <th className="py-3 px-3">Merkle Root</th>
-                  <th className="py-3 px-3">Access Status</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
+                  <th className="py-3.5 px-4">Evidence File</th>
+                  <th className="py-3.5 px-3">Case ID</th>
+                  <th className="py-3.5 px-3">Classification</th>
+                  <th className="py-3.5 px-3">Type</th>
+                  <th className="py-3.5 px-3">Size</th>
+                  <th className="py-3.5 px-3">Merkle Root</th>
+                  <th className="py-3.5 px-3">Access Status</th>
+                  <th className="py-3.5 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800">
+              <tbody className="divide-y divide-stone-200">
                 {filteredDocuments.map((doc) => {
                   const isAccessible = doc.has_access !== false;
                   const badge = formatClassificationBadge(doc.classification);
@@ -568,67 +577,67 @@ export const DocumentsPage: React.FC = () => {
                       onClick={() => isAccessible && handleOpenPreview(doc)}
                       className={`transition-colors ${
                         isAccessible
-                          ? 'hover:bg-slate-800/60 cursor-pointer'
-                          : 'bg-red-950/20 text-slate-500 cursor-not-allowed'
+                          ? 'hover:bg-parchment-100/80 cursor-pointer'
+                          : 'bg-rose-50/40 text-stone-400 cursor-not-allowed'
                       }`}
                     >
-                      <td className="py-3 px-4 font-sans font-semibold text-white flex items-center gap-2.5">
-                        <div className="p-1.5 bg-slate-950 rounded border border-slate-800 shrink-0">
+                      <td className="py-3.5 px-4 font-sans font-semibold text-stone-900 flex items-center gap-2.5">
+                        <div className="p-1.5 bg-parchment-100 rounded-lg border border-stone-200 shrink-0">
                           {getFileIcon(doc.doc_type)}
                         </div>
                         <span className="truncate max-w-xs" title={doc.filename}>
                           {doc.filename}
                         </span>
                       </td>
-                      <td className="py-3 px-3 text-police-accent font-bold">{doc.case_id}</td>
-                      <td className="py-3 px-3">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded border ${badge.bg} ${badge.text}`}>
+                      <td className="py-3.5 px-3 text-crimson-800 font-bold">{doc.case_id}</td>
+                      <td className="py-3.5 px-3">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg border ${badge.bg} ${badge.text}`}>
                           {doc.classification}
                         </span>
                       </td>
-                      <td className="py-3 px-3 text-slate-400">{doc.doc_type}</td>
-                      <td className="py-3 px-3 text-slate-400">{formatBytes(doc.size_bytes)}</td>
-                      <td className="py-3 px-3 text-slate-400 truncate max-w-[120px]" title={doc.chunk_merkle_root}>
+                      <td className="py-3.5 px-3 text-stone-600">{doc.doc_type}</td>
+                      <td className="py-3.5 px-3 text-stone-600">{formatBytes(doc.size_bytes)}</td>
+                      <td className="py-3.5 px-3 text-stone-600 truncate max-w-[120px]" title={doc.chunk_merkle_root}>
                         {truncateHash(doc.chunk_merkle_root, 4, 4)}
                       </td>
-                      <td className="py-3 px-3">
+                      <td className="py-3.5 px-3">
                         {isAccessible ? (
-                          <span className="flex items-center gap-1 text-emerald-400 font-semibold text-[10px]">
+                          <span className="flex items-center gap-1 text-emerald-700 font-semibold text-[10px]">
                             <CheckCircle2 className="w-3 h-3" /> Accessible
                           </span>
                         ) : (
-                          <span className="flex items-center gap-1 text-red-400 font-semibold text-[10px]" title={doc.access_reason}>
+                          <span className="flex items-center gap-1 text-rose-700 font-semibold text-[10px]" title={doc.access_reason}>
                             <Lock className="w-3 h-3" /> Locked
                           </span>
                         )}
                       </td>
-                      <td className="py-3 px-4 text-right" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                         {isAccessible ? (
-                          <div className="flex items-center justify-end gap-1">
+                          <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => handleOpenPreview(doc)}
-                              className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors"
+                              className="p-1.5 bg-parchment-100 hover:bg-parchment-200 text-stone-700 rounded-lg transition-colors border border-stone-200"
                               title="Preview Content"
                             >
-                              <Eye className="w-3.5 h-3.5 text-police-accent" />
+                              <Eye className="w-3.5 h-3.5 text-crimson-700" />
                             </button>
                             <button
                               onClick={() => handleDownload(doc.doc_id, doc.filename)}
-                              className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors"
+                              className="p-1.5 bg-parchment-100 hover:bg-parchment-200 text-stone-700 rounded-lg transition-colors border border-stone-200"
                               title="Download File"
                             >
                               <Download className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => handleVerify(doc.doc_id)}
-                              className="p-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg transition-colors"
+                              className="p-1.5 bg-parchment-100 hover:bg-parchment-200 text-stone-700 rounded-lg transition-colors border border-stone-200"
                               title="Verify Merkle Proof"
                             >
-                              <RefreshCw className="w-3.5 h-3.5 text-emerald-400" />
+                              <RefreshCw className="w-3.5 h-3.5 text-emerald-600" />
                             </button>
                           </div>
                         ) : (
-                          <span className="text-[10px] text-red-400">Forbidden</span>
+                          <span className="text-[10px] text-rose-700">Forbidden</span>
                         )}
                       </td>
                     </tr>
@@ -642,22 +651,22 @@ export const DocumentsPage: React.FC = () => {
 
       {/* ── Document Preview & Inspection Modal Drawer ─────────────── */}
       {activePreviewDocId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-in fade-in">
+          <div className="bg-white border border-stone-200 rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between gap-3 bg-slate-950">
+            <div className="p-4 sm:p-5 border-b border-stone-200 flex items-center justify-between gap-3 bg-parchment-100">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="p-2 bg-slate-900 border border-slate-800 rounded-xl">
-                  <FileText className="w-5 h-5 text-police-accent" />
+                <div className="p-2 bg-white border border-stone-200 rounded-xl shadow-sm">
+                  <FileText className="w-5 h-5 text-crimson-800" />
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs text-police-accent font-bold">
+                    <span className="font-mono text-xs text-crimson-800 font-bold">
                       {previewData?.case_id || 'Case Evidence'}
                     </span>
                     {previewData && (
                       <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-lg border ${
                           formatClassificationBadge(previewData.classification).bg
                         } ${formatClassificationBadge(previewData.classification).text}`}
                       >
@@ -665,7 +674,7 @@ export const DocumentsPage: React.FC = () => {
                       </span>
                     )}
                   </div>
-                  <h2 className="text-base font-bold text-white truncate">
+                  <h2 className="text-base font-serif-judicial font-bold text-stone-900 truncate">
                     {previewData?.filename || 'Loading evidence...'}
                   </h2>
                 </div>
@@ -675,7 +684,7 @@ export const DocumentsPage: React.FC = () => {
                 {previewData && (
                   <button
                     onClick={() => handleDownload(previewData.doc_id, previewData.filename)}
-                    className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg transition-colors border border-slate-700"
+                    className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-parchment-100 text-stone-800 text-xs font-semibold rounded-lg transition-colors border border-stone-200 shadow-sm"
                   >
                     <Download className="w-3.5 h-3.5" />
                     <span>Download</span>
@@ -683,7 +692,7 @@ export const DocumentsPage: React.FC = () => {
                 )}
                 <button
                   onClick={handleClosePreview}
-                  className="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
+                  className="p-2 hover:bg-parchment-200 rounded-lg text-stone-500 hover:text-stone-800 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -691,13 +700,13 @@ export const DocumentsPage: React.FC = () => {
             </div>
 
             {/* Modal Tabs */}
-            <div className="px-5 border-b border-slate-800 bg-slate-950/60 flex items-center gap-4 text-xs font-semibold">
+            <div className="px-5 border-b border-stone-200 bg-parchment-50 flex items-center gap-4 text-xs font-semibold">
               <button
                 onClick={() => setActiveTab('preview')}
                 className={`py-3 border-b-2 flex items-center gap-1.5 transition-colors ${
                   activeTab === 'preview'
-                    ? 'border-police-accent text-police-accent'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                    ? 'border-crimson-800 text-crimson-800 font-bold'
+                    : 'border-transparent text-stone-500 hover:text-stone-800'
                 }`}
               >
                 <Eye className="w-4 h-4" />
@@ -708,8 +717,8 @@ export const DocumentsPage: React.FC = () => {
                 onClick={() => setActiveTab('chunks')}
                 className={`py-3 border-b-2 flex items-center gap-1.5 transition-colors ${
                   activeTab === 'chunks'
-                    ? 'border-police-accent text-police-accent'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                    ? 'border-crimson-800 text-crimson-800 font-bold'
+                    : 'border-transparent text-stone-500 hover:text-stone-800'
                 }`}
               >
                 <Layers className="w-4 h-4" />
@@ -720,8 +729,8 @@ export const DocumentsPage: React.FC = () => {
                 onClick={() => setActiveTab('verify')}
                 className={`py-3 border-b-2 flex items-center gap-1.5 transition-colors ${
                   activeTab === 'verify'
-                    ? 'border-police-accent text-police-accent'
-                    : 'border-transparent text-slate-400 hover:text-slate-200'
+                    ? 'border-crimson-800 text-crimson-800 font-bold'
+                    : 'border-transparent text-stone-500 hover:text-stone-800'
                 }`}
               >
                 <Shield className="w-4 h-4" />
@@ -730,14 +739,14 @@ export const DocumentsPage: React.FC = () => {
             </div>
 
             {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-5 space-y-4">
+            <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-white">
               {previewLoading ? (
                 <div className="py-16 text-center space-y-2">
-                  <RefreshCw className="w-6 h-6 text-police-accent animate-spin mx-auto" />
-                  <p className="text-xs text-slate-400 font-mono">Decrypting payload from Vault & assembling verified chunks...</p>
+                  <RefreshCw className="w-6 h-6 text-crimson-700 animate-spin mx-auto" />
+                  <p className="text-xs text-stone-500 font-mono">Decrypting payload from Vault & assembling verified chunks...</p>
                 </div>
               ) : previewError ? (
-                <div className="p-4 bg-red-950/60 border border-red-500 rounded-xl text-xs text-red-300">
+                <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800">
                   {previewError}
                 </div>
               ) : previewData ? (
@@ -745,40 +754,40 @@ export const DocumentsPage: React.FC = () => {
                   {/* TAB 1: Decrypted Content */}
                   {activeTab === 'preview' && (
                     <div className="space-y-3">
-                      <div className="flex items-center justify-between text-xs text-slate-400">
+                      <div className="flex items-center justify-between text-xs text-stone-500">
                         <span className="font-mono text-[11px]">
                           Cryptographically Decrypted via AES-256-GCM Envelope Key
                         </span>
                         <button
                           onClick={handleCopyPreviewText}
-                          className="flex items-center gap-1 text-xs text-police-accent hover:underline font-mono"
+                          className="flex items-center gap-1 text-xs text-crimson-800 hover:underline font-mono font-semibold"
                         >
-                          {copiedText ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                          {copiedText ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                           <span>{copiedText ? 'Copied to clipboard' : 'Copy text'}</span>
                         </button>
                       </div>
 
-                      <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 font-mono text-xs text-slate-200 whitespace-pre-wrap leading-relaxed max-h-[50vh] overflow-y-auto select-text shadow-inner">
+                      <div className="bg-parchment-50 p-4 rounded-xl border border-stone-200 font-mono text-xs text-stone-900 whitespace-pre-wrap leading-relaxed max-h-[50vh] overflow-y-auto select-text shadow-inner">
                         {previewData.preview_text || 'No readable text content available for this artifact.'}
                       </div>
 
                       {/* Cryptographic Footprint */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 bg-slate-950/80 rounded-xl border border-slate-800/80 text-[11px] font-mono">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 bg-parchment-100 rounded-xl border border-stone-200 text-[11px] font-mono">
                         <div>
-                          <span className="text-slate-500">Document ID:</span>{' '}
-                          <span className="text-slate-300">{previewData.doc_id}</span>
+                          <span className="text-stone-500">Document ID:</span>{' '}
+                          <span className="text-stone-800">{previewData.doc_id}</span>
                         </div>
                         <div>
-                          <span className="text-slate-500">Chunk Merkle Root:</span>{' '}
-                          <span className="text-emerald-400 font-bold">{truncateHash(previewData.chunk_merkle_root, 8, 8)}</span>
+                          <span className="text-stone-500">Chunk Merkle Root:</span>{' '}
+                          <span className="text-emerald-700 font-bold">{truncateHash(previewData.chunk_merkle_root, 8, 8)}</span>
                         </div>
                         <div>
-                          <span className="text-slate-500">Plaintext SHA-256:</span>{' '}
-                          <span className="text-slate-300">{truncateHash(previewData.content_hash, 8, 8)}</span>
+                          <span className="text-stone-500">Plaintext SHA-256:</span>{' '}
+                          <span className="text-stone-800">{truncateHash(previewData.content_hash, 8, 8)}</span>
                         </div>
                         <div>
-                          <span className="text-slate-500">Ciphertext SHA-256:</span>{' '}
-                          <span className="text-slate-300">{truncateHash(previewData.blob_hash, 8, 8)}</span>
+                          <span className="text-stone-500">Ciphertext SHA-256:</span>{' '}
+                          <span className="text-stone-800">{truncateHash(previewData.blob_hash, 8, 8)}</span>
                         </div>
                       </div>
                     </div>
@@ -787,7 +796,7 @@ export const DocumentsPage: React.FC = () => {
                   {/* TAB 2: Merkle Chunks */}
                   {activeTab === 'chunks' && (
                     <div className="space-y-3">
-                      <div className="text-xs text-slate-400 leading-relaxed">
+                      <div className="text-xs text-stone-600 leading-relaxed">
                         Every evidence page is split into deterministic chunks. Each chunk is hashed with SHA-256 and committed to the on-chain Merkle tree root ({previewData.chunk_merkle_root}).
                       </div>
 
@@ -795,17 +804,17 @@ export const DocumentsPage: React.FC = () => {
                         {previewData.chunks.map((chunk) => (
                           <div
                             key={chunk.chunk_index}
-                            className="bg-slate-950 p-3.5 rounded-xl border border-slate-800 space-y-2 font-mono text-xs"
+                            className="bg-parchment-50 p-3.5 rounded-xl border border-stone-200 space-y-2 font-mono text-xs"
                           >
                             <div className="flex items-center justify-between text-[11px]">
-                              <span className="font-bold text-police-accent">
+                              <span className="font-bold text-crimson-800">
                                 Chunk #{chunk.chunk_index} (Page {chunk.page_number})
                               </span>
-                              <span className="text-slate-500">
-                                SHA: <span className="text-slate-300">{truncateHash(chunk.chunk_hash, 8, 8)}</span>
+                              <span className="text-stone-500">
+                                SHA: <span className="text-stone-700">{truncateHash(chunk.chunk_hash, 8, 8)}</span>
                               </span>
                             </div>
-                            <div className="text-slate-300 bg-slate-900/60 p-2 rounded border border-slate-800/60 font-sans text-xs leading-relaxed whitespace-pre-wrap">
+                            <div className="text-stone-800 bg-white p-2.5 rounded-lg border border-stone-200 font-sans text-xs leading-relaxed whitespace-pre-wrap">
                               {chunk.text}
                             </div>
                           </div>
@@ -819,15 +828,15 @@ export const DocumentsPage: React.FC = () => {
                     <div className="space-y-4">
                       <div className="flex items-center justify-between">
                         <div>
-                          <h3 className="text-sm font-semibold text-white">4-Tier Zero-Trust Integrity Verification</h3>
-                          <p className="text-xs text-slate-400 mt-0.5">
+                          <h3 className="text-sm font-serif-judicial font-bold text-stone-900">4-Tier Zero-Trust Integrity Verification</h3>
+                          <p className="text-xs text-stone-500 mt-0.5">
                             Verifies on-chain Merkle root, chunk hashes, ciphertext blob, and plaintext consistency.
                           </p>
                         </div>
                         <button
                           onClick={() => handleVerify(previewData.doc_id)}
                           disabled={verifying}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-police-accent hover:bg-blue-600 text-white text-xs font-semibold rounded-lg transition-colors shadow"
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-crimson-800 hover:bg-crimson-700 text-white text-xs font-semibold rounded-lg transition-colors shadow"
                         >
                           <RefreshCw className={`w-3.5 h-3.5 ${verifying ? 'animate-spin' : ''}`} />
                           <span>Run Suite</span>
@@ -838,60 +847,60 @@ export const DocumentsPage: React.FC = () => {
                         <div
                           className={`p-4 rounded-xl border space-y-3 ${
                             verifyResult.overall
-                              ? 'bg-emerald-950/50 border-emerald-500/50'
-                              : 'bg-red-950/70 border-red-500 animate-pulse'
+                              ? 'bg-emerald-50 border-emerald-300'
+                              : 'bg-rose-50 border-rose-300 animate-pulse'
                           }`}
                         >
                           <div className="flex items-center justify-between">
                             <VerificationBadge status={verifyResult.overall ? 'VERIFIED' : 'FAILED'} />
-                            <span className="font-mono text-xs text-slate-400">Status: PASS (No Tamper Detected)</span>
+                            <span className="font-mono text-xs text-stone-600">Status: PASS (No Tamper Detected)</span>
                           </div>
 
                           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 text-xs font-mono">
-                            <div className="p-2.5 bg-slate-900/80 rounded-lg border border-slate-800">
-                              <span className="text-slate-500 block text-[10px]">Tier 1: Chunk Hash</span>
-                              <strong className={verifyResult.chunk_hash_ok ? 'text-emerald-400' : 'text-red-400'}>
+                            <div className="p-2.5 bg-white rounded-lg border border-stone-200 shadow-sm">
+                              <span className="text-stone-500 block text-[10px]">Tier 1: Chunk Hash</span>
+                              <strong className={verifyResult.chunk_hash_ok ? 'text-emerald-700' : 'text-rose-700'}>
                                 {verifyResult.chunk_hash_ok ? 'PASS' : 'FAIL'}
                               </strong>
                             </div>
-                            <div className="p-2.5 bg-slate-900/80 rounded-lg border border-slate-800">
-                              <span className="text-slate-500 block text-[10px]">Tier 2: Merkle Proof</span>
-                              <strong className={verifyResult.merkle_proof_ok ? 'text-emerald-400' : 'text-red-400'}>
+                            <div className="p-2.5 bg-white rounded-lg border border-stone-200 shadow-sm">
+                              <span className="text-stone-500 block text-[10px]">Tier 2: Merkle Proof</span>
+                              <strong className={verifyResult.merkle_proof_ok ? 'text-emerald-700' : 'text-rose-700'}>
                                 {verifyResult.merkle_proof_ok ? 'PASS' : 'FAIL'}
                               </strong>
                             </div>
-                            <div className="p-2.5 bg-slate-900/80 rounded-lg border border-slate-800">
-                              <span className="text-slate-500 block text-[10px]">Tier 3: Blob Hash</span>
-                              <strong className={verifyResult.blob_hash_ok ? 'text-emerald-400' : 'text-red-400'}>
+                            <div className="p-2.5 bg-white rounded-lg border border-stone-200 shadow-sm">
+                              <span className="text-stone-500 block text-[10px]">Tier 3: Blob Hash</span>
+                              <strong className={verifyResult.blob_hash_ok ? 'text-emerald-700' : 'text-rose-700'}>
                                 {verifyResult.blob_hash_ok ? 'PASS' : 'FAIL'}
                               </strong>
                             </div>
-                            <div className="p-2.5 bg-slate-900/80 rounded-lg border border-slate-800">
-                              <span className="text-slate-500 block text-[10px]">Tier 4: Content Hash</span>
-                              <strong className={verifyResult.content_hash_ok ? 'text-emerald-400' : 'text-red-400'}>
+                            <div className="p-2.5 bg-white rounded-lg border border-stone-200 shadow-sm">
+                              <span className="text-stone-500 block text-[10px]">Tier 4: Content Hash</span>
+                              <strong className={verifyResult.content_hash_ok ? 'text-emerald-700' : 'text-rose-700'}>
                                 {verifyResult.content_hash_ok ? 'PASS' : 'FAIL'}
                               </strong>
                             </div>
                           </div>
                         </div>
                       ) : (
-                        <div className="bg-slate-950 p-6 rounded-xl border border-slate-800 text-center space-y-2">
-                          <Shield className="w-8 h-8 text-slate-600 mx-auto" />
-                          <p className="text-xs text-slate-400">
+                        <div className="bg-parchment-50 p-6 rounded-xl border border-stone-200 text-center space-y-2">
+                          <Shield className="w-8 h-8 text-stone-400 mx-auto" />
+                          <p className="text-xs text-stone-600">
                             Click "Run Suite" to re-verify cryptographic integrity across all four tiers against the on-chain ledger.
                           </p>
                         </div>
                       )}
 
                       {/* BSA Certificate Button */}
-                      <div className="pt-3 border-t border-slate-800 flex items-center justify-between">
+                      <div className="pt-3 border-t border-stone-200 flex items-center justify-between">
                         <div>
-                          <div className="text-xs font-semibold text-white">BSA §63 Electronic Evidence Certificate</div>
-                          <div className="text-[11px] text-slate-400">Generate court-admissible certificate under Bharatiya Sakshya Adhiniyam.</div>
+                          <div className="text-xs font-semibold text-stone-900">BSA §63 Electronic Evidence Certificate</div>
+                          <div className="text-[11px] text-stone-500">Generate court-admissible certificate under Bharatiya Sakshya Adhiniyam.</div>
                         </div>
                         <button
                           onClick={() => handleIssueCert(previewData.doc_id)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition-colors shadow"
+                          className="flex items-center gap-1.5 px-3.5 py-1.5 bg-mahogany-800 hover:bg-mahogany-700 text-white text-xs font-semibold rounded-lg transition-colors shadow"
                         >
                           <FileCheck className="w-3.5 h-3.5" />
                           <span>Generate BSA Certificate</span>
@@ -904,14 +913,14 @@ export const DocumentsPage: React.FC = () => {
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-slate-800 bg-slate-950 flex flex-wrap items-center justify-between gap-3 text-xs">
-              <div className="flex items-center gap-2 font-mono text-slate-400">
+            <div className="p-4 border-t border-stone-200 bg-parchment-100 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2 font-mono text-stone-600">
                 <span>Ledger Tx:</span>
                 <LedgerTxLink txId={previewData?.ledger_tx_id || ''} channel="dochash-channel" />
               </div>
               <button
                 onClick={handleClosePreview}
-                className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg font-semibold transition-colors"
+                className="px-4 py-1.5 bg-white hover:bg-parchment-200 text-stone-800 rounded-lg font-semibold transition-colors border border-stone-200 shadow-sm"
               >
                 Close
               </button>
@@ -929,3 +938,4 @@ export const DocumentsPage: React.FC = () => {
     </div>
   );
 };
+export default DocumentsPage;
