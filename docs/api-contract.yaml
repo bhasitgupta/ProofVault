@@ -1,0 +1,243 @@
+openapi: 3.1.0
+info:
+  title: SIH26190 Secure Digital Document Management System API
+  version: 1.0.0
+  description: >
+    Official REST contract for SDMS. Enables cryptographic verification,
+    dual-channel ledger audit logging, ABAC-filtered RAG search, and BSA Sec 63 certificate issuance.
+
+paths:
+  /api/v1/auth/login:
+    post:
+      summary: Officer authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string }
+      responses:
+        '200':
+          description: Credentials valid, MFA challenge required or token returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  requires_mfa: { type: boolean }
+                  session_id: { type: string }
+                  access_token: { type: string }
+                  token_type: { type: string }
+
+  /api/v1/auth/mfa/verify:
+    post:
+      summary: Verify TOTP token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [session_id, code]
+              properties:
+                session_id: { type: string }
+                code: { type: string }
+      responses:
+        '200':
+          description: Verified. Access token issued.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token: { type: string }
+                  token_type: { type: string }
+                  role: { type: string }
+                  officer_id: { type: string }
+
+  /api/v1/cases:
+    get:
+      summary: List cases visible to the caller (enforcing live ABAC)
+      responses:
+        '200':
+          description: List of accessible cases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    case_id: { type: string }
+                    title: { type: string }
+                    classification_ceiling: { type: string }
+                    status: { type: string }
+
+  /api/v1/documents:
+    post:
+      summary: Upload and ingest legal/investigation document
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file, case_id, doc_type, classification]
+              properties:
+                file: { type: string, format: binary }
+                case_id: { type: string }
+                doc_type: { type: string }
+                classification: { type: string }
+      responses:
+        '201':
+          description: Document ingested, hashed, encrypted, and anchored on ledger
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  doc_id: { type: string }
+                  content_hash: { type: string }
+                  blob_hash: { type: string }
+                  chunk_merkle_root: { type: string }
+                  ledger_tx_id: { type: string }
+                  status: { type: string }
+
+  /api/v1/documents/{doc_id}:
+    get:
+      summary: Get document metadata
+      parameters:
+        - name: doc_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Document metadata and ledger anchoring record
+
+  /api/v1/documents/{doc_id}/download:
+    get:
+      summary: Authorised decrypt-and-stream document
+      parameters:
+        - name: doc_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Decrypted binary file stream
+
+  /api/v1/query:
+    post:
+      summary: Policy-aware grounded RAG query with pre-retrieval integrity gate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [query]
+              properties:
+                query: { type: string }
+                case_id: { type: string }
+      responses:
+        '200':
+          description: Grounded answer with verified citations and provenance
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  answer: { type: string }
+                  citations:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        doc_id: { type: string }
+                        page: { type: integer }
+                        chunk_hash: { type: string }
+                        verification_status: { type: string }
+                        merkle_verified: { type: boolean }
+                        ledger_tx_id: { type: string }
+                  tamper_detected: { type: boolean }
+                  timings_ms: { type: object }
+
+  /api/v1/verify/{doc_id}:
+    post:
+      summary: On-demand cryptographic verification
+      parameters:
+        - name: doc_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Full verification status (blob hash, content hash, Merkle root vs on-chain)
+
+  /api/v1/audit:
+    get:
+      summary: Query ledger audit events
+      parameters:
+        - name: case_id
+          in: query
+          schema: { type: string }
+        - name: actor_id
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: List of audit records
+
+  /api/v1/documents/{doc_id}/custody:
+    get:
+      summary: Full chain-of-custody timeline for document
+      parameters:
+        - name: doc_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Chronological list of custody events
+
+  /api/v1/certificate/{doc_id}:
+    post:
+      summary: Generate Bharatiya Sakshya Adhiniyam (BSA) Sec 63 Schedule Certificate PDF
+      parameters:
+        - name: doc_id
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Certificate metadata and download link
+
+  /api/v1/admin/revoke:
+    post:
+      summary: Live revocation of case assignment or role change
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, case_id]
+              properties:
+                user_id: { type: string }
+                case_id: { type: string }
+                action: { type: string, enum: [REVOKE, GRANT] }
+      responses:
+        '200':
+          description: Scope updated immediately
+
+  /api/v1/health:
+    get:
+      summary: System health checks
+      responses:
+        '200':
+          description: Health status of DB, storage, ledger, and vector store
