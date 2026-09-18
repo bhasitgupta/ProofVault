@@ -7,3 +7,5 @@ Electronic records produced via validated forensic bitstream imaging carry statu
 ### Dual-Hash Attestation
 
 Bitstream image MD5 and SHA-256 must match original seizure physical drive.
+
+### Write-Blocker Serial Number Recording
