@@ -13,3 +13,5 @@ Anchors deployed on Polygon Amoy (Testnet) and Polygon PoS Mainnet.
 - AuditAnchorRegistry: Batch Merkle tree root publisher.
 
 ### 3.3 Transaction Lifecycle
+
+1. Transaction broadcast with EIP-1559 gas estimation.
