@@ -3,3 +3,5 @@
 ### 1.1 Scope and Purpose
 
 This standard mandates strict cryptographic controls for evidentiary artifacts.
+
+### 1.2 Approved Hash Functions
