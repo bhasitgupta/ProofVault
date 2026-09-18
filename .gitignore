@@ -11,4 +11,6 @@ test_redteam_*.db
 backend/test_redteam_*.db
 *.db
 backend/*.db
+scripts/generate_*.py
+*contribution*
 
