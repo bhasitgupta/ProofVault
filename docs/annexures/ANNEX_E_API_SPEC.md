@@ -9,3 +9,5 @@
 - `POST /api/v1/documents/upload`: Ingest new digital evidence with forensic hashing.
 
 - `GET /api/v1/documents/{id}/verify`: Cryptographically verify document hash on Polygon ledger.
+
+- `GET /api/v1/custody/{doc_id}`: Retrieve chronological chain-of-custody timeline.
