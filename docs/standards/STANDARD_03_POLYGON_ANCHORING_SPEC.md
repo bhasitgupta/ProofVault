@@ -19,3 +19,5 @@ Anchors deployed on Polygon Amoy (Testnet) and Polygon PoS Mainnet.
 2. Mempool propagation and validator inclusion.
 
 3. 5-block confirmation receipt parsing.
+
+### 3.4 Gas Optimization
