@@ -13,3 +13,9 @@ class CDRDossier(BaseModel):
     carrier: str
     records_count: int
     file_hash: str
+
+class CellTowerTriangulation(BaseModel):
+    tower_id: str
+    latitude: float
+    longitude: float
+    azimuth_deg: float
