@@ -7,3 +7,5 @@
 3. **Dual Hash Calculation**: Simultaneous MD5 and SHA-256 computation to eliminate collision disputes.
 
 4. **Forensic Image Verification**: E01 and raw dd format bitstream verification matches original device checksum.
+
+5. **Faraday Isolation**: Mobile phones and wireless-enabled devices enclosed in RF-shielded bags.
