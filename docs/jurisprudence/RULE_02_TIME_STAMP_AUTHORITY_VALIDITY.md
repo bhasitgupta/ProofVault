@@ -11,3 +11,5 @@ Maximum allowable clock drift between nodes is ±500 milliseconds.
 ### Cryptographic Time Tokens
 
 Time tokens anchored via X.509 TSA certificate with RSA-4096 or ECDSA P-384.
+
+### Admissibility in Cross-Examination
