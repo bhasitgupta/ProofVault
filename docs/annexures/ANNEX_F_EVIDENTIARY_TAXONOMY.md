@@ -10,3 +10,4 @@
 - Class 9: Encrypted Containers and Password-Protected Archives.
 - Class 10: Drone Reality and Photogrammetry Spatial Orthomosaics.
 - Class 11: Dark Web Forum Scrapes and PGP Signed Transcripts.
+- Class 12: Vehicle Infotainment and Telematics CAN-bus Dumps.
