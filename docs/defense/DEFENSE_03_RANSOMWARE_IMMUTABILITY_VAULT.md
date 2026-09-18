@@ -9,3 +9,5 @@ Malware payload attempts in-place encryption of evidentiary blob store.
 Object storage buckets locked with S3 Object Lock in Compliance Mode for 10 years.
 
 ### Polygon State Recovery
+
+Original document hashes preserved permanently on Polygon blockchain even if storage corrupted.
