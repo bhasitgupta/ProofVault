@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Public+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -22,8 +22,8 @@ code, kbd, samp, pre, .font-mono {
 }
 
 html {
-  background-color: #f7f4ed;
-  color: #1c1917;
+  background-color: #f8fafc;
+  color: #0f172a;
   scroll-behavior: auto; /* Managed by Lenis */
 }
 
@@ -31,27 +31,75 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background-color: #f7f4ed;
-  color: #1c1917;
+  background-color: #f8fafc;
+  color: #0f172a;
   overflow-x: hidden;
 }
 
-/* Warm Beige & Parchment Ambient Backdrop */
-.bg-parchment {
-  background-color: #f7f4ed;
+/* Modern Crisp Ambient Backdrop */
+.bg-ambient {
+  background-color: #f8fafc;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(185, 28, 28, 0.04) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(120, 53, 15, 0.05) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(245, 239, 230, 0.8) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(185, 28, 28, 0.04) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(241, 245, 249, 0.9) 0px, transparent 60%);
 }
 
-/* Ivory Glassmorphism Panels */
-.glass-ivory {
-  background: rgba(255, 255, 255, 0.82);
+.bg-parchment {
+  background-color: #f8fafc;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(185, 28, 28, 0.03) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(15, 23, 42, 0.03) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(248, 250, 252, 0.95) 0px, transparent 50%);
+}
+
+/* Premium Frosted Glassmorphism Tokens */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 12px 32px -8px rgba(15, 23, 42, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.72);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  border: 1px solid rgba(120, 53, 15, 0.12);
-  box-shadow: 0 10px 30px -10px rgba(69, 26, 3, 0.06), 0 1px 3px 0 rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 6px 20px -4px rgba(15, 23, 42, 0.03);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card-hover:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: rgba(203, 213, 225, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px -10px rgba(15, 23, 42, 0.07), 0 0 15px -2px rgba(99, 102, 241, 0.05);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.7);
+}
+
+.glass-modal {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
+}
+
+/* Backward compatibility aliases */
+.glass-ivory {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(0, 0, 0, 0.03);
 }
 
 .glass-ivory-hover {
@@ -60,71 +108,62 @@ body {
 
 .glass-ivory-hover:hover {
   background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(185, 28, 28, 0.35);
-  transform: translateY(-3px);
-  box-shadow: 0 20px 40px -12px rgba(120, 53, 15, 0.12), 0 0 20px -2px rgba(185, 28, 28, 0.10);
+  border-color: rgba(185, 28, 28, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px -10px rgba(15, 23, 42, 0.08);
 }
 
-/* Crimson & Umber Sovereign Border */
 .border-crimson-gold {
-  border: 1px solid transparent;
-  background: linear-gradient(rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.92)) padding-box,
-              linear-gradient(135deg, rgba(185, 28, 28, 0.5), rgba(217, 119, 6, 0.35), rgba(120, 53, 15, 0.4)) border-box;
+  border: 1px solid rgba(226, 232, 240, 0.9);
 }
 
-/* Security Classification Badges (Light Theme) */
+/* Clean Refined Classification Badges */
 .badge-secret {
-  background: rgba(225, 29, 72, 0.08);
-  color: #be123c;
-  border: 1px solid rgba(225, 29, 72, 0.25);
+  background: rgba(244, 63, 94, 0.08);
+  color: #e11d48;
+  border: 1px solid rgba(244, 63, 94, 0.2);
   font-weight: 700;
 }
 
 .badge-confidential {
-  background: rgba(180, 83, 9, 0.08);
-  color: #92400e;
-  border: 1px solid rgba(180, 83, 9, 0.25);
+  background: rgba(245, 158, 11, 0.08);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.2);
   font-weight: 700;
 }
 
 .badge-restricted {
-  background: rgba(21, 128, 61, 0.08);
-  color: #15803d;
-  border: 1px solid rgba(21, 128, 61, 0.25);
+  background: rgba(16, 185, 129, 0.08);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.2);
   font-weight: 700;
 }
 
-/* Custom warm amber scrollbar */
+/* Minimalist Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1ede4;
+  background: #f1f5f9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #d6cbba;
+  background: #cbd5e1;
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #991b1b;
+  background: #94a3b8;
 }
 
-/* Seal glow animation */
-@keyframes seal-pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.75;
-    transform: scale(1.03);
-  }
+/* Subtle Micro-Animations */
+@keyframes subtle-float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
 }
 
-.animate-seal-pulse {
-  animation: seal-pulse 3s infinite ease-in-out;
+.animate-subtle-float {
+  animation: subtle-float 6s ease-in-out infinite;
 }

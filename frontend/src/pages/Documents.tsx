@@ -204,19 +204,19 @@ export const DocumentsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* ── Top Header & Role Clearance Banner ─────────────────────── */}
-      <div className="glass-ivory border-crimson-gold rounded-2xl p-5 sm:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="glass-panel rounded-3xl p-6 sm:p-8 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-crimson-50 border border-crimson-200 rounded-xl">
-              <Folder className="w-6 h-6 text-crimson-800" />
+          <div className="flex items-center gap-3.5">
+            <div className="p-3 bg-slate-900 text-white rounded-2xl shadow-sm">
+              <Folder className="w-6 h-6 text-indigo-300" />
             </div>
             <div>
-              <h1 className="text-2xl font-serif-judicial font-bold tracking-tight text-stone-900 flex items-center gap-2">
+              <h1 className="text-2xl sm:text-3xl font-serif-judicial font-bold tracking-tight text-slate-900 flex items-center gap-2">
                 Evidence Files Explorer
               </h1>
-              <p className="text-xs text-stone-600 mt-0.5">
+              <p className="text-xs text-slate-500 mt-1 font-sans">
                 Role-gated repository browser with cryptographic zero-trust verification.
               </p>
             </div>
@@ -224,19 +224,19 @@ export const DocumentsPage: React.FC = () => {
         </div>
 
         {/* User Role & Clearance Badge */}
-        <div className="flex flex-wrap items-center gap-2.5">
-          <div className="px-3.5 py-2 rounded-xl bg-parchment-100 border border-stone-200 text-xs font-mono shadow-sm">
-            <div className="text-[10px] text-stone-500 uppercase tracking-wider font-semibold">Active Clearance Scope</div>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="px-4 py-2.5 rounded-2xl bg-white/80 border border-slate-200/80 text-xs font-mono shadow-xs">
+            <div className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Active Clearance Scope</div>
             <div className="flex items-center gap-2 mt-0.5">
-              <span className="font-bold text-crimson-800">{user?.role}</span>
-              <span className="text-stone-400">•</span>
-              <span className="text-emerald-700 font-semibold">{roleClearance[user?.role || ''] || user?.role}</span>
+              <span className="font-bold text-slate-900">{user?.role}</span>
+              <span className="text-slate-300">•</span>
+              <span className="text-indigo-600 font-semibold">{roleClearance[user?.role || ''] || user?.role}</span>
             </div>
           </div>
 
           <button
             onClick={() => navigate('/upload')}
-            className="flex items-center gap-1.5 px-4 py-2 bg-crimson-800 hover:bg-crimson-700 text-white text-xs font-semibold rounded-xl shadow-md shadow-crimson-900/10 transition-all"
+            className="flex items-center gap-2 px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-2xl shadow-sm hover:shadow transition-all cursor-pointer"
           >
             <Folder className="w-4 h-4" />
             <span>Ingest File</span>
@@ -245,17 +245,17 @@ export const DocumentsPage: React.FC = () => {
       </div>
 
       {/* ── Filter Bar & View Controls ─────────────────────────────── */}
-      <div className="glass-ivory rounded-2xl p-4 sm:p-5 shadow-sm space-y-3.5 border border-stone-200/80">
-        <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
+      <div className="glass-panel rounded-3xl p-5 sm:p-6 shadow-xs space-y-4 border border-slate-200/80">
+        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           {/* Search Input */}
           <div className="relative flex-1 w-full">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" />
+            <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search files by name, case ID, or document ID..."
-              className="w-full pl-10 pr-4 py-2 bg-white border border-stone-200 rounded-xl text-xs text-stone-900 placeholder-stone-400 focus:outline-none focus:border-crimson-700 shadow-inner"
+              className="w-full pl-11 pr-4 py-2.5 bg-slate-50/80 border border-slate-200 rounded-2xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-800 transition-all shadow-inner"
             />
             {searchQuery && (
               <button
@@ -543,22 +543,22 @@ export const DocumentsPage: React.FC = () => {
         </div>
       ) : (
         /* ── Table View ────────────────────────────────────────────── */
-        <div className="glass-ivory rounded-2xl overflow-hidden shadow-sm border border-stone-200">
+        <div className="glass-panel rounded-3xl overflow-hidden shadow-xs border border-slate-200/80">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs font-mono">
-              <thead className="bg-parchment-200/80 border-b border-stone-200 text-stone-600 text-[11px] uppercase tracking-wider font-semibold">
+              <thead className="bg-slate-50/80 border-b border-slate-200 text-slate-500 text-[11px] uppercase tracking-wider font-semibold font-mono">
                 <tr>
-                  <th className="py-3.5 px-4">Evidence File</th>
-                  <th className="py-3.5 px-3">Case ID</th>
-                  <th className="py-3.5 px-3">Classification</th>
-                  <th className="py-3.5 px-3">Type</th>
-                  <th className="py-3.5 px-3">Size</th>
-                  <th className="py-3.5 px-3">Merkle Root</th>
-                  <th className="py-3.5 px-3">Access Status</th>
-                  <th className="py-3.5 px-4 text-right">Actions</th>
+                  <th className="py-4 px-5">Evidence File</th>
+                  <th className="py-4 px-4">Case ID</th>
+                  <th className="py-4 px-4">Classification</th>
+                  <th className="py-4 px-4">Type</th>
+                  <th className="py-4 px-4">Size</th>
+                  <th className="py-4 px-4">Merkle Root</th>
+                  <th className="py-4 px-4">Access Status</th>
+                  <th className="py-4 px-5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone-200">
+              <tbody className="divide-y divide-slate-100">
                 {filteredDocuments.map((doc) => {
                   const isAccessible = doc.has_access !== false;
                   const badge = formatClassificationBadge(doc.classification);
@@ -569,67 +569,67 @@ export const DocumentsPage: React.FC = () => {
                       onClick={() => isAccessible && handleOpenPreview(doc)}
                       className={`transition-colors ${
                         isAccessible
-                          ? 'hover:bg-parchment-100/80 cursor-pointer'
-                          : 'bg-rose-50/40 text-stone-400 cursor-not-allowed'
+                          ? 'hover:bg-slate-50/80 cursor-pointer'
+                          : 'bg-rose-50/30 text-slate-400 cursor-not-allowed'
                       }`}
                     >
-                      <td className="py-3.5 px-4 font-sans font-semibold text-stone-900 flex items-center gap-2.5">
-                        <div className="p-1.5 bg-parchment-100 rounded-lg border border-stone-200 shrink-0">
+                      <td className="py-4 px-5 font-sans font-semibold text-slate-900 flex items-center gap-3">
+                        <div className="p-2 bg-slate-100 rounded-xl border border-slate-200/80 shrink-0">
                           {getFileIcon(doc.doc_type)}
                         </div>
                         <span className="truncate max-w-xs" title={doc.filename}>
                           {doc.filename}
                         </span>
                       </td>
-                      <td className="py-3.5 px-3 text-crimson-800 font-bold">{doc.case_id}</td>
-                      <td className="py-3.5 px-3">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg border ${badge.bg} ${badge.text}`}>
+                      <td className="py-4 px-4 text-slate-900 font-bold">{doc.case_id}</td>
+                      <td className="py-4 px-4">
+                        <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${badge.bg} ${badge.text}`}>
                           {doc.classification}
                         </span>
                       </td>
-                      <td className="py-3.5 px-3 text-stone-600">{doc.doc_type}</td>
-                      <td className="py-3.5 px-3 text-stone-600">{formatBytes(doc.size_bytes)}</td>
-                      <td className="py-3.5 px-3 text-stone-600 truncate max-w-[120px]" title={doc.chunk_merkle_root}>
+                      <td className="py-4 px-4 text-slate-600 font-sans">{doc.doc_type}</td>
+                      <td className="py-4 px-4 text-slate-600">{formatBytes(doc.size_bytes)}</td>
+                      <td className="py-4 px-4 text-slate-600 truncate max-w-[120px]" title={doc.chunk_merkle_root}>
                         {truncateHash(doc.chunk_merkle_root, 4, 4)}
                       </td>
-                      <td className="py-3.5 px-3">
+                      <td className="py-4 px-4">
                         {isAccessible ? (
-                          <span className="flex items-center gap-1 text-emerald-700 font-semibold text-[10px]">
-                            <CheckCircle2 className="w-3 h-3" /> Accessible
+                          <span className="flex items-center gap-1.5 text-emerald-700 font-semibold text-[11px]">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Accessible
                           </span>
                         ) : (
-                          <span className="flex items-center gap-1 text-rose-700 font-semibold text-[10px]" title={doc.access_reason}>
-                            <Lock className="w-3 h-3" /> Locked
+                          <span className="flex items-center gap-1.5 text-rose-700 font-semibold text-[11px]" title={doc.access_reason}>
+                            <Lock className="w-3.5 h-3.5 text-rose-600" /> Locked
                           </span>
                         )}
                       </td>
-                      <td className="py-3.5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
+                      <td className="py-4 px-5 text-right" onClick={(e) => e.stopPropagation()}>
                         {isAccessible ? (
-                          <div className="flex items-center justify-end gap-1.5">
+                          <div className="flex items-center justify-end gap-2">
                             <button
                               onClick={() => handleOpenPreview(doc)}
-                              className="p-1.5 bg-parchment-100 hover:bg-parchment-200 text-stone-700 rounded-lg transition-colors border border-stone-200"
+                              className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors border border-slate-200"
                               title="Preview Content"
                             >
-                              <Eye className="w-3.5 h-3.5 text-crimson-700" />
+                              <Eye className="w-3.5 h-3.5 text-slate-800" />
                             </button>
                             <button
                               onClick={() => handleDownload(doc.doc_id, doc.filename)}
-                              className="p-1.5 bg-parchment-100 hover:bg-parchment-200 text-stone-700 rounded-lg transition-colors border border-stone-200"
+                              className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors border border-slate-200"
                               title="Download File"
                             >
-                              <Download className="w-3.5 h-3.5" />
+                              <Download className="w-3.5 h-3.5 text-slate-800" />
                             </button>
                             <button
                               onClick={() => handleVerify(doc.doc_id)}
-                              className="p-1.5 bg-parchment-100 hover:bg-parchment-200 text-stone-700 rounded-lg transition-colors border border-stone-200"
+                              className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors border border-slate-200"
                               title="Verify Merkle Proof"
                             >
                               <RefreshCw className="w-3.5 h-3.5 text-emerald-600" />
                             </button>
                           </div>
                         ) : (
-                          <span className="text-[10px] text-rose-700">Forbidden</span>
+                          <span className="text-[10px] text-rose-600 font-semibold">Forbidden</span>
                         )}
                       </td>
                     </tr>
