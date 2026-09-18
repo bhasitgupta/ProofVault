@@ -7,3 +7,5 @@ Anchors deployed on Polygon Amoy (Testnet) and Polygon PoS Mainnet.
 ### 3.2 Smart Contract Trust Boundaries
 
 - EvidenceRegistry: Immutable state storage.
+
+- ProvenanceRegistry: Append-only custody logs.
