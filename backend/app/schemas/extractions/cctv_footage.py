@@ -12,3 +12,8 @@ class CCTVFrameHashCheck(BaseModel):
     frame_number: int
     frame_sha256: str
     timestamp_offset_ms: int
+
+class CCTVTamperAssessment(BaseModel):
+    is_continuous: bool
+    frame_drops_detected: int = 0
+    watermark_intact: bool = True
