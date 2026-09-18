@@ -184,7 +184,7 @@ Demo TOTP / MFA Code: **`000000`** *(pre-filled)* or **`123456`**
 | **Administrator** | `admin_sys` | System Administrator | `PoliceMSP` | `SECRET` | All Cases (Global Admin) |
 | **Supervisor** | `supervisor_kapoor` | SP K. Kapoor | `PoliceMSP` | `SECRET` | `CASE-102`, `CASE-205`, `CASE-311`, `CASE-418` |
 | **Forensic Analyst** | `forensic_ananya` | Dr. Ananya Iyer | `ForensicsMSP` | `SECRET` | `CASE-102`, `CASE-205`, `CASE-527` |
-| **Investigator** | `investigator_sharma` | Inspector R. Sharma | `PoliceMSP` | `CONFIDENTIAL` | `CASE-102`, `CASE-205`, `CASE-001` to `CASE-005` |
+| **Investigator** | `investigator_gupta` | Inspector Bhasit Gupta | `PoliceMSP` | `CONFIDENTIAL` | `CASE-102`, `CASE-205`, `CASE-001` to `CASE-005` |
 | **Legal Officer** | `legal_verma` | Public Prosecutor P. Verma | `PoliceMSP` | `CONFIDENTIAL` | `CASE-102`, `CASE-311` |
 | **Defense Lawyer** | `lawyer_advani` | Advocate S. Advani | `PoliceMSP` | `RESTRICTED` | `CASE-102` |
 
@@ -271,7 +271,7 @@ Clone the repository and install all dependencies:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/sih26190.git
+git clone https://github.com/bhasitgupta/SIH26190.git
 cd sih26190
 
 # Install backend & frontend dependencies
