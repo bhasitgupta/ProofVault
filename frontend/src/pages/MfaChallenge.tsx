@@ -39,12 +39,12 @@ export const MfaChallenge: React.FC = () => {
       <div className="max-w-md w-full glass-ivory border-crimson-gold rounded-3xl p-8 sm:p-10 shadow-2xl space-y-6 relative overflow-hidden bg-white/95">
         
         <div className="text-center space-y-3">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-800 to-amber-900 mx-auto flex items-center justify-center shadow-lg shadow-red-950/20 text-white">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-crimson-800 via-crimson-900 to-mahogany-900 mx-auto flex items-center justify-center shadow-lg shadow-crimson-950/20 text-white">
             <KeyRound className="w-8 h-8 text-amber-200 animate-seal-pulse" />
           </div>
 
           <div>
-            <span className="text-[10px] font-mono font-bold text-red-800 bg-red-50 border border-red-200 px-3 py-0.5 rounded-full uppercase tracking-wider">
+            <span className="text-[10px] font-mono font-bold text-crimson-800 bg-crimson-50 border border-crimson-200 px-3 py-0.5 rounded-full uppercase tracking-wider">
               Zero-Trust Phase 2 MFA
             </span>
             <h2 className="font-serif-judicial text-2xl font-black tracking-tight text-stone-900 mt-2">
@@ -57,8 +57,8 @@ export const MfaChallenge: React.FC = () => {
         </div>
 
         {error && (
-          <div className="p-3.5 bg-red-50 border border-red-200 rounded-2xl text-xs text-red-800 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-red-600 animate-ping flex-shrink-0"></span>
+          <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-800 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-rose-600 animate-ping flex-shrink-0"></span>
             <span className="font-medium">{error}</span>
           </div>
         )}
@@ -75,7 +75,7 @@ export const MfaChallenge: React.FC = () => {
               onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
               placeholder="000000"
               required
-              className="w-full text-center tracking-[0.45em] text-3xl font-mono py-4 bg-stone-50 border border-stone-200 rounded-2xl text-red-900 focus:outline-none focus:border-red-700 focus:ring-4 focus:ring-red-700/10 transition-all font-bold shadow-inner"
+              className="w-full text-center tracking-[0.45em] text-3xl font-mono py-4 bg-stone-50 border border-stone-200 rounded-2xl text-crimson-900 focus:outline-none focus:border-crimson-700 focus:ring-4 focus:ring-crimson-700/10 transition-all font-bold shadow-inner"
             />
           </div>
 
@@ -85,7 +85,7 @@ export const MfaChallenge: React.FC = () => {
             <button
               type="button"
               onClick={() => setTotpCode('000000')}
-              className="px-2.5 py-1 rounded-lg bg-red-50 hover:bg-red-100 text-red-800 border border-red-200 text-[11px] font-bold transition-all cursor-pointer"
+              className="px-2.5 py-1 rounded-lg bg-crimson-50 hover:bg-crimson-100 text-crimson-800 border border-crimson-200 text-[11px] font-bold transition-all cursor-pointer"
             >
               000000 (Universal)
             </button>
@@ -101,7 +101,7 @@ export const MfaChallenge: React.FC = () => {
           <button
             type="submit"
             disabled={loading || totpCode.length !== 6}
-            className="w-full flex items-center justify-center gap-2.5 py-3.5 bg-gradient-to-r from-red-800 via-red-700 to-amber-900 hover:from-red-900 hover:via-red-800 hover:to-amber-950 disabled:opacity-50 text-white text-sm font-bold rounded-2xl transition-all shadow-lg shadow-red-900/20 hover:shadow-red-900/30 cursor-pointer"
+            className="w-full flex items-center justify-center gap-2.5 py-3.5 bg-gradient-to-r from-crimson-800 via-crimson-700 to-mahogany-900 hover:from-crimson-900 hover:via-crimson-800 hover:to-mahogany-950 disabled:opacity-50 text-white text-sm font-bold rounded-2xl transition-all shadow-lg shadow-crimson-900/20 hover:shadow-crimson-900/30 cursor-pointer"
           >
             <span>{loading ? 'Validating Token Hash...' : 'Complete Phase 2 Verification'}</span>
             <ArrowRight className="w-4 h-4" />
@@ -121,3 +121,4 @@ export const MfaChallenge: React.FC = () => {
     </div>
   );
 };
+export default MfaChallenge;
