@@ -8,3 +8,5 @@
 3. Replay attack test: reused nonces rejected by AES-GCM envelope cipher.
 
 4. Man-in-the-Middle test: TLS 1.3 + certificate pinning blocks interception.
+
+5. Ledger fork test: 5-block confirmation ensures statutory finality.
