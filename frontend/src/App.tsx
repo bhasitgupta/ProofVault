@@ -12,7 +12,7 @@ import { DocumentDetailPage } from './pages/DocumentDetail';
 import { CustodyTimelinePage } from './pages/CustodyTimeline';
 import { AuditLogPage } from './pages/AuditLog';
 import { AdminPage } from './pages/Admin';
-import { ThreeCanvas } from './components/ThreeCanvas';
+import { ThreeAnimation } from './components/ThreeAnimation';
 import { LenisProvider } from './components/LenisProvider';
 
 const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -35,8 +35,8 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
 
   return (
     <div className="min-h-screen flex flex-col bg-parchment text-stone-900 relative selection:bg-red-500/20 selection:text-red-950">
-      {/* 3D Armillary Gyroscope Canvas */}
-      <ThreeCanvas />
+      {/* 3D Evidentiary Chrono-Matrix Animation */}
+      <ThreeAnimation />
 
       {/* Floating Ivory Island Header */}
       <header className="sticky top-3 z-40 max-w-7xl mx-auto px-4 sm:px-6 w-full pointer-events-none">
