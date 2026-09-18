@@ -5,3 +5,5 @@
 - **Shafhi Mohammad v. State of Himachal Pradesh (2018) 2 SCC 801** - Clarification on applicability when party not in possession of original device.
 
 - **Anvar P.V. v. P.K. Basheer (2014) 10 SCC 473** - Overruled State (NCT of Delhi) v. Navjot Sandhu on digital evidence proof.
+
+- **Information Technology Act, 2000 - Section 67C** - Preservation and retention of information by intermediaries.
