@@ -7,3 +7,8 @@ class CCTVFootageMetadata(BaseModel):
     fps: int = 30
     start_time: str
     end_time: str
+
+class CCTVFrameHashCheck(BaseModel):
+    frame_number: int
+    frame_sha256: str
+    timestamp_offset_ms: int
