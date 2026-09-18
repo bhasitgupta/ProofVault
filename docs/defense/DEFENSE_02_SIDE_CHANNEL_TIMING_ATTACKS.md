@@ -7,3 +7,5 @@ Attacker measures API response latency variance to deduce secret credential byte
 ### Countermeasure: Constant-Time Comparisons
 
 All token checks execute via hmac.compare_digest with strictly constant-time execution paths.
+
+### Artificial Jitter Injection
