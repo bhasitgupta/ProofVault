@@ -14,11 +14,11 @@ export function formatBytes(bytes: number): string {
 export function formatClassificationBadge(level: string): { bg: string; text: string } {
   switch (level) {
     case 'SECRET':
-      return { bg: 'bg-red-900/60 border-red-500/50', text: 'text-red-300' };
+      return { bg: 'bg-rose-50 border-rose-300', text: 'text-rose-700' };
     case 'CONFIDENTIAL':
-      return { bg: 'bg-amber-900/60 border-amber-500/50', text: 'text-amber-300' };
+      return { bg: 'bg-amber-50 border-amber-300', text: 'text-amber-800' };
     case 'RESTRICTED':
     default:
-      return { bg: 'bg-blue-900/60 border-blue-500/50', text: 'text-blue-300' };
+      return { bg: 'bg-stone-100 border-stone-300', text: 'text-stone-700' };
   }
 }
