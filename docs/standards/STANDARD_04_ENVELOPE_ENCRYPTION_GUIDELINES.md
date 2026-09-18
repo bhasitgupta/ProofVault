@@ -11,3 +11,5 @@ Protects raw evidence stored at rest on S3/MinIO/local disk.
 - Data Encryption Key (DEK): Ephemeral 256-bit AES-GCM key.
 
 ### 4.3 Authenticated Additional Data (AAD)
+
+Document ID and Case ID bound as AAD to prevent ciphertext splicing.
