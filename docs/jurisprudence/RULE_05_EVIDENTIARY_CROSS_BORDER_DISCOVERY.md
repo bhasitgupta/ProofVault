@@ -13,3 +13,5 @@ Adherence to bilateral digital evidence preservation treaties and safeguards.
 Classified sovereign evidence dockets must never leave Indian territorial jurisdiction.
 
 ### International Chain Continuity
+
+Polygon Amoy public blockchain provides globally verifiable neutral proof of existence.
