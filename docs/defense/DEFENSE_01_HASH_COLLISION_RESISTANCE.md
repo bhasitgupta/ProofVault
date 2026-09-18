@@ -5,3 +5,5 @@
 Adversary attempts to craft malicious PDF with identical hash to lawful warrant.
 
 ### Countermeasure: Dual Non-Homologous Algorithms
+
+NYAYA-VAULT pairs SHA-256 with Keccak-256 to eliminate single-algorithm collision vulnerabilities.
