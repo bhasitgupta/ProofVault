@@ -7,3 +7,5 @@
 - `GET /api/v1/cases/`: List all accessible case dossiers for officer.
 
 - `POST /api/v1/documents/upload`: Ingest new digital evidence with forensic hashing.
+
+- `GET /api/v1/documents/{id}/verify`: Cryptographically verify document hash on Polygon ledger.
