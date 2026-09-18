@@ -9,3 +9,5 @@ Deploy hardened Linux OS with FIPS 140-3 cryptographic modules enabled.
 Restore encrypted snapshot and verify HMAC integrity tag before launch.
 
 ### Step 3: Replay Polygon Blockchain Event Logs
+
+Query EvidenceRegistered and CustodyLogged events from genesis block.
