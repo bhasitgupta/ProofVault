@@ -1,0 +1,25 @@
+{
+  "name": "forensics-org-network",
+  "version": "1.0.0",
+  "client": {
+    "organization": "ForensicsMSP",
+    "connection": {
+      "timeout": {
+        "peer": {
+          "endorser": "300"
+        }
+      }
+    }
+  },
+  "organizations": {
+    "ForensicsMSP": {
+      "mspid": "ForensicsMSP",
+      "peers": ["peer0.forensics.sdms.gov.in"]
+    }
+  },
+  "peers": {
+    "peer0.forensics.sdms.gov.in": {
+      "url": "grpc://localhost:8051"
+    }
+  }
+}

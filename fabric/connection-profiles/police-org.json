@@ -1,0 +1,25 @@
+{
+  "name": "police-org-network",
+  "version": "1.0.0",
+  "client": {
+    "organization": "PoliceMSP",
+    "connection": {
+      "timeout": {
+        "peer": {
+          "endorser": "300"
+        }
+      }
+    }
+  },
+  "organizations": {
+    "PoliceMSP": {
+      "mspid": "PoliceMSP",
+      "peers": ["peer0.police.sdms.gov.in"]
+    }
+  },
+  "peers": {
+    "peer0.police.sdms.gov.in": {
+      "url": "grpc://localhost:7051"
+    }
+  }
+}
