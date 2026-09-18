@@ -10,3 +10,5 @@
 [x] SQL injection defense via parameterized SQLAlchemy models.
 
 [x] Content Security Policy (CSP) headers strictly configured.
+
+[x] Subresource Integrity (SRI) verified for remote scripts.
