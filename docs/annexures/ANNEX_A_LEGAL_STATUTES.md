@@ -11,3 +11,5 @@
 - **Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS) - Section 105** - Mandatory videography of search and seizure operations.
 
 - **BNSS 2023 - Section 532** - Electronic communication of notices, summons, and judicial warrants.
+
+- **Digital Personal Data Protection Act, 2023 (DPDP)** - Lawful exceptions for criminal investigations and court proceedings.
