@@ -21,3 +21,9 @@ class ForensicCertificateRequest(BaseModel):
     document_id: str
     case_id: str
     format: str = 'PDF'
+
+class BlockchainAnchorReceiptResponse(BaseModel):
+    doc_hash: str
+    tx_hash: str
+    block_number: int
+    network: str = 'Polygon-Amoy'
