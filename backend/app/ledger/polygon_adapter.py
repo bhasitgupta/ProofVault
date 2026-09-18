@@ -26,8 +26,8 @@ class PolygonLedgerAdapter:
         self.chain_id = 80002
         self.rpc_url = rpc_url or os.getenv("POLYGON_RPC_URL", "https://rpc-amoy.polygon.technology/")
         self.private_key = private_key or os.getenv("POLYGON_PRIVATE_KEY")
-        self.evidence_contract_addr = evidence_registry_address or os.getenv("POLYGON_EVIDENCE_REGISTRY_ADDRESS", "0x71C676d1d4E1492dE8203E7e1273934dDE606a24")
-        self.provenance_contract_addr = provenance_registry_address or os.getenv("POLYGON_PROVENANCE_REGISTRY_ADDRESS", "0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7")
+        self.evidence_contract_addr = evidence_registry_address or os.getenv("POLYGON_EVIDENCE_REGISTRY_ADDRESS", "0xE5A9000fe858f49f4e0520b44dBCC138ba2ef05b")
+        self.provenance_contract_addr = provenance_registry_address or os.getenv("POLYGON_PROVENANCE_REGISTRY_ADDRESS", "0x3eD98E9e810e232342429A69f4789b9C829c0Bd7")
         
         # Internal local storage and validation delegate
         self._dev_ledger = DevLedger()
@@ -46,11 +46,11 @@ class PolygonLedgerAdapter:
 
     @property
     def evidence_contract_address(self) -> str:
-        return self.evidence_contract_addr or "0x71C676d1d4E1492dE8203E7e1273934dDE606a24"
+        return self.evidence_contract_addr or "0xE5A9000fe858f49f4e0520b44dBCC138ba2ef05b"
 
     @property
     def provenance_contract_address(self) -> str:
-        return self.provenance_contract_addr or "0x89205A3A3b2A69De6Dbf7f01ED13B2108B2c43e7"
+        return self.provenance_contract_addr or "0x3eD98E9e810e232342429A69f4789b9C829c0Bd7"
 
     def record_document_hash(self, doc_id: str, doc_hash: str) -> Dict[str, Any]:
         tx_hash = self._generate_evm_tx_hash("polygon:doc_hash", f"{doc_id}:{doc_hash}")

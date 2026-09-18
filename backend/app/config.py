@@ -16,9 +16,8 @@ class Settings(BaseSettings):
     # Ledger & Blockchain (Polygon Amoy EVM)
     LEDGER_BACKEND: str = "polygon"   # "polygon" | "dev"
     POLYGON_RPC_URL: str = "https://rpc-amoy.polygon.technology/"
-    POLYGON_PRIVATE_KEY: str = ""
-    POLYGON_EVIDENCE_REGISTRY_ADDRESS: str = ""
-    POLYGON_PROVENANCE_REGISTRY_ADDRESS: str = ""
+    POLYGON_EVIDENCE_REGISTRY_ADDRESS: str = "0xE5A9000fe858f49f4e0520b44dBCC138ba2ef05b"
+    POLYGON_PROVENANCE_REGISTRY_ADDRESS: str = "0x3eD98E9e810e232342429A69f4789b9C829c0Bd7"
 
     # Vault (prod: Hashicorp Vault Transit)
     VAULT_DEV_MODE: bool = True

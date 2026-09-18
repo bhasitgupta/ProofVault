@@ -11,3 +11,7 @@
 - **Fallback RPC Nodes**: Alchemy Amoy, Infura Polygon Amoy, PublicNode endpoints.
 
 - **Contract ABI Caching**: In-memory ABI caching with automatic contract binding via Web3.py.
+
+- **Deployed Contract Addresses (Polygon Amoy Testnet)**:
+  - `EvidenceRegistry`: `0xE5A9000fe858f49f4e0520b44dBCC138ba2ef05b`
+  - `ProvenanceRegistry`: `0x3eD98E9e810e232342429A69f4789b9C829c0Bd7`
