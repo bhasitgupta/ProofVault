@@ -7,171 +7,172 @@ export const ThreeCanvas: React.FC = () => {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Scene setup
+    // Scene & Camera setup
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
-      60,
+      55,
       window.innerWidth / window.innerHeight,
       0.1,
       1000
     );
-    camera.position.z = 220;
+    camera.position.z = 210;
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'high-performance' });
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true,
+      powerPreference: 'high-performance',
+    });
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     containerRef.current.appendChild(renderer.domElement);
 
-    // Create cryptographic node particles
-    const particleCount = 120;
-    const geometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(particleCount * 3);
-    const colors = new Float32Array(particleCount * 3);
+    // Group for the entire 3D Armillary Mechanism
+    const armillaryGroup = new THREE.Group();
+    scene.add(armillaryGroup);
 
-    // Color palette: cyber-violet (#818cf8), deep indigo (#6366f1), electric cyan (#06b6d4)
-    const colorChoices = [
-      new THREE.Color(0x818cf8),
-      new THREE.Color(0x6366f1),
-      new THREE.Color(0x06b6d4),
-      new THREE.Color(0xa855f7),
+    // Outer Ring 1 (Crimson Red Metallic Torus)
+    const ring1Geo = new THREE.TorusGeometry(85, 0.9, 16, 120);
+    const ring1Mat = new THREE.MeshBasicMaterial({
+      color: 0xb91c1c, // Crimson red
+      transparent: true,
+      opacity: 0.45,
+      wireframe: true,
+    });
+    const ring1 = new THREE.Mesh(ring1Geo, ring1Mat);
+    armillaryGroup.add(ring1);
+
+    // Middle Ring 2 (Warm Mahogany Brown Torus)
+    const ring2Geo = new THREE.TorusGeometry(72, 0.8, 16, 100);
+    const ring2Mat = new THREE.MeshBasicMaterial({
+      color: 0x78350f, // Amber brown
+      transparent: true,
+      opacity: 0.4,
+      wireframe: true,
+    });
+    const ring2 = new THREE.Mesh(ring2Geo, ring2Mat);
+    ring2.rotation.x = Math.PI / 3;
+    armillaryGroup.add(ring2);
+
+    // Inner Ring 3 (Polished Gold/Brass Torus)
+    const ring3Geo = new THREE.TorusGeometry(58, 0.7, 16, 80);
+    const ring3Mat = new THREE.MeshBasicMaterial({
+      color: 0xd97706, // Brass gold
+      transparent: true,
+      opacity: 0.5,
+      wireframe: true,
+    });
+    const ring3 = new THREE.Mesh(ring3Geo, ring3Mat);
+    ring3.rotation.y = Math.PI / 4;
+    armillaryGroup.add(ring3);
+
+    // Core Cryptographic Polyhedron (Icosahedron jewel cage)
+    const coreGeo = new THREE.IcosahedronGeometry(36, 1);
+    const coreMat = new THREE.MeshBasicMaterial({
+      color: 0x991b1b,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.3,
+    });
+    const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+    armillaryGroup.add(coreMesh);
+
+    // Central Floating Jewel (Solid translucent dodecahedron)
+    const jewelGeo = new THREE.DodecahedronGeometry(18, 0);
+    const jewelMat = new THREE.MeshBasicMaterial({
+      color: 0x78350f,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.6,
+    });
+    const jewelMesh = new THREE.Mesh(jewelGeo, jewelMat);
+    armillaryGroup.add(jewelMesh);
+
+    // Ambient floating golden embers & parchment dust particles
+    const particleCount = 90;
+    const pGeo = new THREE.BufferGeometry();
+    const pPositions = new Float32Array(particleCount * 3);
+    const pColors = new Float32Array(particleCount * 3);
+
+    const emberColors = [
+      new THREE.Color(0xb91c1c), // Crimson
+      new THREE.Color(0xd97706), // Gold
+      new THREE.Color(0x92400e), // Amber brown
     ];
 
-    const nodes: { x: number; y: number; z: number; vx: number; vy: number; vz: number }[] = [];
-
     for (let i = 0; i < particleCount; i++) {
-      const x = (Math.random() - 0.5) * 350;
-      const y = (Math.random() - 0.5) * 260;
-      const z = (Math.random() - 0.5) * 180;
+      pPositions[i * 3] = (Math.random() - 0.5) * 360;
+      pPositions[i * 3 + 1] = (Math.random() - 0.5) * 280;
+      pPositions[i * 3 + 2] = (Math.random() - 0.5) * 200;
 
-      positions[i * 3] = x;
-      positions[i * 3 + 1] = y;
-      positions[i * 3 + 2] = z;
-
-      const chosenColor = colorChoices[Math.floor(Math.random() * colorChoices.length)];
-      colors[i * 3] = chosenColor.r;
-      colors[i * 3 + 1] = chosenColor.g;
-      colors[i * 3 + 2] = chosenColor.b;
-
-      nodes.push({
-        x,
-        y,
-        z,
-        vx: (Math.random() - 0.5) * 0.15,
-        vy: (Math.random() - 0.5) * 0.15,
-        vz: (Math.random() - 0.5) * 0.15,
-      });
+      const c = emberColors[Math.floor(Math.random() * emberColors.length)];
+      pColors[i * 3] = c.r;
+      pColors[i * 3 + 1] = c.g;
+      pColors[i * 3 + 2] = c.b;
     }
 
-    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
+    pGeo.setAttribute('color', new THREE.BufferAttribute(pColors, 3));
 
-    // Particle Material
-    const pMaterial = new THREE.PointsMaterial({
-      size: 3.5,
+    const pMat = new THREE.PointsMaterial({
+      size: 3.2,
       vertexColors: true,
       transparent: true,
-      opacity: 0.85,
-      blending: THREE.AdditiveBlending,
+      opacity: 0.55,
+      blending: THREE.NormalBlending,
     });
 
-    const pointCloud = new THREE.Points(geometry, pMaterial);
-    scene.add(pointCloud);
+    const particles = new THREE.Points(pGeo, pMat);
+    scene.add(particles);
 
-    // Dynamic interconnect lines
-    const lineMaterial = new THREE.LineBasicMaterial({
-      color: 0x6366f1,
-      transparent: true,
-      opacity: 0.15,
-      blending: THREE.AdditiveBlending,
-    });
+    // Position armillary slightly off-center for elegant asymmetric framing
+    armillaryGroup.position.set(45, 0, 0);
 
-    const maxLineConnections = 250;
-    const linePositions = new Float32Array(maxLineConnections * 6);
-    const lineGeometry = new THREE.BufferGeometry();
-    lineGeometry.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
-    const lineMesh = new THREE.LineSegments(lineGeometry, lineMaterial);
-    scene.add(lineMesh);
-
-    // Mouse movement reactivity
+    // Mouse tilt interaction
     let mouseX = 0;
     let mouseY = 0;
     let targetX = 0;
     let targetY = 0;
 
-    const onMouseMove = (e: MouseEvent) => {
-      mouseX = (e.clientX - window.innerWidth / 2) * 0.05;
-      mouseY = (e.clientY - window.innerHeight / 2) * 0.05;
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseX = (e.clientX - window.innerWidth / 2) * 0.0008;
+      mouseY = (e.clientY - window.innerHeight / 2) * 0.0008;
     };
-    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mousemove', handleMouseMove);
 
-    // Resize handler
-    const onResize = () => {
+    const handleResize = () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     };
-    window.addEventListener('resize', onResize);
+    window.addEventListener('resize', handleResize);
 
-    // Animation Loop
+    // Animation loop
     let animationFrameId: number;
 
     const animate = () => {
-      targetX += (mouseX - targetX) * 0.05;
-      targetY += (mouseY - targetY) * 0.05;
+      targetX += (mouseX - targetX) * 0.04;
+      targetY += (mouseY - targetY) * 0.04;
 
-      pointCloud.rotation.y += 0.0008;
-      pointCloud.rotation.x = targetY * 0.005;
-      pointCloud.rotation.y += targetX * 0.005;
+      // Armillary rotations
+      ring1.rotation.z += 0.003;
+      ring1.rotation.x += 0.0015;
 
-      lineMesh.rotation.copy(pointCloud.rotation);
+      ring2.rotation.y -= 0.004;
+      ring2.rotation.z += 0.002;
 
-      // Drift nodes
-      const pos = geometry.attributes.position.array as Float32Array;
-      let lineIndex = 0;
-      const lPos = lineGeometry.attributes.position.array as Float32Array;
+      ring3.rotation.x += 0.005;
+      ring3.rotation.y += 0.003;
 
-      for (let i = 0; i < particleCount; i++) {
-        const node = nodes[i];
-        node.x += node.vx;
-        node.y += node.vy;
-        node.z += node.vz;
+      coreMesh.rotation.y += 0.002;
+      coreMesh.rotation.x -= 0.001;
 
-        if (Math.abs(node.x) > 180) node.vx *= -1;
-        if (Math.abs(node.y) > 130) node.vy *= -1;
-        if (Math.abs(node.z) > 100) node.vz *= -1;
+      jewelMesh.rotation.y -= 0.006;
+      jewelMesh.rotation.z += 0.004;
 
-        pos[i * 3] = node.x;
-        pos[i * 3 + 1] = node.y;
-        pos[i * 3 + 2] = node.z;
+      armillaryGroup.rotation.x = targetY * 1.8;
+      armillaryGroup.rotation.y = targetX * 1.8;
 
-        // Connect nearby nodes
-        for (let j = i + 1; j < particleCount; j++) {
-          if (lineIndex >= maxLineConnections) break;
-          const other = nodes[j];
-          const dx = node.x - other.x;
-          const dy = node.y - other.y;
-          const dz = node.z - other.z;
-          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-
-          if (dist < 48) {
-            lPos[lineIndex * 6] = node.x;
-            lPos[lineIndex * 6 + 1] = node.y;
-            lPos[lineIndex * 6 + 2] = node.z;
-            lPos[lineIndex * 6 + 3] = other.x;
-            lPos[lineIndex * 6 + 4] = other.y;
-            lPos[lineIndex * 6 + 5] = other.z;
-            lineIndex++;
-          }
-        }
-      }
-
-      // Clear remaining line slots
-      for (let k = lineIndex * 6; k < maxLineConnections * 6; k++) {
-        lPos[k] = 0;
-      }
-
-      geometry.attributes.position.needsUpdate = true;
-      lineGeometry.attributes.position.needsUpdate = true;
+      particles.rotation.y += 0.0004;
 
       renderer.render(scene, camera);
       animationFrameId = requestAnimationFrame(animate);
@@ -180,16 +181,24 @@ export const ThreeCanvas: React.FC = () => {
     animate();
 
     return () => {
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('resize', onResize);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationFrameId);
       if (containerRef.current && renderer.domElement) {
         containerRef.current.removeChild(renderer.domElement);
       }
-      geometry.dispose();
-      pMaterial.dispose();
-      lineGeometry.dispose();
-      lineMaterial.dispose();
+      ring1Geo.dispose();
+      ring1Mat.dispose();
+      ring2Geo.dispose();
+      ring2Mat.dispose();
+      ring3Geo.dispose();
+      ring3Mat.dispose();
+      coreGeo.dispose();
+      coreMat.dispose();
+      jewelGeo.dispose();
+      jewelMat.dispose();
+      pGeo.dispose();
+      pMat.dispose();
       renderer.dispose();
     };
   }, []);
@@ -198,7 +207,7 @@ export const ThreeCanvas: React.FC = () => {
     <div
       ref={containerRef}
       aria-hidden="true"
-      className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-75"
+      className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-60"
     />
   );
 };
