@@ -11,3 +11,8 @@ class AntivirusScanSummary(BaseModel):
     engine: str = 'ClamAV-Forensics'
     signatures_checked: int = 84210
     threats_detected: List[str] = []
+
+class BitstreamVerificationLog(BaseModel):
+    acquisition_hash: str
+    verification_hash: str
+    is_match: bool
