@@ -6,3 +6,4 @@
 - Class 5: Cloud and SaaS Audit Trails (AWS CloudTrail, Google Workspace).
 - Class 6: Financial Ledger and Hawala Transaction Sheets.
 - Class 7: Malware Binaries, Ransomware Drops, and Exploit Payloads.
+- Class 8: Biometric Captures (AFIS Fingerprint, Iris Scan, Facial Embeddings).
