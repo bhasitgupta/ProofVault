@@ -17,3 +17,9 @@ export interface ForensicExhibitsSummary {
   seizureLocation: string;
   officerName: string;
 }
+
+export interface ISO27037Checklist {
+  isSeizureDocumented: boolean;
+  isWriteBlockerUsed: boolean;
+  isBitstreamVerified: boolean;
+}
