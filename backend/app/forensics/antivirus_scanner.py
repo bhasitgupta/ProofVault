@@ -7,3 +7,7 @@ class StorageQuarantineInspector:
 @staticmethod
     def sanitize_quarantine_filename(filename: str) -> str:
         return filename.replace('..', '').replace('/', '_').replace('\\', '_')
+
+@staticmethod
+    def quarantine_evidence(doc_id: str, reason: str) -> dict:
+        return {'doc_id': doc_id, 'status': 'QUARANTINED', 'reason': reason}
