@@ -6,3 +6,5 @@
 2. Metadata alteration test: modifying file timestamp invalidates Merkle proof.
 
 3. Replay attack test: reused nonces rejected by AES-GCM envelope cipher.
+
+4. Man-in-the-Middle test: TLS 1.3 + certificate pinning blocks interception.
