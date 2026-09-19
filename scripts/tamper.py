@@ -25,19 +25,48 @@ def tamper_blob(doc_id: str, storage_dir: str = "backend/storage/documents"):
     return True
 
 def tamper_chunk(doc_id: str, chunk_index: int, new_text: str, db_path: str = "backend/sdms_metadata.db"):
-    if not os.path.exists(db_path):
-        print(f"[!] Database not found: {db_path}")
+    # First try SQLAlchemy with application DATABASE_URL
+    try:
+        import sys
+        backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backend"))
+        if backend_dir not in sys.path:
+            sys.path.insert(0, backend_dir)
+        from app.config import get_settings
+        from sqlalchemy import text
+        from sqlalchemy.ext.asyncio import create_async_engine
+        import asyncio
+
+        db_url = get_settings().DATABASE_URL
+        connect_args = {"statement_cache_size": 0} if ("postgresql" in db_url or "postgres" in db_url) else {}
+        engine = create_async_engine(db_url, connect_args=connect_args, echo=False)
+
+        async def _async_tamper():
+            async with engine.begin() as conn:
+                await conn.execute(
+                    text("UPDATE chunks SET chunk_text = :txt WHERE doc_id = :did AND chunk_index = :idx"),
+                    {"txt": new_text, "did": doc_id, "idx": chunk_index}
+                )
+            await engine.dispose()
+
+        asyncio.run(_async_tamper())
+        print(f"[✓] Tampered chunk text in DB ({db_url}) for {doc_id}:{chunk_index}")
+        return True
+    except Exception as e:
+        # Fallback to direct sqlite3 file modification if present
+        if os.path.exists(db_path):
+            import sqlite3
+            conn = sqlite3.connect(db_path)
+            cur = conn.cursor()
+            cur.execute(
+                "UPDATE chunks SET chunk_text = ? WHERE doc_id = ? AND chunk_index = ?",
+                (new_text, doc_id, chunk_index)
+            )
+            conn.commit()
+            conn.close()
+            print(f"[✓] Tampered chunk text in local SQLite for {doc_id}:{chunk_index}")
+            return True
+        print(f"[!] Tampering failed: {e}")
         return False
-    conn = sqlite3.connect(db_path)
-    cur = conn.cursor()
-    cur.execute(
-        "UPDATE chunks SET chunk_text = ? WHERE doc_id = ? AND chunk_index = ?",
-        (new_text, doc_id, chunk_index)
-    )
-    conn.commit()
-    conn.close()
-    print(f"[✓] Tampered chunk text in DB for {doc_id}:{chunk_index}")
-    return True
 
 def main():
     parser = argparse.ArgumentParser(description="SDMS Tamper Simulation Tool")

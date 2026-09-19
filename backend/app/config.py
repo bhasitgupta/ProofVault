@@ -5,7 +5,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 def _resolve_default_db_url() -> str:
-    db_env = os.getenv("DATABASE_URL")
+    db_env = os.getenv("SUPABASE_DB_URL") or os.getenv("DATABASE_URL")
     if db_env:
         if db_env.startswith("postgres://"):
             return db_env.replace("postgres://", "postgresql+asyncpg://", 1)
@@ -39,8 +39,16 @@ def _resolve_default_quarantine_dir() -> str:
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    # Database
+    # Database (Supabase PostgreSQL / asyncpg)
     DATABASE_URL: str = _resolve_default_db_url()
+
+    # Supabase Cloud Project Configuration
+    SUPABASE_URL: str = ""
+    SUPABASE_KEY: str = ""                                  # anon public key or service role key
+    SUPABASE_SERVICE_ROLE_KEY: str = ""                     # elevated key for storage & admin access
+    SUPABASE_STORAGE_BUCKET: str = "evidence"               # encrypted evidence storage bucket
+    SUPABASE_QUARANTINE_BUCKET: str = "quarantine"          # isolated malware storage bucket
+    SUPABASE_CERTIFICATES_BUCKET: str = "certificates"      # court certificates storage bucket
 
     # JWT
     JWT_SECRET_KEY: str = "change-me-in-production-use-strong-random-secret"
@@ -58,7 +66,7 @@ class Settings(BaseSettings):
     VAULT_ADDR: str = "http://127.0.0.1:8200"
     VAULT_TOKEN: str = "dev-root-token"
 
-    # Object Storage
+    # Object Storage (Local fallback paths)
     STORAGE_DIR: str = _resolve_default_storage_dir()
     QUARANTINE_DIR: str = _resolve_default_quarantine_dir()
 
@@ -69,9 +77,11 @@ class Settings(BaseSettings):
     QDRANT_URL: str = "http://localhost:6333"
     QDRANT_COLLECTION: str = "sdms_evidence"
 
-    # LLM
-    OLLAMA_URL: str = "http://localhost:11434"
-    LLM_MODEL: str = "qwen2.5:1.5b"
+    # LLM (Cloud API - OpenAI / Groq / OpenRouter / Anthropic compatible)
+    LLM_API_KEY: str = ""
+    LLM_API_BASE: str = ""
+    LLM_MODEL: str = "llama-3.3-70b-versatile"
+    OLLAMA_URL: str = ""   # Deprecated: offline Ollama no longer required
 
     # Feature flags
     MFA_REQUIRED: bool = True

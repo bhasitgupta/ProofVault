@@ -81,38 +81,31 @@ class PolygonProvenanceAdapter:
     async def get_document(self, doc_id: str) -> Optional[DocRecord]:
         if doc_id in self._doc_store:
             return self._doc_store[doc_id]
-        # Query from main metadata database if not in memory cache
+        # Query from main metadata database (Supabase PostgreSQL / async session) if not in memory cache
         try:
-            import sqlite3
-            from app.config import get_settings
-            from sqlalchemy.engine.url import make_url
-
-            url = make_url(get_settings().DATABASE_URL)
-            db_path = url.database or "sdms_metadata.db"
-            if not os.path.isabs(db_path) and not os.path.exists(db_path) and os.path.exists(os.path.join("backend", db_path)):
-                db_path = os.path.join("backend", db_path)
-            if os.path.exists(db_path):
-                with sqlite3.connect(db_path) as conn:
-                    cur = conn.cursor()
-                    cur.execute("SELECT id, case_id, content_hash, blob_hash, chunk_merkle_root, chunk_count, size_bytes, mime_type, doc_type, classification, uploader_id, status FROM documents WHERE id = ?", (doc_id,))
-                    row = cur.fetchone()
-                    if row:
-                        rec = DocRecord(
-                            docId=row[0],
-                            caseId=row[1],
-                            contentHash=row[2],
-                            blobHash=row[3],
-                            chunkMerkleRoot=row[4],
-                            chunkCount=row[5],
-                            sizeBytes=row[6],
-                            mimeType=row[7],
-                            docType=row[8],
-                            classification=row[9],
-                            uploaderId=row[10],
-                            status=row[11]
-                        )
-                        self._doc_store[doc_id] = rec
-                        return rec
+            from app.db.session import async_session_factory
+            from app.db.models.document import Document
+            from sqlalchemy import select
+            async with async_session_factory() as session:
+                result = await session.execute(select(Document).where(Document.id == doc_id))
+                doc = result.scalar_one_or_none()
+                if doc:
+                    rec = DocRecord(
+                        docId=doc.id,
+                        caseId=doc.case_id,
+                        contentHash=doc.content_hash,
+                        blobHash=doc.blob_hash,
+                        chunkMerkleRoot=doc.chunk_merkle_root,
+                        chunkCount=doc.chunk_count,
+                        sizeBytes=doc.size_bytes,
+                        mimeType=doc.mime_type,
+                        docType=doc.doc_type,
+                        classification=doc.classification,
+                        uploaderId=doc.uploader_id,
+                        status=doc.status
+                    )
+                    self._doc_store[doc_id] = rec
+                    return rec
         except Exception as e:
             logger.warning(f"Error querying metadata db for document: {e}")
         return None

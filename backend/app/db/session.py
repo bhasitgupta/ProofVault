@@ -17,7 +17,17 @@ import app.db.models.role_policy  # noqa: F401
 
 DATABASE_URL = get_settings().DATABASE_URL
 
-engine = create_async_engine(DATABASE_URL, echo=False)
+connect_args = {}
+engine_kwargs = {"echo": False}
+
+if "postgresql" in DATABASE_URL or "postgres" in DATABASE_URL:
+    # Essential for Supabase PgBouncer pooler (port 6543)
+    connect_args["statement_cache_size"] = 0
+    engine_kwargs["connect_args"] = connect_args
+    engine_kwargs["pool_pre_ping"] = True
+    engine_kwargs["pool_recycle"] = 300
+
+engine = create_async_engine(DATABASE_URL, **engine_kwargs)
 async_session_factory = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 AsyncSessionLocal = async_session_factory  # alias for direct use in tests/scripts
 

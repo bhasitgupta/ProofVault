@@ -21,7 +21,9 @@ dependencies = [
     "jinja2",
     "pymupdf",
     "pydantic-settings",
-    "python-multipart"
+    "python-multipart",
+    "asyncpg",
+    "supabase"
 ]
 
 [tool.setuptools.packages.find]

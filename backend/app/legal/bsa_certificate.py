@@ -108,11 +108,30 @@ def generate_bsa_certificate(
         Path(pdf_path).write_bytes(pdf_bytes)
 
     pdf_hash = hashlib.sha256(pdf_bytes).hexdigest()
+    supabase_url = None
+
+    try:
+        from app.config import get_settings
+        settings = get_settings()
+        if settings.SUPABASE_URL and (settings.SUPABASE_SERVICE_ROLE_KEY or settings.SUPABASE_KEY) and not settings.SUPABASE_URL.startswith("dummy"):
+            from supabase import create_client
+            client = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_ROLE_KEY or settings.SUPABASE_KEY)
+            bucket_name = settings.SUPABASE_CERTIFICATES_BUCKET or "certificates"
+            client.storage.from_(bucket_name).upload(
+                path=f"cert_{cert_id}.pdf",
+                file=pdf_bytes,
+                file_options={"content-type": "application/pdf", "upsert": "true"}
+            )
+            supabase_url = f"{settings.SUPABASE_URL}/storage/v1/object/public/{bucket_name}/cert_{cert_id}.pdf"
+    except Exception as e:
+        print(f"[WARN] Supabase certificate storage upload notice: {e}")
+
     return {
         "cert_id": cert_id,
         "pdf_path": pdf_path,
         "pdf_hash": pdf_hash,
         "issued_at": issued_at,
+        "supabase_url": supabase_url,
     }
 
 

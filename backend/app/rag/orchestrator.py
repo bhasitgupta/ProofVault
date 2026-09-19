@@ -359,45 +359,12 @@ def _neutralize_injection(text: str) -> str:
 
 async def _call_llm(system_prompt: str, user_prompt: str) -> str:
     """
-    Calls Ollama (qwen2.5:3b or fallback) via the ollama async client.
-    Falls back to structured evidence synthesis if LLM is unavailable.
+    Calls configured Cloud LLM (or optional local inference) via LLMClient.
+    Falls back to structured evidence synthesis if external API is unreachable.
     """
-    from app.config import get_settings
-    settings = get_settings()
-    models_to_try = [settings.LLM_MODEL, "qwen2.5:1.5b", "qwen2.5:3b"]
-
-    try:
-        import ollama
-        client = ollama.AsyncClient(host=settings.OLLAMA_URL)
-        for model_name in models_to_try:
-            try:
-                response = await client.chat(
-                    model=model_name,
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_prompt},
-                    ],
-                    options={
-                        "temperature": 0.1,
-                        "num_predict": 75,
-                        "num_ctx": 1024,
-                        "num_thread": 4,
-                    },
-                )
-                return response["message"]["content"]
-            except Exception:
-                continue
-    except Exception:
-        pass
-
-    # Clean structured evidence synthesis fallback when LLM daemon is offline
-    summary_lines = ["[EVIDENCE SUMMARY (Verified against Ledger)]\n"]
-    for line in user_prompt.splitlines():
-        if line.startswith("<EVIDENCE") or line.startswith("</EVIDENCE"):
-            continue
-        if line.strip() and not line.startswith("Query:"):
-            summary_lines.append(f"• {line.strip()}")
-    return "\n".join(summary_lines) if len(summary_lines) > 1 else "Evidence retrieved and cryptographically verified against on-chain Merkle root."
+    from app.rag.llm_client import LLMClient
+    client = LLMClient()
+    return await client.generate_answer(system_prompt, user_prompt)
 
 
 def _extract_and_validate_citations(

@@ -13,3 +13,6 @@ pymupdf
 pydantic-settings
 python-multipart
 python-dotenv
+asyncpg
+supabase
+
