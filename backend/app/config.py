@@ -1,21 +1,21 @@
 import os
 import tempfile
 from functools import lru_cache
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 def _resolve_default_db_url() -> str:
     db_env = os.getenv("SUPABASE_DB_URL") or os.getenv("DATABASE_URL")
-    if db_env:
+    if db_env and db_env.strip():
         if db_env.startswith("postgres://"):
             return db_env.replace("postgres://", "postgresql+asyncpg://", 1)
         if db_env.startswith("postgresql://") and not db_env.startswith("postgresql+asyncpg://"):
             return db_env.replace("postgresql://", "postgresql+asyncpg://", 1)
-        return db_env
-    if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
-        p = os.path.join(tempfile.gettempdir(), "sdms_metadata.db").replace("\\", "/")
-        return f"sqlite+aiosqlite:///{p}"
-    return "sqlite+aiosqlite:///sdms_metadata.db"
+        return db_env.strip()
+    # Fallback to isolated system temp directory to prevent any .db files in repository
+    p = os.path.join(tempfile.gettempdir(), "sdms_metadata.db").replace("\\", "/")
+    return f"sqlite+aiosqlite:///{p}"
 
 
 def _resolve_default_storage_dir() -> str:
@@ -41,6 +41,21 @@ class Settings(BaseSettings):
 
     # Database (Supabase PostgreSQL / asyncpg)
     DATABASE_URL: str = _resolve_default_db_url()
+    SUPABASE_DB_URL: str = ""
+
+    @model_validator(mode="after")
+    def _validate_db_url(self) -> "Settings":
+        raw = (self.SUPABASE_DB_URL or self.DATABASE_URL or "").strip()
+        if raw:
+            if raw.startswith("postgres://"):
+                raw = raw.replace("postgres://", "postgresql+asyncpg://", 1)
+            elif raw.startswith("postgresql://") and not raw.startswith("postgresql+asyncpg://"):
+                raw = raw.replace("postgresql://", "postgresql+asyncpg://", 1)
+            self.DATABASE_URL = raw
+        else:
+            p = os.path.join(tempfile.gettempdir(), "sdms_metadata.db").replace("\\", "/")
+            self.DATABASE_URL = f"sqlite+aiosqlite:///{p}"
+        return self
 
     # Supabase Cloud Project Configuration
     SUPABASE_URL: str = ""
