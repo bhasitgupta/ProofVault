@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+cryptography
+pyjwt
+pyotp
+qrcode
+sqlalchemy
+aiosqlite
+structlog
+reportlab
+jinja2
+pymupdf
+pydantic-settings
+python-multipart
+python-dotenv

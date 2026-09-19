@@ -1,3 +1,4 @@
+import os
 import uuid
 from contextlib import asynccontextmanager
 from dotenv import load_dotenv
@@ -28,10 +29,14 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS (restrict to frontend origin in production)
+# CORS (supports local dev and Vercel domains)
+cors_env = os.getenv("CORS_ORIGINS", "")
+allowed_origins = [o.strip() for o in cors_env.split(",") if o.strip()] if cors_env else ["http://localhost:5173", "http://localhost:3000"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=allowed_origins,
+    allow_origin_regex=r"https?://.*" if not cors_env else None,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -53,3 +58,11 @@ async def sdms_exception_handler(request: Request, exc: SDMSException):
 
 # Mount API v1 routes
 app.include_router(v1_router, prefix="/api/v1")
+
+@app.get("/")
+@app.get("/api")
+@app.get("/api/health")
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "service": "sdms-backend", "version": "1.0.0"}
+
