@@ -84,8 +84,12 @@ class PolygonProvenanceAdapter:
         # Query from main metadata database if not in memory cache
         try:
             import sqlite3
-            db_path = "sdms_metadata.db"
-            if not os.path.exists(db_path) and os.path.exists(os.path.join("backend", db_path)):
+            from app.config import get_settings
+            from sqlalchemy.engine.url import make_url
+
+            url = make_url(get_settings().DATABASE_URL)
+            db_path = url.database or "sdms_metadata.db"
+            if not os.path.isabs(db_path) and not os.path.exists(db_path) and os.path.exists(os.path.join("backend", db_path)):
                 db_path = os.path.join("backend", db_path)
             if os.path.exists(db_path):
                 with sqlite3.connect(db_path) as conn:

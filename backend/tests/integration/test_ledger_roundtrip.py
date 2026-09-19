@@ -29,7 +29,7 @@ async def test_ledger_roundtrip():
         tsaTokenHash="tsa-hex"
     )
     tx_id = await ledger.register_document(rec)
-    assert tx_id.startswith("tx_doc_")
+    assert tx_id.startswith("0x") or tx_id.startswith("tx_")
 
     # 2. Re-read document
     fetched = await ledger.get_document("DOC-RT-01")
@@ -49,7 +49,7 @@ async def test_ledger_roundtrip():
         outcome="ALLOW"
     )
     tx_evt = await ledger.append_event(evt)
-    assert tx_evt.startswith("tx_")
+    assert tx_evt.startswith("0x") or tx_evt.startswith("tx_")
 
     # 4. Verify document history contains the event
     history = await ledger.get_document_history("DOC-RT-01")

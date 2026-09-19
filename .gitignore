@@ -16,4 +16,7 @@ scripts/generate_contributions.py
 *.bin
 contracts/artifacts/
 contracts/cache/
+*.egg-info/
+backend/*.egg-info/
+
 

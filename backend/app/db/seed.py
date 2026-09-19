@@ -278,3 +278,46 @@ async def auto_seed_database(session: AsyncSession) -> None:
         if not existing:
             session.add(Document(**d))
     await session.commit()
+
+    # 5. Seed Initial Chunks for RAG queries and Merkle verification
+    default_chunks = [
+        {
+            "id": "CHK-101-01",
+            "doc_id": "DOC-101-01",
+            "chunk_index": 0,
+            "chunk_hash": "a1b2c3d4e5f60718293a4b5c6d7e8f901234567890abcdef1234567890abcdef",
+            "chunk_text": "SEIZED HAWALA TRANSACTION LEDGERS: Offshore cryptocurrency account 0x71C8366420A88301570BC86d3b36523293e8 identified transferring 450,000 USDT via peer-to-peer OTC liquidity desks across national jurisdictions.",
+            "page_number": 1,
+        },
+        {
+            "id": "CHK-102-01",
+            "doc_id": "DOC-102-01",
+            "chunk_index": 0,
+            "chunk_hash": "b2c3d4e5f60718293a4b5c6d7e8f901234567890abcdef1234567890abcdef01",
+            "chunk_text": "CENTRAL BANK RANSOMWARE FORENSIC EXTRACTION: Memory buffer dump shows Cobalt Strike beacon executing from process PID 4092 attempting lateral movement towards core RTGS settlement gateway router.",
+            "page_number": 1,
+        },
+        {
+            "id": "CHK-105-01",
+            "doc_id": "DOC-105-01",
+            "chunk_index": 0,
+            "chunk_hash": "c3d4e5f60718293a4b5c6d7e8f901234567890abcdef1234567890abcdef0123",
+            "chunk_text": "DARKNET LOGISTICS TELEMETRY: Intercepted encrypted courier routing manifests reveal coastal narcotics trafficking consignments tagged with PGP public key fingerprint 9F8A 2B3C 4D5E.",
+            "page_number": 1,
+        },
+        {
+            "id": "CHK-103-01",
+            "doc_id": "DOC-103-01",
+            "chunk_index": 0,
+            "chunk_hash": "d4e5f60718293a4b5c6d7e8f901234567890abcdef1234567890abcdef012345",
+            "chunk_text": "BALLISTICS MICROSCOPY SEIZURE MEMO: 7.62mm automatic assault rifle serial number defaced. Micro-striation comparison matches spent cartridges recovered from crime scene Alpha.",
+            "page_number": 1,
+        },
+    ]
+
+    for ch in default_chunks:
+        existing = await session.get(Chunk, ch["id"])
+        if not existing:
+            session.add(Chunk(**ch))
+    await session.commit()
+

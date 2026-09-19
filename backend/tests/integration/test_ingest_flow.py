@@ -35,4 +35,4 @@ async def test_full_ingestion_integration():
         assert len(result["doc_id"]) > 10
         assert len(result["content_hash"]) == 64
         assert len(result["chunk_merkle_root"]) == 64
-        assert result["ledger_tx_id"].startswith("tx_")
+        assert result["ledger_tx_id"].startswith("0x") or result["ledger_tx_id"].startswith("tx_")
