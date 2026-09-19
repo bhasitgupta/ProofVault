@@ -41,7 +41,7 @@ export const AnswerCard: React.FC<AnswerCardProps> = ({ response }) => {
 
       {response.citations && response.citations.length > 0 && (
         <div className="pt-2 border-t border-stone-200">
-          <div className="text-xs font-semibold text-stone-600 mb-2 font-mono">Verified Ledger Citations:</div>
+          <div className="text-xs font-semibold text-stone-600 mb-2 font-mono">Verified Evidentiary Citations:</div>
           <div className="flex flex-wrap gap-2">
             {response.citations.map((c, i) => (
               <CitationChip key={i} citation={c} />

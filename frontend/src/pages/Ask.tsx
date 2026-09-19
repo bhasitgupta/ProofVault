@@ -106,7 +106,7 @@ export const AskPage: React.FC = () => {
 
     try {
       const stepTimer = setTimeout(() => {
-        setLoadingStep('Verifying Merkle proofs against on-chain ledger...');
+        setLoadingStep('Verifying Merkle proofs against Polygon EVM roots...');
       }, 700);
 
       const stepTimer2 = setTimeout(() => {
@@ -283,7 +283,7 @@ export const AskPage: React.FC = () => {
                   <div className="mb-2.5 p-2.5 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-800 flex items-center gap-2 font-mono">
                     <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
                     <span>
-                      Zero-Trust Gate intercepted & quarantined unverified chunks. Output was synthesized strictly from {msg.responseMeta.citations?.length || 0} verified ledger chunks.
+                      Zero-Trust Gate intercepted & quarantined unverified chunks. Output was synthesized strictly from {msg.responseMeta.citations?.length || 0} verified blockchain chunks.
                     </span>
                   </div>
                 )}
@@ -305,7 +305,7 @@ export const AskPage: React.FC = () => {
                   <div className="pt-2.5 border-t border-stone-200 space-y-2">
                     <div className="text-[11px] font-semibold text-stone-600 flex items-center gap-1 font-mono">
                       <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                      Verified Ledger Citations:
+                      Verified Evidentiary Citations:
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       {msg.responseMeta.citations.map((c: Citation, i: number) => (

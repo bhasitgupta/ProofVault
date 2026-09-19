@@ -34,7 +34,7 @@ export const CertificateDialog: React.FC<CertificateDialogProps> = ({ isOpen, on
           <div><span className="text-stone-500 font-semibold">Certificate ID:</span> <span className="text-stone-900 font-bold">{certData.cert_id}</span></div>
           <div><span className="text-stone-500 font-semibold">Document ID:</span> {certData.doc_id}</div>
           <div><span className="text-stone-500 font-semibold">PDF SHA-256:</span> {certData.pdf_hash}</div>
-          <div><span className="text-stone-500 font-semibold">Ledger TX:</span> <span className="text-crimson-800 font-bold">{certData.ledger_tx_id}</span></div>
+          <div><span className="text-stone-500 font-semibold">Polygon EVM TX:</span> <span className="text-crimson-800 font-bold">{certData.ledger_tx_id}</span></div>
           <div><span className="text-stone-500 font-semibold">Issued UTC:</span> {certData.issued_at}</div>
         </div>
 

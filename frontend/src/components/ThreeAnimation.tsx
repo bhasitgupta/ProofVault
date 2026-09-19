@@ -2,13 +2,19 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
 /**
- * NYAYA-VAULT 3D Sovereign Evidentiary Chrono-Matrix
- * Architectural WebGL Three.js Animation Core:
- * - Multifaceted Dual-Nested Stellar Merkle Core (Octahedral & Icosahedral geometry)
- * - Calibrated Astrolabe Gimbal Rings with Hash Marker Tick Arrays
- * - Sweeping Vertical Evidentiary Laser Scan Plane
- * - Dynamic Double-Helical Forensic Particle Swarm with Mouse Interactivity
- * - Palette: Ivory, Deep Crimson (0x991b1b), Mahogany Amber (0x78350f), Gold (0xd97706)
+ * NYAYA-VAULT 3D Sovereign Law, Judiciary & Forensic Crime Dossier Scene
+ * 
+ * Features:
+ * 1. The Sovereign Scales of Justice (Nyaya Tula):
+ *    - Fluted judicial brass & obsidian central pillar with court pedestal
+ *    - Balanced horizontal beam dynamically oscillating on fulcrum
+ *    - Suspended balance pans holding Crime Evidence & Statutory Law Docket
+ * 2. Floating Governmental Crime Investigation Folios & Judicial Reports:
+ *    - Hardbound official case dossiers with embossed gold national emblem seals
+ *    - "CONFIDENTIAL // CRIME INVESTIGATION // BSA §63" stamped folios
+ * 3. Forensic Investigation Grid & Radar:
+ *    - Radial forensic coordinate grid and crime evidence telemetry particles
+ * 4. Palette: Sovereign Gold, Obsidian Navy, Judicial Crimson, Deep Bronze
  */
 export const ThreeAnimation: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -19,12 +25,12 @@ export const ThreeAnimation: React.FC = () => {
     // 1. Scene & Camera Setup
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(
-      50,
+      45,
       window.innerWidth / window.innerHeight,
       0.1,
       1000
     );
-    camera.position.set(0, 0, 190);
+    camera.position.set(0, 15, 185);
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -36,273 +42,430 @@ export const ThreeAnimation: React.FC = () => {
     renderer.shadowMap.enabled = false;
     containerRef.current.appendChild(renderer.domElement);
 
-    // 2. Lighting (Warm Sovereign Palette)
-    const ambientLight = new THREE.AmbientLight(0xfef3c7, 1.2); // Warm light ambient
+    // 2. Lighting — Authoritative Sovereign Courtroom Mood
+    const ambientLight = new THREE.AmbientLight(0xfef3c7, 1.4); // Warm ivory ambient
     scene.add(ambientLight);
 
-    const coreLight = new THREE.PointLight(0xd97706, 2.5, 300); // Amber core glow
-    coreLight.position.set(0, 0, 0);
-    scene.add(coreLight);
+    const keyGoldLight = new THREE.DirectionalLight(0xf59e0b, 2.2); // Warm judicial gold
+    keyGoldLight.position.set(90, 110, 80);
+    scene.add(keyGoldLight);
 
-    const crimsonRimLight = new THREE.DirectionalLight(0x991b1b, 1.6); // Deep crimson accent
-    crimsonRimLight.position.set(120, 80, 100);
-    scene.add(crimsonRimLight);
+    const forensicRimLight = new THREE.DirectionalLight(0xbe123c, 1.5); // Crimson forensic rim
+    forensicRimLight.position.set(-100, 60, -40);
+    scene.add(forensicRimLight);
 
-    const warmFillLight = new THREE.DirectionalLight(0x78350f, 1.0); // Mahogany fill
-    warmFillLight.position.set(-100, -80, -50);
-    scene.add(warmFillLight);
+    const fillObsidian = new THREE.DirectionalLight(0x38bdf8, 0.6); // Subtle cool law-and-order fill
+    fillObsidian.position.set(0, -80, 50);
+    scene.add(fillObsidian);
 
-    // 3. Master Matrix Group
-    const matrixGroup = new THREE.Group();
-    scene.add(matrixGroup);
+    // 3. Master Root Group (Positioned gracefully to the right for clear content readability)
+    const masterGroup = new THREE.Group();
+    scene.add(masterGroup);
+    masterGroup.position.set(42, -5, 0);
 
-    // Asymmetric judicial balance: framed slightly to the right
-    matrixGroup.position.set(40, 0, 0);
+    // =========================================================================
+    // 4. THE SOVEREIGN SCALES OF JUSTICE (Nyaya Tula)
+    // =========================================================================
+    const scalesGroup = new THREE.Group();
+    masterGroup.add(scalesGroup);
 
-    // 4. Central Merkle Crystal (Outer Faceted Diamond)
-    const outerGeo = new THREE.OctahedronGeometry(34, 1);
-    const outerMat = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      roughness: 0.2,
-      metalness: 0.1,
-      transparent: true,
-      opacity: 0.45,
+    // Courtroom Pedestal (Stepped Octagonal Base)
+    const baseGeo1 = new THREE.CylinderGeometry(28, 32, 5, 8);
+    const bronzeMat = new THREE.MeshStandardMaterial({
+      color: 0x334155, // Dark slate obsidian bronze
+      roughness: 0.35,
+      metalness: 0.8,
       flatShading: true,
     });
-    const outerCrystal = new THREE.Mesh(outerGeo, outerMat);
-    matrixGroup.add(outerCrystal);
+    const base1 = new THREE.Mesh(baseGeo1, bronzeMat);
+    base1.position.y = -52;
+    scalesGroup.add(base1);
 
-    // Outer Wireframe Cage (Crimson Edge Lattice)
-    const wireGeo = new THREE.WireframeGeometry(outerGeo);
-    const wireMat = new THREE.LineBasicMaterial({
-      color: 0x991b1b, // Crimson
-      transparent: true,
-      opacity: 0.75,
-      linewidth: 1.5,
+    const baseGeo2 = new THREE.CylinderGeometry(20, 24, 4, 8);
+    const goldTrimMat = new THREE.MeshStandardMaterial({
+      color: 0xd97706, // Sovereign gold
+      roughness: 0.25,
+      metalness: 0.9,
     });
-    const outerWireframe = new THREE.LineSegments(wireGeo, wireMat);
-    matrixGroup.add(outerWireframe);
+    const base2 = new THREE.Mesh(baseGeo2, goldTrimMat);
+    base2.position.y = -48;
+    scalesGroup.add(base2);
 
-    // Inner Nested Hyper-Cube (Amber Mahogany Core)
-    const innerGeo = new THREE.BoxGeometry(18, 18, 18);
-    const innerMat = new THREE.MeshStandardMaterial({
-      color: 0x78350f, // Mahogany brown
-      roughness: 0.3,
-      metalness: 0.4,
-      transparent: true,
-      opacity: 0.7,
-      wireframe: true,
-    });
-    const innerCore = new THREE.Mesh(innerGeo, innerMat);
-    matrixGroup.add(innerCore);
+    // Central Law Column / Pillar
+    const columnGeo = new THREE.CylinderGeometry(3.5, 4.8, 70, 16);
+    const column = new THREE.Mesh(columnGeo, bronzeMat);
+    column.position.y = -12;
+    scalesGroup.add(column);
 
-    // Central Glowing Seed Point (Gold Merkle Root)
-    const seedGeo = new THREE.SphereGeometry(6, 16, 16);
-    const seedMat = new THREE.MeshBasicMaterial({
-      color: 0xd97706, // Gold
-    });
-    const seedCore = new THREE.Mesh(seedGeo, seedMat);
-    matrixGroup.add(seedCore);
+    // Capital & Fulcrum Pivot Sphere
+    const fulcrumCapGeo = new THREE.CylinderGeometry(6, 4, 4, 16);
+    const fulcrumCap = new THREE.Mesh(fulcrumCapGeo, goldTrimMat);
+    fulcrumCap.position.y = 24;
+    scalesGroup.add(fulcrumCap);
 
-    // 5. Astrolabe Gimbal Rings with Hash Marker Arrays
-    const ringGroup = new THREE.Group();
-    matrixGroup.add(ringGroup);
+    const fulcrumSphereGeo = new THREE.SphereGeometry(4.5, 24, 24);
+    const fulcrumSphere = new THREE.Mesh(fulcrumSphereGeo, goldTrimMat);
+    fulcrumSphere.position.y = 28;
+    scalesGroup.add(fulcrumSphere);
 
-    // Equatorial Astrolabe Ring (Segmented Mahogany)
-    const ring1Geo = new THREE.RingGeometry(64, 66, 64);
-    const ring1Mat = new THREE.MeshBasicMaterial({
-      color: 0x78350f,
-      side: THREE.DoubleSide,
-      transparent: true,
-      opacity: 0.45,
-    });
-    const ring1 = new THREE.Mesh(ring1Geo, ring1Mat);
-    ring1.rotation.x = Math.PI / 2.3;
-    ringGroup.add(ring1);
+    // Dynamic Balance Beam (Pivots at Y = 28)
+    const beamAssembly = new THREE.Group();
+    beamAssembly.position.set(0, 28, 0);
+    scalesGroup.add(beamAssembly);
 
-    // Oblique Meridian Ring (Segmented Crimson)
-    const ring2Geo = new THREE.TorusGeometry(82, 0.9, 12, 120);
-    const ring2Mat = new THREE.MeshBasicMaterial({
-      color: 0xb91c1c,
-      transparent: true,
-      opacity: 0.5,
-      wireframe: true,
-    });
-    const ring2 = new THREE.Mesh(ring2Geo, ring2Mat);
-    ring2.rotation.y = Math.PI / 3.2;
-    ringGroup.add(ring2);
+    const beamArmGeo = new THREE.BoxGeometry(78, 2.2, 2.2);
+    const beamArm = new THREE.Mesh(beamArmGeo, goldTrimMat);
+    beamAssembly.add(beamArm);
 
-    // Outer Precision Perimeter Ring (Golden Dotted Astrolabe)
-    const ring3Geo = new THREE.TorusGeometry(98, 0.6, 8, 80);
-    const ring3Mat = new THREE.MeshBasicMaterial({
+    // Fulcrum Finial (National Court Spire)
+    const spireGeo = new THREE.ConeGeometry(2.5, 10, 16);
+    const spire = new THREE.Mesh(spireGeo, goldTrimMat);
+    spire.position.y = 6;
+    beamAssembly.add(spire);
+
+    // Left Scale Pan Assembly (Holding Crime Evidence Docket)
+    const leftPanAssembly = new THREE.Group();
+    leftPanAssembly.position.set(-36, 0, 0);
+    beamAssembly.add(leftPanAssembly);
+
+    // Left Suspension Struts / Chains
+    const chainMat = new THREE.LineBasicMaterial({
       color: 0xd97706,
       transparent: true,
-      opacity: 0.35,
+      opacity: 0.85,
     });
-    const ring3 = new THREE.Mesh(ring3Geo, ring3Mat);
-    ring3.rotation.z = Math.PI / 4.5;
-    ringGroup.add(ring3);
+    const chainPointsL = [
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(-8, -26, 0),
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(8, -26, 0),
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(0, -26, 8),
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(0, -26, -8),
+    ];
+    const chainGeoL = new THREE.BufferGeometry().setFromPoints(chainPointsL);
+    const chainsL = new THREE.LineSegments(chainGeoL, chainMat);
+    leftPanAssembly.add(chainsL);
 
-    // 6. Sweeping Vertical Evidentiary Laser Scan Plane
-    const laserPlaneGeo = new THREE.PlaneGeometry(160, 160);
-    const laserCanvas = document.createElement('canvas');
-    laserCanvas.width = 128;
-    laserCanvas.height = 128;
-    const lCtx = laserCanvas.getContext('2d');
-    if (lCtx) {
-      const grad = lCtx.createRadialGradient(64, 64, 0, 64, 64, 64);
-      grad.addColorStop(0, 'rgba(217, 119, 6, 0.45)'); // Amber center
-      grad.addColorStop(0.5, 'rgba(185, 28, 28, 0.25)'); // Crimson ring
-      grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-      lCtx.fillStyle = grad;
-      lCtx.fillRect(0, 0, 128, 128);
-    }
-    const laserTexture = new THREE.CanvasTexture(laserCanvas);
-    const laserMat = new THREE.MeshBasicMaterial({
-      map: laserTexture,
-      transparent: true,
-      opacity: 0.6,
-      side: THREE.DoubleSide,
-      blending: THREE.NormalBlending,
+    // Left Pan (Dish)
+    const panGeo = new THREE.CylinderGeometry(11, 8, 2.5, 24);
+    const panMat = new THREE.MeshStandardMaterial({
+      color: 0xb45309,
+      roughness: 0.3,
+      metalness: 0.85,
     });
-    const laserPlane = new THREE.Mesh(laserPlaneGeo, laserMat);
-    laserPlane.rotation.x = Math.PI / 2;
-    matrixGroup.add(laserPlane);
+    const panL = new THREE.Mesh(panGeo, panMat);
+    panL.position.y = -27;
+    leftPanAssembly.add(panL);
 
-    // 7. Dynamic Evidentiary Swarm (Helical Forensic Packets)
-    const particleCount = 140;
-    const pGeo = new THREE.BufferGeometry();
-    const pPositions = new Float32Array(particleCount * 3);
-    const pColors = new Float32Array(particleCount * 3);
-    const pInitialThetas = new Float32Array(particleCount);
-    const pSpeeds = new Float32Array(particleCount);
-    const pRadii = new Float32Array(particleCount);
-    const pHeights = new Float32Array(particleCount);
+    // Right Scale Pan Assembly (Holding Law Code / Penal Statute)
+    const rightPanAssembly = new THREE.Group();
+    rightPanAssembly.position.set(36, 0, 0);
+    beamAssembly.add(rightPanAssembly);
 
-    const palette = [
-      new THREE.Color(0x991b1b), // Crimson
-      new THREE.Color(0xb45309), // Amber Brown
-      new THREE.Color(0xd97706), // Gold
-      new THREE.Color(0x451a03), // Deep Mahogany
+    const chainPointsR = [
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(-8, -26, 0),
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(8, -26, 0),
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(0, -26, 8),
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(0, -26, -8),
+    ];
+    const chainGeoR = new THREE.BufferGeometry().setFromPoints(chainPointsR);
+    const chainsR = new THREE.LineSegments(chainGeoR, chainMat);
+    rightPanAssembly.add(chainsR);
+
+    const panR = new THREE.Mesh(panGeo, panMat);
+    panR.position.y = -27;
+    rightPanAssembly.add(panR);
+
+    // =========================================================================
+    // 5. GOVERNMENTAL CRIME REPORT & LAW DOSSIER FOLIOS (Interactive 3D Books)
+    // =========================================================================
+    const foliosGroup = new THREE.Group();
+    masterGroup.add(foliosGroup);
+
+    // Helper: Create Realistic Government Case File Docket Texture
+    const createDossierTexture = (title: string, subtitle: string, sealColor: string) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 512;
+      canvas.height = 512;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        // Deep parchment / leather bound background
+        ctx.fillStyle = '#1e1b18';
+        ctx.fillRect(0, 0, 512, 512);
+
+        // Ornate Gold Border Line
+        ctx.strokeStyle = '#d97706';
+        ctx.lineWidth = 6;
+        ctx.strokeRect(24, 24, 464, 464);
+        ctx.lineWidth = 2;
+        ctx.strokeRect(34, 34, 444, 444);
+
+        // Header
+        ctx.fillStyle = '#fef3c7';
+        ctx.font = 'bold 22px serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('GOVERNMENT OF INDIA', 256, 80);
+
+        ctx.font = '16px monospace';
+        ctx.fillStyle = '#d97706';
+        ctx.fillText('MINISTRY OF LAW & JUSTICE', 256, 110);
+
+        // Central Judicial Seal Emblem
+        ctx.beginPath();
+        ctx.arc(256, 210, 60, 0, Math.PI * 2);
+        ctx.fillStyle = sealColor;
+        ctx.fill();
+        ctx.strokeStyle = '#fef3c7';
+        ctx.lineWidth = 3;
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 15px serif';
+        ctx.fillText('SATYAMEVA', 256, 205);
+        ctx.fillText('JAYATE', 256, 225);
+
+        // Document Title
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 24px serif';
+        ctx.fillText(title, 256, 330);
+
+        // Subtitle / Law section
+        ctx.fillStyle = '#f59e0b';
+        ctx.font = '15px monospace';
+        ctx.fillText(subtitle, 256, 365);
+
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '13px monospace';
+        ctx.fillText('CRIME & EVIDENTIARY AUDIT DOSSIER', 256, 400);
+        ctx.fillText('CRYPTOGRAPHICALLY SEALED // BSA §63', 256, 425);
+      }
+      return new THREE.CanvasTexture(canvas);
+    };
+
+    // Docket 1: "SPECIAL CRIME INVESTIGATION // FIR DOCKET" (Floats on Left Pan)
+    const dossierGeo = new THREE.BoxGeometry(14, 18, 2.5);
+    const textureCrime = createDossierTexture('CRIME REPORT', 'STATE VS CYBER SYNDICATE', '#991b1b');
+    const matCrime = [
+      new THREE.MeshStandardMaterial({ color: 0x451a03 }),
+      new THREE.MeshStandardMaterial({ color: 0x451a03 }),
+      new THREE.MeshStandardMaterial({ color: 0x451a03 }),
+      new THREE.MeshStandardMaterial({ color: 0x451a03 }),
+      new THREE.MeshStandardMaterial({ map: textureCrime }), // Front cover
+      new THREE.MeshStandardMaterial({ color: 0x1e1b18 }), // Back cover
+    ];
+    const dossierCrime = new THREE.Mesh(dossierGeo, matCrime);
+    dossierCrime.position.set(0, -22, 0);
+    dossierCrime.rotation.x = -Math.PI / 2.8;
+    leftPanAssembly.add(dossierCrime);
+
+    // Docket 2: "BHARATIYA SAKSHYA ADHINIYAM // STATUTORY CODE" (Floats on Right Pan)
+    const textureLaw = createDossierTexture('EVIDENCE ACT', 'BHARATIYA SAKSHYA §63', '#1e3a8a');
+    const matLaw = [
+      new THREE.MeshStandardMaterial({ color: 0x1e293b }),
+      new THREE.MeshStandardMaterial({ color: 0x1e293b }),
+      new THREE.MeshStandardMaterial({ color: 0x1e293b }),
+      new THREE.MeshStandardMaterial({ color: 0x1e293b }),
+      new THREE.MeshStandardMaterial({ map: textureLaw }),
+      new THREE.MeshStandardMaterial({ color: 0x0f172a }),
+    ];
+    const dossierLaw = new THREE.Mesh(dossierGeo, matLaw);
+    dossierLaw.position.set(0, -22, 0);
+    dossierLaw.rotation.x = -Math.PI / 2.8;
+    rightPanAssembly.add(dossierLaw);
+
+    // Floating Case Intelligence Folios (Orbiting around the Scales of Justice)
+    const orbitingDossiers: THREE.Mesh[] = [];
+    const folioConfigs = [
+      { title: 'FORENSIC AUDIT', sub: 'CENTRAL BANK RANSOMWARE', color: '#be123c', r: 72, y: 15, speed: 0.18 },
+      { title: 'BALLISTICS LAB', sub: 'FIREARM & STRIATION MEMO', color: '#7c2d12', r: 88, y: -18, speed: -0.14 },
+      { title: 'JUDICIAL INQUIRY', sub: 'ANTI-CORRUPTION BUREAU', color: '#1e3a8a', r: 80, y: 35, speed: 0.12 },
     ];
 
-    for (let i = 0; i < particleCount; i++) {
-      const theta = (i / particleCount) * Math.PI * 4 + Math.random() * 0.5;
-      const radius = 45 + Math.random() * 85;
-      const height = (Math.random() - 0.5) * 120;
+    folioConfigs.forEach((cfg) => {
+      const tex = createDossierTexture(cfg.title, cfg.sub, cfg.color);
+      const mat = [
+        new THREE.MeshStandardMaterial({ color: 0x334155 }),
+        new THREE.MeshStandardMaterial({ color: 0x334155 }),
+        new THREE.MeshStandardMaterial({ color: 0x334155 }),
+        new THREE.MeshStandardMaterial({ color: 0x334155 }),
+        new THREE.MeshStandardMaterial({ map: tex }),
+        new THREE.MeshStandardMaterial({ color: 0x1e293b }),
+      ];
+      const folio = new THREE.Mesh(dossierGeo, mat);
+      folio.userData = { radius: cfg.r, yBase: cfg.y, speed: cfg.speed, angle: Math.random() * Math.PI * 2 };
+      foliosGroup.add(folio);
+      orbitingDossiers.push(folio);
+    });
 
-      pPositions[i * 3] = Math.cos(theta) * radius;
-      pPositions[i * 3 + 1] = height;
-      pPositions[i * 3 + 2] = Math.sin(theta) * radius;
+    // =========================================================================
+    // 6. FORENSIC RADAR RINGS & CRIME INVESTIGATION GRID
+    // =========================================================================
+    const radarGroup = new THREE.Group();
+    masterGroup.add(radarGroup);
+    radarGroup.position.set(0, -52, 0);
 
-      pInitialThetas[i] = theta;
-      pSpeeds[i] = 0.003 + Math.random() * 0.007;
-      pRadii[i] = radius;
-      pHeights[i] = height;
+    // Concentric Radar Rings
+    const ringMatGold = new THREE.MeshBasicMaterial({
+      color: 0xd97706,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.35,
+      wireframe: true,
+    });
+    const ring1 = new THREE.Mesh(new THREE.RingGeometry(48, 49, 48), ringMatGold);
+    ring1.rotation.x = Math.PI / 2;
+    radarGroup.add(ring1);
 
-      const color = palette[i % palette.length];
-      pColors[i * 3] = color.r;
-      pColors[i * 3 + 1] = color.g;
-      pColors[i * 3 + 2] = color.b;
+    const ring2 = new THREE.Mesh(new THREE.RingGeometry(82, 83, 64), ringMatGold);
+    ring2.rotation.x = Math.PI / 2;
+    radarGroup.add(ring2);
+
+    const ring3 = new THREE.Mesh(new THREE.RingGeometry(110, 111, 72), new THREE.MeshBasicMaterial({
+      color: 0xbe123c,
+      side: THREE.DoubleSide,
+      transparent: true,
+      opacity: 0.22,
+      wireframe: true,
+    }));
+    ring3.rotation.x = Math.PI / 2;
+    radarGroup.add(ring3);
+
+    // Sweeping Radar Beam Line
+    const radarLineGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(110, 0, 0),
+    ]);
+    const radarLineMat = new THREE.LineBasicMaterial({
+      color: 0xf59e0b,
+      transparent: true,
+      opacity: 0.65,
+    });
+    const radarBeam = new THREE.Line(radarLineGeo, radarLineMat);
+    radarGroup.add(radarBeam);
+
+    // =========================================================================
+    // 7. PARTICLES: SOVEREIGN EVIDENCE & HASH TELEMETRY
+    // =========================================================================
+    const pCount = 100;
+    const pGeo = new THREE.BufferGeometry();
+    const pPos = new Float32Array(pCount * 3);
+    const pCol = new Float32Array(pCount * 3);
+    const pSpeeds = new Float32Array(pCount);
+
+    const palette = [
+      new THREE.Color(0xd97706), // Gold
+      new THREE.Color(0xbe123c), // Crimson forensic
+      new THREE.Color(0x38bdf8), // Cyan digital
+      new THREE.Color(0x10b981), // Emerald verified
+    ];
+
+    for (let i = 0; i < pCount; i++) {
+      pPos[i * 3] = (Math.random() - 0.5) * 200;
+      pPos[i * 3 + 1] = (Math.random() - 0.5) * 120;
+      pPos[i * 3 + 2] = (Math.random() - 0.5) * 120;
+
+      const c = palette[i % palette.length];
+      pCol[i * 3] = c.r;
+      pCol[i * 3 + 1] = c.g;
+      pCol[i * 3 + 2] = c.b;
+
+      pSpeeds[i] = 0.15 + Math.random() * 0.35;
     }
 
-    pGeo.setAttribute('position', new THREE.BufferAttribute(pPositions, 3));
-    pGeo.setAttribute('color', new THREE.BufferAttribute(pColors, 3));
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+    pGeo.setAttribute('color', new THREE.BufferAttribute(pCol, 3));
 
     const pMat = new THREE.PointsMaterial({
-      size: 3.5,
+      size: 2.8,
       vertexColors: true,
       transparent: true,
-      opacity: 0.75,
-      blending: THREE.NormalBlending,
+      opacity: 0.65,
     });
-    const particleSwarm = new THREE.Points(pGeo, pMat);
-    matrixGroup.add(particleSwarm);
+    const particlePoints = new THREE.Points(pGeo, pMat);
+    masterGroup.add(particlePoints);
 
-    // 8. Mouse Tracking & Fluid Inertia
+    // =========================================================================
+    // 8. MOUSE PARALLAX & RESPONSIVE HANDLING
+    // =========================================================================
     let mouseX = 0;
     let mouseY = 0;
     let targetX = 0;
     let targetY = 0;
 
     const onMouseMove = (e: MouseEvent) => {
-      mouseX = (e.clientX - window.innerWidth / 2) * 0.0006;
-      mouseY = (e.clientY - window.innerHeight / 2) * 0.0006;
+      mouseX = (e.clientX - window.innerWidth / 2) * 0.0005;
+      mouseY = (e.clientY - window.innerHeight / 2) * 0.0005;
     };
     window.addEventListener('mousemove', onMouseMove, { passive: true });
 
-    // 9. Resize Handler
     const onResize = () => {
       if (!containerRef.current) return;
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
 
-      // Responsive positioning for smaller screens
-      if (window.innerWidth < 768) {
-        matrixGroup.position.set(0, 0, -20);
-        camera.position.z = 240;
+      if (window.innerWidth < 1024) {
+        masterGroup.position.set(0, -10, -25);
+        camera.position.z = 220;
       } else {
-        matrixGroup.position.set(40, 0, 0);
-        camera.position.z = 190;
+        masterGroup.position.set(46, -5, 0);
+        camera.position.z = 185;
       }
     };
     window.addEventListener('resize', onResize);
     onResize();
 
-    // 10. Animation Loop
-    let clock = new THREE.Clock();
+    // =========================================================================
+    // 9. ANIMATION LOOP
+    // =========================================================================
     let animId: number;
+    const clock = new THREE.Clock();
 
     const animate = () => {
       animId = requestAnimationFrame(animate);
-
       const elapsed = clock.getElapsedTime();
 
-      // Fluid camera / matrix tilt tracking
-      targetX += (mouseX - targetX) * 0.05;
-      targetY += (mouseY - targetY) * 0.05;
-      matrixGroup.rotation.y = targetX + elapsed * 0.12;
-      matrixGroup.rotation.x = targetY + Math.sin(elapsed * 0.3) * 0.08;
+      // Fluid tilt towards mouse cursor
+      targetX += (mouseX - targetX) * 0.04;
+      targetY += (mouseY - targetY) * 0.04;
+      masterGroup.rotation.y = targetX + Math.sin(elapsed * 0.15) * 0.08;
+      masterGroup.rotation.x = targetY + Math.cos(elapsed * 0.2) * 0.04;
 
-      // Crystal Core Complex Precession
-      outerCrystal.rotation.x = elapsed * 0.22;
-      outerCrystal.rotation.y = elapsed * 0.35;
-      outerWireframe.rotation.x = elapsed * 0.22;
-      outerWireframe.rotation.y = elapsed * 0.35;
+      // Dynamic Judicial Balance Scale Oscillation (Tipping between Evidence & Law)
+      const balanceTilt = Math.sin(elapsed * 0.8) * 0.12 + Math.cos(elapsed * 1.4) * 0.04;
+      beamAssembly.rotation.z = balanceTilt;
 
-      // Inner Core Counter-Rotation & Pulse
-      innerCore.rotation.x = -elapsed * 0.4;
-      innerCore.rotation.z = elapsed * 0.3;
-      const pulse = 1 + Math.sin(elapsed * 2.2) * 0.08;
-      innerCore.scale.set(pulse, pulse, pulse);
+      // Keep scale pans vertical as beam tilts
+      leftPanAssembly.rotation.z = -balanceTilt;
+      rightPanAssembly.rotation.z = -balanceTilt;
 
-      // Seed Core Harmonic Glow
-      const seedPulse = 1 + Math.cos(elapsed * 3.0) * 0.15;
-      seedCore.scale.set(seedPulse, seedPulse, seedPulse);
+      // Radar Sweep Rotation
+      radarBeam.rotation.y = elapsed * 1.2;
 
-      // Gimbal Rings Counter-Rotation
-      ring1.rotation.z = elapsed * 0.18;
-      ring2.rotation.x = elapsed * 0.14;
-      ring2.rotation.y = -elapsed * 0.2;
-      ring3.rotation.y = elapsed * 0.09;
-      ring3.rotation.z = -elapsed * 0.11;
+      // Orbiting Crime Dossiers
+      orbitingDossiers.forEach((dossier) => {
+        const u = dossier.userData;
+        u.angle += u.speed * 0.015;
+        dossier.position.x = Math.cos(u.angle) * u.radius;
+        dossier.position.z = Math.sin(u.angle) * u.radius;
+        dossier.position.y = u.yBase + Math.sin(elapsed * 1.5 + u.radius) * 4;
+        dossier.rotation.y = -u.angle + Math.PI / 2;
+        dossier.rotation.x = Math.sin(elapsed * 0.8) * 0.15;
+      });
 
-      // Laser Scanner Vertical Sweep
-      laserPlane.position.y = Math.sin(elapsed * 1.6) * 42;
-      laserPlane.rotation.z = elapsed * 0.4;
-
-      // Particle Swarm Helical Evolution
+      // Floating Evidence Particle Drifts
       const positions = pGeo.attributes.position.array as Float32Array;
-      for (let i = 0; i < particleCount; i++) {
-        pInitialThetas[i] += pSpeeds[i];
-        const theta = pInitialThetas[i];
-        const r = pRadii[i];
-        const h = pHeights[i] + Math.sin(elapsed * 1.5 + i) * 6;
-
-        positions[i * 3] = Math.cos(theta) * r;
-        positions[i * 3 + 1] = h;
-        positions[i * 3 + 2] = Math.sin(theta) * r;
+      for (let i = 0; i < pCount; i++) {
+        positions[i * 3 + 1] += pSpeeds[i] * 0.2;
+        if (positions[i * 3 + 1] > 70) {
+          positions[i * 3 + 1] = -70;
+        }
       }
       pGeo.attributes.position.needsUpdate = true;
 
@@ -311,7 +474,7 @@ export const ThreeAnimation: React.FC = () => {
 
     animate();
 
-    // Cleanup
+    // 10. Cleanup
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener('mousemove', onMouseMove);
@@ -320,23 +483,25 @@ export const ThreeAnimation: React.FC = () => {
         containerRef.current.removeChild(renderer.domElement);
       }
       renderer.dispose();
-      outerGeo.dispose();
-      outerMat.dispose();
-      innerGeo.dispose();
-      innerMat.dispose();
-      seedGeo.dispose();
-      seedMat.dispose();
-      ring1Geo.dispose();
-      ring1Mat.dispose();
-      ring2Geo.dispose();
-      ring2Mat.dispose();
-      ring3Geo.dispose();
-      ring3Mat.dispose();
-      laserPlaneGeo.dispose();
-      laserMat.dispose();
-      laserTexture.dispose();
+      baseGeo1.dispose();
+      baseGeo2.dispose();
+      columnGeo.dispose();
+      fulcrumCapGeo.dispose();
+      fulcrumSphereGeo.dispose();
+      beamArmGeo.dispose();
+      spireGeo.dispose();
+      chainGeoL.dispose();
+      chainGeoR.dispose();
+      panGeo.dispose();
+      dossierGeo.dispose();
+      radarLineGeo.dispose();
       pGeo.dispose();
       pMat.dispose();
+      bronzeMat.dispose();
+      goldTrimMat.dispose();
+      panMat.dispose();
+      ringMatGold.dispose();
+      radarLineMat.dispose();
     };
   }, []);
 
@@ -345,7 +510,7 @@ export const ThreeAnimation: React.FC = () => {
       ref={containerRef}
       className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
       aria-hidden="true"
-      style={{ opacity: 0.88 }}
+      style={{ opacity: 0.92 }}
     />
   );
 };

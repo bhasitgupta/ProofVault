@@ -190,8 +190,8 @@ export const DocumentDetailPage: React.FC = () => {
         </div>
 
         <div className="pt-3 flex items-center justify-between border-t border-stone-200">
-          <span className="text-xs text-stone-500 font-medium">On-Chain Ledger Registration:</span>
-          <LedgerTxLink txId={doc.ledger_tx_id} channel="dochash-channel" />
+          <span className="text-xs text-stone-500 font-medium">Polygon Amoy EVM Anchor:</span>
+          <LedgerTxLink txId={doc.ledger_tx_id} contract="EvidenceRegistry" />
         </div>
       </div>
 

@@ -78,7 +78,7 @@ export const AuditLogPage: React.FC = () => {
                 <th className="p-3.5">Failing Check</th>
                 <th className="p-3.5">Target Document</th>
                 <th className="p-3.5">Status</th>
-                <th className="p-3.5">Ledger TX</th>
+                <th className="p-3.5">EVM Proof TX</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-200">

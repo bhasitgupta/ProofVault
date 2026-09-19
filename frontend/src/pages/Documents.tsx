@@ -879,7 +879,7 @@ export const DocumentsPage: React.FC = () => {
                         <div className="bg-parchment-50 p-6 rounded-xl border border-stone-200 text-center space-y-2">
                           <Shield className="w-8 h-8 text-stone-400 mx-auto" />
                           <p className="text-xs text-stone-600">
-                            Click "Run Suite" to re-verify cryptographic integrity across all four tiers against the on-chain ledger.
+                            Click "Run Suite" to re-verify cryptographic integrity across all four tiers against the Polygon Amoy blockchain.
                           </p>
                         </div>
                       )}
@@ -907,8 +907,8 @@ export const DocumentsPage: React.FC = () => {
             {/* Modal Footer */}
             <div className="p-4 border-t border-stone-200 bg-parchment-100 flex flex-wrap items-center justify-between gap-3 text-xs">
               <div className="flex items-center gap-2 font-mono text-stone-600">
-                <span>Ledger Tx:</span>
-                <LedgerTxLink txId={previewData?.ledger_tx_id || ''} channel="dochash-channel" />
+                <span>EVM Anchor:</span>
+                <LedgerTxLink txId={previewData?.ledger_tx_id || ''} contract="EvidenceRegistry" />
               </div>
               <button
                 onClick={handleClosePreview}

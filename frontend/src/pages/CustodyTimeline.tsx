@@ -50,7 +50,7 @@ export const CustodyTimelinePage: React.FC = () => {
               Immutable Chain of Custody
             </h1>
             <p className="text-xs text-stone-600 mt-1">
-              Cryptographically recorded ledger transactions on <strong className="text-stone-800">access-channel</strong> for Case <span className="font-mono text-crimson-800 font-bold">{caseId}</span>.
+              Cryptographically sealed provenance transactions on <strong className="text-stone-800">Polygon ProvenanceRegistry</strong> for Case <span className="font-mono text-crimson-800 font-bold">{caseId}</span>.
             </p>
           </div>
         </div>
@@ -65,7 +65,7 @@ export const CustodyTimelinePage: React.FC = () => {
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 space-y-3">
           <RefreshCw className="w-6 h-6 text-crimson-700 animate-spin" />
-          <span className="text-stone-500 text-xs font-mono">Fetching verifiable ledger transactions...</span>
+          <span className="text-stone-500 text-xs font-mono">Fetching verifiable provenance transactions...</span>
         </div>
       ) : (
         <ChainOfCustody events={events} />

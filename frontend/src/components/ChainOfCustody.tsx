@@ -53,7 +53,7 @@ export const ChainOfCustody: React.FC<ChainOfCustodyProps> = ({ events = [] }) =
 
             <div className="pt-1.5 border-t border-stone-200 flex items-center justify-between">
               <span className="text-[11px] text-stone-500 font-mono">Tx ID:</span>
-              <LedgerTxLink txId={evt.eventId} channel="access-channel" />
+              <LedgerTxLink txId={evt.eventId} contract="ProvenanceRegistry" />
             </div>
           </div>
         </div>

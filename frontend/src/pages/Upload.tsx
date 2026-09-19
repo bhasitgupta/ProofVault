@@ -103,7 +103,7 @@ export const UploadPage: React.FC = () => {
           </div>
 
           <div className="pt-3 flex flex-wrap items-center justify-between gap-3 border-t border-stone-200">
-            <LedgerTxLink txId={result.ledger_tx_id} channel="dochash-channel" />
+            <LedgerTxLink txId={result.ledger_tx_id} contract="EvidenceRegistry" />
             <button
               onClick={() => navigate(`/documents`)}
               className="flex items-center gap-1.5 px-4 py-2 bg-crimson-800 hover:bg-crimson-700 text-white text-xs font-semibold rounded-xl shadow-md transition-colors"
@@ -189,7 +189,7 @@ export const UploadPage: React.FC = () => {
             disabled={loading || !file}
             className="w-full flex items-center justify-center gap-2 py-3 bg-crimson-800 hover:bg-crimson-700 disabled:opacity-50 text-white text-sm font-semibold rounded-xl transition-all shadow-md shadow-crimson-900/15"
           >
-            <span>{loading ? 'Executing 14-Step Cryptographic Pipeline...' : 'Commit Evidence to Ledger'}</span>
+            <span>{loading ? 'Executing 14-Step Cryptographic Pipeline...' : 'Anchor Evidence on Polygon Amoy'}</span>
             <Shield className="w-4 h-4" />
           </button>
         </form>
