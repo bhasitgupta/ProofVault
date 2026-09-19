@@ -54,7 +54,18 @@ async def add_request_id(request: Request, call_next):
 # SDMS domain exception handler
 @app.exception_handler(SDMSException)
 async def sdms_exception_handler(request: Request, exc: SDMSException):
-    return JSONResponse(status_code=exc.status_code, content={"error": exc.message, "code": exc.code})
+    return JSONResponse(status_code=exc.status_code, content={"error": exc.message, "code": exc.code, "detail": exc.message})
+
+# Catch-all exception handler for debugging and clean error reporting
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    import traceback
+    traceback.print_exc()
+    error_msg = str(exc) or "An internal error occurred"
+    return JSONResponse(
+        status_code=500,
+        content={"error": error_msg, "code": "INTERNAL_SERVER_ERROR", "detail": error_msg}
+    )
 
 # Mount API v1 routes
 app.include_router(v1_router, prefix="/api/v1")

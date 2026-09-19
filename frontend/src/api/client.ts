@@ -23,9 +23,9 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
     let errorDetail = 'API request failed';
     try {
       const errJson = await response.json();
-      errorDetail = errJson.detail || errJson.message || errorDetail;
+      errorDetail = errJson.detail || errJson.message || errJson.error || errorDetail;
     } catch {
-      errorDetail = `HTTP ${response.status}: ${response.statusText}`;
+      errorDetail = response.statusText ? `HTTP ${response.status}: ${response.statusText}` : `HTTP ${response.status} (Internal Server Error)`;
     }
     throw new Error(errorDetail);
   }

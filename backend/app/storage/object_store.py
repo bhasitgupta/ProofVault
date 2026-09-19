@@ -1,7 +1,9 @@
 import os
 from typing import Optional
 
-STORAGE_ROOT = os.getenv("STORAGE_DIR", os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "storage_data")))
+from app.config import get_settings
+
+STORAGE_ROOT = get_settings().STORAGE_DIR
 
 class ObjectStore:
     """
@@ -9,12 +11,15 @@ class ObjectStore:
     Uses S3/MinIO in production and local filesystem in dev/demo mode.
     Object keys are derived from doc_id, never user-supplied filenames.
     """
-    def __init__(self, root_dir: str = STORAGE_ROOT):
-        self.root_dir = root_dir
+    def __init__(self, root_dir: str = None):
+        self.root_dir = root_dir or get_settings().STORAGE_DIR
         self.evidence_dir = os.path.join(self.root_dir, "evidence")
         self.quarantine_dir = os.path.join(self.root_dir, "quarantine")
-        os.makedirs(self.evidence_dir, exist_ok=True)
-        os.makedirs(self.quarantine_dir, exist_ok=True)
+        try:
+            os.makedirs(self.evidence_dir, exist_ok=True)
+            os.makedirs(self.quarantine_dir, exist_ok=True)
+        except OSError as e:
+            print(f"[WARN] ObjectStore directory initialization notice: {e}")
 
     def put_blob(self, doc_id: str, ciphertext: bytes, bucket: str = "evidence") -> str:
         target_dir = self.quarantine_dir if bucket == "quarantine" else self.evidence_dir

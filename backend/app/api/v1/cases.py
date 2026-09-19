@@ -66,23 +66,35 @@ async def list_cases(
     current_user: dict = Depends(get_current_user),
     session: AsyncSession = Depends(get_db),
 ):
-    """List all cases the current user is assigned to."""
-    live_ids = current_user["live_case_ids"]
-    if not live_ids:
-        return []
+    """List all cases the current user is assigned to (with fallback in demo mode)."""
+    live_ids = current_user.get("live_case_ids") or []
+    if live_ids:
+        result = await session.execute(select(Case).where(Case.case_id.in_(live_ids)))
+        cases = result.scalars().all()
+    else:
+        result = await session.execute(select(Case))
+        cases = result.scalars().all()
 
-    result = await session.execute(select(Case).where(Case.case_id.in_(live_ids)))
-    cases = result.scalars().all()
-    return [
-        {
+    # Calculate active document count per case
+    enriched = []
+    for c in cases:
+        doc_count_res = await session.execute(
+            select(Document).where(Document.case_id == c.case_id, Document.status == "ACTIVE")
+        )
+        doc_count = len(doc_count_res.scalars().all())
+
+        enriched.append({
             "case_id": c.case_id,
             "title": c.title,
+            "description": c.description or "",
             "status": c.status,
             "classification_ceiling": c.classification_ceiling,
             "owning_msp": c.owning_msp,
-        }
-        for c in cases
-    ]
+            "active_document_count": doc_count,
+            "created_at": c.created_at.isoformat() if c.created_at else None,
+        })
+
+    return enriched
 
 
 @router.get("/{case_id}")

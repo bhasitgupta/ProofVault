@@ -162,9 +162,17 @@ export const CaseWorkspace: React.FC = () => {
       </div>
 
       {error && (
-        <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-800 flex items-center gap-2 font-mono">
-          <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
-          <span>{error}</span>
+        <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-800 flex items-center justify-between gap-3 font-mono">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{error}</span>
+          </div>
+          <button
+            onClick={() => { setError(null); loadWorkspaceData(); }}
+            className="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition-colors text-[11px] font-sans font-medium cursor-pointer shrink-0"
+          >
+            Retry Connection
+          </button>
         </div>
       )}
 

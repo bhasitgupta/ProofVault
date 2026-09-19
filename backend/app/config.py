@@ -1,12 +1,46 @@
+import os
+import tempfile
 from functools import lru_cache
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def _resolve_default_db_url() -> str:
+    db_env = os.getenv("DATABASE_URL")
+    if db_env:
+        if db_env.startswith("postgres://"):
+            return db_env.replace("postgres://", "postgresql+asyncpg://", 1)
+        if db_env.startswith("postgresql://") and not db_env.startswith("postgresql+asyncpg://"):
+            return db_env.replace("postgresql://", "postgresql+asyncpg://", 1)
+        return db_env
+    if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+        p = os.path.join(tempfile.gettempdir(), "sdms_metadata.db").replace("\\", "/")
+        return f"sqlite+aiosqlite:///{p}"
+    return "sqlite+aiosqlite:///sdms_metadata.db"
+
+
+def _resolve_default_storage_dir() -> str:
+    storage_env = os.getenv("STORAGE_DIR")
+    if storage_env:
+        return storage_env
+    if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+        return os.path.join(tempfile.gettempdir(), "sdms_storage").replace("\\", "/")
+    return "storage_data"
+
+
+def _resolve_default_quarantine_dir() -> str:
+    quarantine_env = os.getenv("QUARANTINE_DIR")
+    if quarantine_env:
+        return quarantine_env
+    if os.getenv("VERCEL") or os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+        return os.path.join(tempfile.gettempdir(), "sdms_storage", "quarantine").replace("\\", "/")
+    return "storage_data/quarantine"
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     # Database
-    DATABASE_URL: str = "sqlite+aiosqlite:///sdms_metadata.db"
+    DATABASE_URL: str = _resolve_default_db_url()
 
     # JWT
     JWT_SECRET_KEY: str = "change-me-in-production-use-strong-random-secret"
@@ -25,8 +59,8 @@ class Settings(BaseSettings):
     VAULT_TOKEN: str = "dev-root-token"
 
     # Object Storage
-    STORAGE_DIR: str = "storage_data"
-    QUARANTINE_DIR: str = "storage_data/quarantine"
+    STORAGE_DIR: str = _resolve_default_storage_dir()
+    QUARANTINE_DIR: str = _resolve_default_quarantine_dir()
 
     # OPA
     OPA_URL: str = ""   # empty = fallback embedded ABAC
