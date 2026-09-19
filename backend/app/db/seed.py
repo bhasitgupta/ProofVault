@@ -7,6 +7,7 @@ from app.db.models.user import User
 from app.db.models.case import Case
 from app.db.models.assignment import Assignment
 from app.db.models.document import Document
+from app.db.models.chunk import Chunk
 from app.core.security import hash_password
 from app.core.constants import UserRole, ClassificationLevel
 

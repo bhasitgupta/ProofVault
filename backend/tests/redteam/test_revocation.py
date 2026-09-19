@@ -17,9 +17,23 @@ async def test_redteam_immediate_revocation_enforced():
     case_id = f"CASE-REVOKE-{uuid.uuid4().hex[:6]}"
     
     async with AsyncSessionLocal() as session:
-        # Create case & active assignment
+        # Create case, user, & active assignment
         case = Case(case_id=case_id, title="Revocation Test Case", classification_ceiling="SECRET")
         session.add(case)
+        from app.db.models.user import User
+        if not await session.get(User, "USR-REVOKE-ME"):
+            session.add(User(
+                id="USR-REVOKE-ME",
+                username="revoke_me",
+                full_name="Revoke Test User",
+                role="INVESTIGATOR",
+                password_hash="test_hash",
+                totp_secret="JBSWY3DPEHPK3PXP",
+                mfa_enrolled=True,
+                is_active=True,
+                msp_id="PoliceMSP"
+            ))
+            await session.flush()
         assign = Assignment(user_id="USR-REVOKE-ME", case_id=case_id, is_active=True)
         session.add(assign)
         await session.commit()

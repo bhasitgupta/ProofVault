@@ -41,6 +41,7 @@ from app.crypto.merkle import MerkleTree
 from app.crypto.tsa import generate_tsa_token
 from app.crypto.signer import generate_officer_keypair, sign_content_hash
 from app.ledger.records import DocRecord, AuditEvent
+from app.db.models.case import Case
 from app.db.models.document import Document
 from app.db.models.chunk import Chunk
 from app.db.models.audit_log import AuditLog
@@ -129,6 +130,11 @@ async def run_ingestion_pipeline(
     storage_path = _store.put_blob(doc_id, ciphertext)
 
     # ── Step 11: Postgres metadata row ────────────────────────────────────────
+    case_row = await session.get(Case, case_id)
+    if not case_row:
+        session.add(Case(case_id=case_id, title=f"Docket {case_id}", classification_ceiling=classification))
+        await session.flush()
+
     doc_row = Document(
         id=doc_id,
         case_id=case_id,

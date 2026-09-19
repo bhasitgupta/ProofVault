@@ -15,17 +15,18 @@ import app.db.models.audit_log  # noqa: F401
 import app.db.models.receipt  # noqa: F401
 import app.db.models.role_policy  # noqa: F401
 
+from sqlalchemy.pool import NullPool
+
 DATABASE_URL = get_settings().DATABASE_URL
 
 connect_args = {}
 engine_kwargs = {"echo": False}
 
 if "postgresql" in DATABASE_URL or "postgres" in DATABASE_URL:
-    # Essential for Supabase PgBouncer pooler (port 6543)
+    # Essential for Supabase PgBouncer pooler (port 6543/5432) and async event loops
     connect_args["statement_cache_size"] = 0
     engine_kwargs["connect_args"] = connect_args
-    engine_kwargs["pool_pre_ping"] = True
-    engine_kwargs["pool_recycle"] = 300
+    engine_kwargs["poolclass"] = NullPool
 
 engine = create_async_engine(DATABASE_URL, **engine_kwargs)
 async_session_factory = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)

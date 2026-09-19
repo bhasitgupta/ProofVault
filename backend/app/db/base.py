@@ -5,12 +5,15 @@ from sqlalchemy import DateTime, String
 class Base(DeclarativeBase):
     pass
 
+def _utcnow_naive() -> datetime:
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
 class TimestampMixin:
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=lambda: datetime.now(timezone.utc)
+        DateTime, default=_utcnow_naive
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc)
+        DateTime, default=_utcnow_naive, onupdate=_utcnow_naive
     )
 
 # Import all models so SQLAlchemy's metadata.create_all() knows every table.
