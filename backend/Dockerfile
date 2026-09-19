@@ -16,7 +16,8 @@ RUN pip install --no-cache-dir \
     pyotp \
     qrcode \
     sqlalchemy \
-    aiosqlite \
+    asyncpg \
+    supabase \
     structlog \
     reportlab \
     jinja2 \

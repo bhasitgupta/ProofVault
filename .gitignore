@@ -11,6 +11,8 @@ test_redteam_*.db
 backend/test_redteam_*.db
 *.db
 backend/*.db
+*.sqlite
+*.sqlite3
 scripts/generate_contributions.py
 *contribution*
 *.bin

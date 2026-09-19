@@ -8,8 +8,8 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=sqlite+aiosqlite:///sdms_metadata.db
-      - LEDGER_BACKEND=dev
+      - DATABASE_URL=${DATABASE_URL:-postgresql+asyncpg://postgres:postgres@db:5432/postgres}
+      - LEDGER_BACKEND=polygon
       - VAULT_DEV_MODE=true
     volumes:
       - ./backend/storage:/app/storage
