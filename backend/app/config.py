@@ -55,12 +55,21 @@ class Settings(BaseSettings):
         else:
             p = os.path.join(tempfile.gettempdir(), "sdms_metadata.db").replace("\\", "/")
             self.DATABASE_URL = f"sqlite+aiosqlite:///{p}"
+
+        # Resolve Supabase key aliases
+        if self.SUPABASE_PUBLISHABLE_KEY and not self.SUPABASE_KEY:
+            self.SUPABASE_KEY = self.SUPABASE_PUBLISHABLE_KEY
+        if self.SUPABASE_SECRET_KEY and not self.SUPABASE_SERVICE_ROLE_KEY:
+            self.SUPABASE_SERVICE_ROLE_KEY = self.SUPABASE_SECRET_KEY
         return self
 
     # Supabase Cloud Project Configuration
     SUPABASE_URL: str = ""
     SUPABASE_KEY: str = ""                                  # anon public key or service role key
+    SUPABASE_PUBLISHABLE_KEY: str = ""                      # publishable key alias
     SUPABASE_SERVICE_ROLE_KEY: str = ""                     # elevated key for storage & admin access
+    SUPABASE_SECRET_KEY: str = ""                           # secret key alias
+    SUPABASE_JWKS_URL: str = ""                             # jwks url
     SUPABASE_STORAGE_BUCKET: str = "evidence"               # encrypted evidence storage bucket
     SUPABASE_QUARANTINE_BUCKET: str = "quarantine"          # isolated malware storage bucket
     SUPABASE_CERTIFICATES_BUCKET: str = "certificates"      # court certificates storage bucket
