@@ -165,7 +165,7 @@ export const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/mfa" element={<MfaChallenge />} />
+          <Route path="/mfa" element={<Navigate to="/dossiers" replace />} />
           <Route path="/dossiers" element={<ProtectedRoute><CaseWorkspace /></ProtectedRoute>} />
           <Route path="/ask" element={<ProtectedRoute><AskPage /></ProtectedRoute>} />
           <Route path="/upload" element={<ProtectedRoute><UploadPage /></ProtectedRoute>} />

@@ -21,7 +21,7 @@ import {
   X
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { login } from '../api/auth';
+import { ConnectWallet } from '../components/ConnectWallet';
 import { ThreeAnimation } from '../components/ThreeAnimation';
 
 export const LandingPage: React.FC = () => {
@@ -30,46 +30,6 @@ export const LandingPage: React.FC = () => {
 
   // Login Modal State
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [username, setUsername] = useState('investigator_gupta');
-  const [password, setPassword] = useState('SecurePass@2026');
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const demoRoles = [
-    { name: 'Inspector Bhasit Gupta', username: 'investigator_gupta', role: 'Chief Investigator', badge: 'Police Division' },
-    { name: 'Dr. Ananya Iyer', username: 'forensic_ananya', role: 'Forensic Director', badge: 'Forensic Lab' },
-    { name: 'SP Vikram Kapoor', username: 'supervisor_kapoor', role: 'Supervisory Command', badge: 'Judicial Oversight' },
-    { name: 'Root System Admin', username: 'admin_sys', role: 'Security Controller', badge: 'Infrastructure' },
-  ];
-
-  const handleLoginSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
-    try {
-      const res = await login(username, password);
-      if (res.mfa_required) {
-        navigate('/mfa', {
-          state: {
-            partial_token: res.partial_token,
-            totp_uri: res.totp_uri,
-            username,
-          },
-        });
-      } else {
-        navigate('/dossiers');
-      }
-    } catch (err: any) {
-      setError(err.message || 'Authentication rejected by security policy.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const selectPersona = (u: string) => {
-    setUsername(u);
-    setPassword('SecurePass@2026');
-  };
 
   return (
     <div className="min-h-screen bg-ambient text-slate-900 relative overflow-hidden flex flex-col justify-between selection:bg-indigo-500/10 selection:text-indigo-900">
@@ -268,103 +228,17 @@ export const LandingPage: React.FC = () => {
 
             <div className="space-y-1.5 pr-8">
               <div className="inline-flex items-center gap-2 text-xs font-mono text-indigo-700 font-bold uppercase tracking-wider">
-                <Shield className="w-4 h-4" /> Institutional Gateway
+                <Shield className="w-4 h-4" /> Web3 Institutional Gateway
               </div>
               <h2 className="font-serif-judicial text-2xl font-black text-slate-900 tracking-tight">
-                Access NYAYA-VAULT
+                Connect Sovereign Wallet
               </h2>
               <p className="text-xs text-slate-500">
-                Authenticate with verified institutional credentials or select a pre-loaded clearance persona.
+                Authenticate with verified institutional Web3 wallet (MetaMask, Phantom, or Coinbase Wallet).
               </p>
             </div>
 
-            {error && (
-              <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-700 flex items-center gap-2.5">
-                <span className="w-2 h-2 rounded-full bg-rose-600 animate-ping flex-shrink-0"></span>
-                <span>{error}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleLoginSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1 font-mono">
-                  OFFICER IDENTIFIER
-                </label>
-                <div className="relative">
-                  <User className="w-4 h-4 text-slate-400 absolute left-4 top-3.5" />
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    required
-                    placeholder="e.g. investigator_gupta"
-                    className="w-full pl-11 pr-4 py-3 bg-white/80 border border-slate-200 rounded-2xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-800/10 transition-all font-mono"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1 font-mono">
-                  SECURITY PASSPHRASE
-                </label>
-                <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-4 top-3.5" />
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    placeholder="••••••••••••"
-                    className="w-full pl-11 pr-4 py-3 bg-white/80 border border-slate-200 rounded-2xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-800 focus:ring-2 focus:ring-slate-800/10 transition-all font-mono"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-2xl transition-all shadow-md hover:shadow-lg disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
-              >
-                <span>{loading ? 'Validating Credentials...' : 'Authenticate Institutional Session'}</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </form>
-
-            {/* Quick Demo Persona Selectors */}
-            <div className="pt-4 border-t border-slate-200/80 space-y-2">
-              <div className="flex items-center justify-between text-xs text-slate-500">
-                <span className="flex items-center gap-1.5 font-bold font-mono text-slate-700">
-                  <KeyRound className="w-3.5 h-3.5 text-indigo-600" /> SELECT CLEARANCE LEVEL
-                </span>
-                <span className="text-[10px]">Tap to populate</span>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
-                {demoRoles.map((r) => {
-                  const isSelected = username === r.username;
-                  return (
-                    <button
-                      key={r.username}
-                      type="button"
-                      onClick={() => selectPersona(r.username)}
-                      className={`p-2.5 rounded-xl text-left transition-all border ${
-                        isSelected
-                          ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                          : 'bg-white/60 border-slate-200/80 hover:bg-white text-slate-800'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-bold truncate">{r.name}</span>
-                        {isSelected && <CheckCircle2 className="w-3 h-3 text-emerald-400 flex-shrink-0" />}
-                      </div>
-                      <div className={`text-[10px] font-mono mt-0.5 ${isSelected ? 'text-slate-300' : 'text-slate-500'}`}>
-                        {r.badge}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
+            <ConnectWallet onSuccess={() => { setIsLoginOpen(false); navigate('/dossiers'); }} />
 
           </div>
         </div>
