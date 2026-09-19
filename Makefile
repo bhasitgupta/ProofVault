@@ -27,9 +27,6 @@ redteam:
 
 build:
 	cd frontend && npm run build
-	cd ledger-gateway && npm run build
-	cd chaincode/dochash && npm run build
-	cd chaincode/access && npm run build
 
 run-backend:
 	cd backend && python3 -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
