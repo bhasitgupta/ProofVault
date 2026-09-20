@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Scale, Database, ShieldCheck, ArrowLeft, Landmark, Gavel, Lock } from 'lucide-react';
+import { Scale, Database, ShieldCheck, ArrowLeft, ArrowRight, Landmark, Gavel, Lock } from 'lucide-react';
 import { ConnectWallet } from '../components/ConnectWallet';
 
 export const Login: React.FC = () => {
@@ -67,14 +67,18 @@ export const Login: React.FC = () => {
         {/* Right Connect Wallet Column */}
         <div className="lg:col-span-7 p-6 sm:p-10 rounded-3xl glass-card shadow-sm border border-slate-200/90 space-y-6">
           <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
               <span className="font-mono text-[11px] text-slate-500 font-bold uppercase tracking-wider flex items-center gap-1.5">
                 <Landmark className="w-3.5 h-3.5 text-slate-700" />
                 WEB3 INSTITUTIONAL AUTHENTICATION
               </span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                WALLET REQUIRED
-              </span>
+              <Link
+                to="/choose-crypto-wallet-login"
+                className="px-2.5 py-1 rounded-lg bg-crimson-50 hover:bg-crimson-100 text-crimson-800 border border-crimson-200 text-[11px] font-mono font-bold flex items-center gap-1.5 transition-colors"
+              >
+                <span>Creative Tim Block</span>
+                <ArrowRight className="w-3 h-3" />
+              </Link>
             </div>
             <h2 className="font-serif-judicial text-2xl font-bold text-slate-900">
               Connect Sovereign Wallet
@@ -85,6 +89,17 @@ export const Login: React.FC = () => {
           </div>
 
           <ConnectWallet onSuccess={handleWalletSuccess} />
+
+          <div className="pt-4 border-t border-slate-200/80 flex items-center justify-between text-xs font-mono">
+            <span className="text-slate-500">Need search &amp; catalog wallet selection?</span>
+            <Link
+              to="/choose-crypto-wallet-login"
+              className="inline-flex items-center gap-1.5 text-crimson-800 hover:text-crimson-900 font-bold hover:underline"
+            >
+              <span>Launch Choose Crypto Wallet Page</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
         </div>
 
       </div>

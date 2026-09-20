@@ -13,6 +13,7 @@ import { DocumentDetailPage } from './pages/DocumentDetail';
 import { CustodyTimelinePage } from './pages/CustodyTimeline';
 import { AuditLogPage } from './pages/AuditLog';
 import { AdminPage } from './pages/Admin';
+import { ChooseCryptoWalletLoginPage } from './pages/ChooseCryptoWalletLoginPage';
 import { ThreeAnimation } from './components/ThreeAnimation';
 import { LenisProvider } from './components/LenisProvider';
 
@@ -169,6 +170,7 @@ export const App: React.FC = () => {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/choose-crypto-wallet-login" element={<ChooseCryptoWalletLoginPage />} />
           <Route path="/mfa" element={<Navigate to="/dossiers" replace />} />
           <Route path="/dossiers" element={<ProtectedRoute><CaseWorkspace /></ProtectedRoute>} />
           <Route path="/ask" element={<ProtectedRoute><AskPage /></ProtectedRoute>} />

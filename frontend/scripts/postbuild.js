@@ -32,7 +32,8 @@ const routes = [
   'admin',
   'login',
   'mfa',
-  'custody'
+  'custody',
+  'choose-crypto-wallet-login'
 ];
 
 for (const route of routes) {

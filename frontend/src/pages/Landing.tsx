@@ -107,6 +107,14 @@ export const LandingPage: React.FC = () => {
               <ArrowRight className="w-4 h-4" />
             </button>
 
+            <button
+              onClick={() => navigate('/choose-crypto-wallet-login')}
+              className="px-6 py-3.5 bg-crimson-800 hover:bg-crimson-700 text-white font-bold text-sm rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2.5 cursor-pointer"
+            >
+              <Shield className="w-4 h-4" />
+              <span>Choose Crypto Wallet Login</span>
+            </button>
+
             <a
               href="#pillars"
               className="px-6 py-3.5 glass-card glass-card-hover font-semibold text-sm text-slate-700 rounded-xl transition-all flex items-center gap-2"
