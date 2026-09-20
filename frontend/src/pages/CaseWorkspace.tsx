@@ -25,6 +25,7 @@ import {
 import { getCases, getIncidents, FALLBACK_CASES } from '../api/audit';
 import { Case } from '../lib/types';
 import { formatClassificationBadge } from '../lib/format';
+import ScrollStack, { ScrollStackItem } from '../components/ScrollStack';
 
 export const CaseWorkspace: React.FC = () => {
   const [cases, setCases] = useState<Case[]>([]);
@@ -291,90 +292,98 @@ export const CaseWorkspace: React.FC = () => {
               </button>
             </div>
           ) : (
-            <div className="space-y-4">
+            <ScrollStack
+              useWindowScroll={true}
+              className="scroll-stack-compact"
+              itemDistance={24}
+              itemScale={0.03}
+              itemStackDistance={18}
+              baseScale={0.94}
+              stackPosition="25%"
+              scaleEndPosition="10%"
+            >
               {filteredCases.map((c) => {
                 const badge = formatClassificationBadge(c.classification_ceiling);
                 return (
-                  <div
-                    key={c.case_id}
-                    className="glass-card glass-card-hover rounded-2xl p-6 border border-white/90 shadow-sm hover:border-indigo-400/80 transition-all space-y-4 group"
-                  >
-                    {/* Top Case Header & Metadata Badges */}
-                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                      <div className="flex items-center gap-2 font-mono">
-                        <span className="font-bold text-xs text-slate-900 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200 flex items-center gap-1.5 shadow-2xs">
-                          <Folder className="w-3.5 h-3.5 text-indigo-700" />
-                          {c.case_id}
-                        </span>
-                        <span className="text-[10px] text-slate-600 font-semibold px-2.5 py-0.5 rounded-md bg-slate-50 border border-slate-200">
-                          MSP: {c.owning_msp || 'PoliceMSP'}
-                        </span>
+                  <ScrollStackItem key={c.case_id}>
+                    <div className="glass-card glass-card-hover rounded-2xl p-6 border border-stone-200/90 shadow-sm hover:border-indigo-400/80 transition-all space-y-4 group">
+                      {/* Top Case Header & Metadata Badges */}
+                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                        <div className="flex items-center gap-2 font-mono">
+                          <span className="font-bold text-xs text-slate-900 bg-slate-100 px-3 py-1 rounded-lg border border-slate-200 flex items-center gap-1.5 shadow-2xs">
+                            <Folder className="w-3.5 h-3.5 text-indigo-700" />
+                            {c.case_id}
+                          </span>
+                          <span className="text-[10px] text-slate-600 font-semibold px-2.5 py-0.5 rounded-md bg-slate-50 border border-slate-200">
+                            MSP: {c.owning_msp || 'PoliceMSP'}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2 font-mono">
+                          <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${badge.bg} ${badge.text}`}>
+                            {c.classification_ceiling}
+                          </span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            {c.status}
+                          </span>
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-2 font-mono">
-                        <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${badge.bg} ${badge.text}`}>
-                          {c.classification_ceiling}
-                        </span>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                          {c.status}
-                        </span>
+                      {/* Case Title & Crime Particulars */}
+                      <div>
+                        <h3 className="font-serif-judicial text-lg sm:text-xl font-bold text-slate-900 group-hover:text-indigo-900 transition-colors">
+                          {c.title}
+                        </h3>
+                        <p className="text-xs text-slate-600 font-sans leading-relaxed mt-1.5 line-clamp-2">
+                          {c.description || 'Electronic judicial case docket under active scrutiny. Contains forensic evidence and chain of custody logs.'}
+                        </p>
+                      </div>
+
+                      {/* Evidence & Action Toolbar */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100/90">
+                        <div className="flex items-center gap-4 text-xs font-mono text-slate-500">
+                          <span className="flex items-center gap-1.5 font-semibold text-slate-700">
+                            <Layers className="w-3.5 h-3.5 text-indigo-600" />
+                            <span>{c.active_document_count ?? 4} Sealed Documents</span>
+                          </span>
+                          <span className="text-slate-300">•</span>
+                          <span className="text-emerald-700 font-bold flex items-center gap-1">
+                            <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" />
+                            BSA §63 Verified
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => navigate(`/documents?case=${c.case_id}`)}
+                            className="py-2 px-3.5 bg-slate-950 hover:bg-slate-800 text-white text-xs rounded-xl font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <FileText className="w-3.5 h-3.5 text-amber-300" />
+                            <span>Inspect Evidence</span>
+                          </button>
+                          <button
+                            onClick={() => navigate(`/ask?case=${c.case_id}`)}
+                            className="py-2 px-3.5 glass-tile hover:bg-white text-slate-800 text-xs rounded-xl font-bold transition-all border border-slate-200 flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                          >
+                            <HelpCircle className="w-3.5 h-3.5 text-indigo-600" />
+                            <span>Judicial AI</span>
+                          </button>
+                          <button
+                            onClick={() => navigate(`/custody/${c.case_id}`)}
+                            className="py-2 px-3 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl text-xs font-mono transition-colors flex items-center gap-1 cursor-pointer"
+                            title="View Chain of Custody Trail"
+                          >
+                            <History className="w-3.5 h-3.5" />
+                            <span className="hidden sm:inline">Custody</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
-
-                    {/* Case Title & Crime Particulars */}
-                    <div>
-                      <h3 className="font-serif-judicial text-lg sm:text-xl font-bold text-slate-900 group-hover:text-indigo-900 transition-colors">
-                        {c.title}
-                      </h3>
-                      <p className="text-xs text-slate-600 font-sans leading-relaxed mt-1.5 line-clamp-2">
-                        {c.description || 'Electronic judicial case docket under active scrutiny. Contains forensic evidence and chain of custody logs.'}
-                      </p>
-                    </div>
-
-                    {/* Evidence & Action Toolbar */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-slate-100/90">
-                      <div className="flex items-center gap-4 text-xs font-mono text-slate-500">
-                        <span className="flex items-center gap-1.5 font-semibold text-slate-700">
-                          <Layers className="w-3.5 h-3.5 text-indigo-600" />
-                          <span>{c.active_document_count ?? 4} Sealed Documents</span>
-                        </span>
-                        <span className="text-slate-300">•</span>
-                        <span className="text-emerald-700 font-bold flex items-center gap-1">
-                          <BadgeCheck className="w-3.5 h-3.5 text-emerald-600" />
-                          BSA §63 Verified
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => navigate(`/documents?case=${c.case_id}`)}
-                          className="py-2 px-3.5 bg-slate-950 hover:bg-slate-800 text-white text-xs rounded-xl font-bold transition-all shadow-xs flex items-center gap-1.5 cursor-pointer"
-                        >
-                          <FileText className="w-3.5 h-3.5 text-amber-300" />
-                          <span>Inspect Evidence</span>
-                        </button>
-                        <button
-                          onClick={() => navigate(`/ask?case=${c.case_id}`)}
-                          className="py-2 px-3.5 glass-tile hover:bg-white text-slate-800 text-xs rounded-xl font-bold transition-all border border-slate-200 flex items-center gap-1.5 cursor-pointer shadow-2xs"
-                        >
-                          <HelpCircle className="w-3.5 h-3.5 text-indigo-600" />
-                          <span>Judicial AI</span>
-                        </button>
-                        <button
-                          onClick={() => navigate(`/custody/${c.case_id}`)}
-                          className="py-2 px-3 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl text-xs font-mono transition-colors flex items-center gap-1 cursor-pointer"
-                          title="View Chain of Custody Trail"
-                        >
-                          <History className="w-3.5 h-3.5" />
-                          <span className="hidden sm:inline">Custody</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
+                  </ScrollStackItem>
                 );
               })}
-            </div>
+            </ScrollStack>
           )}
         </div>
 

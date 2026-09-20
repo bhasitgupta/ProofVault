@@ -32,12 +32,8 @@
         if (redirect && redirect !== location.href) {
           history.replaceState(null, null, redirect);
         }
-        var theme = localStorage.getItem('proofvault_theme') || 'light';
-        if (theme === 'dark') {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
+        localStorage.setItem('proofvault_theme', 'light');
+        document.documentElement.classList.remove('dark');
       })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">

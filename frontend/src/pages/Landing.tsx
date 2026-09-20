@@ -23,7 +23,6 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import { ConnectWallet } from '../components/ConnectWallet';
 import { StrokeText } from '../components/StrokeText';
-import { ThemeToggle } from '../components/ThemeToggle';
 import ScrollStack, { ScrollStackItem } from '../components/ScrollStack';
 
 export const LandingPage: React.FC = () => {
@@ -33,41 +32,27 @@ export const LandingPage: React.FC = () => {
   // Login Modal State
   const [isLoginOpen, setIsLoginOpen] = useState(false);
 
-  // Theme reactive state for StrokeText
-  const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>(() => {
-    return (localStorage.getItem('proofvault_theme') as 'light' | 'dark') || 'light';
-  });
-
-  React.useEffect(() => {
-    const observer = new MutationObserver(() => {
-      const dark = document.documentElement.classList.contains('dark');
-      setCurrentTheme(dark ? 'dark' : 'light');
-    });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <div className="min-h-screen bg-ambient text-slate-900 relative overflow-hidden flex flex-col justify-between selection:bg-indigo-500/10 selection:text-indigo-900">
       {/* Top Floating Glass Header */}
       <header className="sticky top-4 z-40 max-w-6xl mx-auto px-4 sm:px-6 w-full pointer-events-none">
         <div className="glass-panel rounded-2xl px-6 h-16 flex items-center justify-between shadow-sm pointer-events-auto transition-all">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-md overflow-hidden p-1 border border-slate-700/50">
-              <img src="/logo.png" alt="Proof Vault" className="w-full h-full object-contain" />
+          <div className="flex items-center gap-3 shrink-0 whitespace-nowrap">
+            <div className="w-10 h-10 rounded-xl bg-slate-950 text-white flex items-center justify-center shadow-md p-2 border border-amber-400/30 shrink-0">
+              <Scale className="w-5 h-5 text-amber-400" />
             </div>
-            <div>
-              <span className="font-serif-judicial font-black tracking-wider text-stone-900 dark:text-white text-base block">
+            <div className="shrink-0 whitespace-nowrap">
+              <span className="font-serif-judicial font-black tracking-wider text-stone-900 text-base block whitespace-nowrap">
                 Proof Vault
               </span>
-              <span className="text-[10px] text-stone-600 dark:text-stone-400 font-mono tracking-wide block -mt-0.5 font-medium">
+              <span className="text-[10px] text-stone-600 font-mono tracking-wide block -mt-0.5 font-semibold whitespace-nowrap">
                 Secure Evidence • Stronger Justice
               </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 dark:bg-stone-850 border border-slate-200 dark:border-stone-700 text-[11px] font-mono text-slate-700 dark:text-slate-300 font-semibold">
+          <div className="flex items-center gap-3 shrink-0 whitespace-nowrap">
+            <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-[11px] font-mono text-slate-700 font-semibold whitespace-nowrap">
               <Radio className="w-3 h-3 text-emerald-500 animate-pulse" />
               <span>Polygon Amoy Verified</span>
             </div>
@@ -75,22 +60,20 @@ export const LandingPage: React.FC = () => {
             {user ? (
               <button
                 onClick={() => navigate('/dossiers')}
-                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 dark:bg-stone-100 dark:hover:bg-white dark:text-stone-900 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-sm"
+                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-sm whitespace-nowrap"
               >
                 <span>Enter Workspace</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </button>
             ) : (
               <button
-                onClick={() => setIsLoginOpen(true)}
-                className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 dark:bg-stone-100 dark:hover:bg-white dark:text-stone-900 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5"
+                onClick={() => navigate('/choose-crypto-wallet-login')}
+                className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5 whitespace-nowrap"
               >
-                <Lock className="w-3.5 h-3.5 text-indigo-300 dark:text-indigo-600" />
-                <span>Institutional Login</span>
+                <Lock className="w-3.5 h-3.5 text-indigo-300" />
+                <span>Connect Wallet</span>
               </button>
             )}
-
-            <ThemeToggle />
           </div>
         </div>
       </header>
@@ -110,7 +93,7 @@ export const LandingPage: React.FC = () => {
             <StrokeText
               text="ProofVault"
               strokeColor="#F26A4B"
-              fillColor={currentTheme === 'dark' ? '#EDE8DF' : '#18181B'}
+              fillColor="#18181B"
               strokeWidth={1.8}
               drawDuration={1.8}
               fillDelay={0.25}
@@ -135,24 +118,16 @@ export const LandingPage: React.FC = () => {
 
           <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
             <button
-              onClick={() => setIsLoginOpen(true)}
-              className="px-6 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2.5 cursor-pointer"
-            >
-              <span>Access Evidence Vault</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-
-            <button
               onClick={() => navigate('/choose-crypto-wallet-login')}
-              className="px-6 py-3.5 bg-crimson-800 hover:bg-crimson-700 text-white font-bold text-sm rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2.5 cursor-pointer"
+              className="px-6 py-3.5 bg-crimson-800 hover:bg-crimson-700 text-white font-bold text-sm rounded-xl transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 flex items-center gap-2.5 cursor-pointer whitespace-nowrap"
             >
               <Shield className="w-4 h-4" />
-              <span>Choose Crypto Wallet Login</span>
+              <span>Connect Wallet</span>
             </button>
 
             <a
               href="#pillars"
-              className="px-6 py-3.5 glass-card glass-card-hover font-semibold text-sm text-slate-700 rounded-xl transition-all flex items-center gap-2"
+              className="px-6 py-3.5 glass-card glass-card-hover font-semibold text-sm text-slate-700 rounded-xl transition-all flex items-center gap-2 whitespace-nowrap"
             >
               <span>Explore Architecture</span>
               <ChevronRight className="w-4 h-4 text-slate-400" />

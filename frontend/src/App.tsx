@@ -15,8 +15,6 @@ import { AuditLogPage } from './pages/AuditLog';
 import { AdminPage } from './pages/Admin';
 import { ChooseCryptoWalletLoginPage } from './pages/ChooseCryptoWalletLoginPage';
 import { LenisProvider } from './components/LenisProvider';
-import { GradualBlur } from './components/GradualBlur';
-import { ThemeToggle } from './components/ThemeToggle';
 import { TubelightNavBar } from './components/ui/tubelight-navbar';
 
 const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -42,54 +40,52 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
     <div className="min-h-screen flex flex-col bg-ambient text-slate-900 relative selection:bg-indigo-500/10 selection:text-indigo-900">
       {/* Floating Modern Glassmorphic Header with Tubelight Navigation */}
       <header className="sticky top-3 z-40 max-w-7xl mx-auto px-4 sm:px-6 w-full pointer-events-none">
-        <div className="glass-nav-obsidian rounded-2xl px-5 h-18 flex items-center justify-between shadow-2xl pointer-events-auto transition-all">
+        <div className="glass-nav-obsidian rounded-2xl px-5 h-18 flex items-center justify-between shadow-lg pointer-events-auto transition-all gap-4">
           
-          <div className="flex items-center gap-6 lg:gap-8">
-            <Link to="/dossiers" className="flex items-center gap-3.5 group">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-850 to-indigo-950 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform overflow-hidden p-1 border border-indigo-400/40 ring-1 ring-white/10">
-                <img src="/logo.png" alt="Proof Vault" className="w-full h-full object-contain filter drop-shadow(0 2px 8px rgba(99,102,241,0.6))" />
+          <div className="flex items-center gap-4 lg:gap-6 shrink-0">
+            <Link to="/dossiers" className="flex items-center gap-3 group shrink-0 whitespace-nowrap">
+              <div className="w-10 h-10 rounded-xl bg-slate-950 flex items-center justify-center shadow-md shadow-indigo-900/20 group-hover:scale-105 transition-transform p-2 border border-amber-400/30 shrink-0">
+                <Scale className="w-5 h-5 text-amber-400" />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-serif-judicial font-black tracking-wide text-stone-900 dark:text-white text-lg">
+              <div className="shrink-0 whitespace-nowrap">
+                <div className="flex items-center gap-2 whitespace-nowrap">
+                  <span className="font-serif-judicial font-black tracking-wide text-stone-900 text-lg whitespace-nowrap">
                     Proof Vault
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/80 dark:text-cyan-300 dark:border-cyan-500/30 shadow-xs">
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-indigo-100 text-indigo-900 border border-indigo-200 shadow-xs whitespace-nowrap">
                     EVM 80002
                   </span>
                 </div>
-                <span className="text-[10px] text-stone-600 dark:text-stone-400 font-mono tracking-wide block -mt-0.5 font-medium">
+                <span className="text-[10px] text-stone-600 font-mono tracking-wide block -mt-0.5 font-semibold whitespace-nowrap">
                   Secure Evidence • Stronger Justice
                 </span>
               </div>
             </Link>
 
-            <div className="hidden lg:flex items-center">
+            <div className="hidden lg:flex items-center shrink-0">
               <TubelightNavBar items={navItems} />
             </div>
           </div>
 
-          <div className="flex items-center gap-3.5">
+          <div className="flex items-center gap-3 shrink-0 whitespace-nowrap">
             {/* Network Badge */}
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-[10px] font-mono text-emerald-800 font-bold dark:bg-emerald-950/60 dark:border-emerald-500/30 dark:text-emerald-400 shadow-xs">
+            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-[10px] font-mono text-emerald-900 font-bold shadow-xs whitespace-nowrap shrink-0">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               <span>POLYGON AMOY ANCHORED</span>
             </div>
 
             {user && (
-              <div className="flex items-center gap-3 pl-3 border-l border-stone-200 dark:border-slate-800">
-                <div className="text-right font-mono text-xs">
-                  <div className="text-stone-900 dark:text-white font-bold text-xs">{user.username}</div>
-                  <div className="text-[10px] text-indigo-600 dark:text-cyan-400 font-extrabold uppercase mt-0.5 tracking-wider">{user.role}</div>
+              <div className="flex items-center gap-3 pl-3 border-l border-stone-300 shrink-0 whitespace-nowrap">
+                <div className="text-right font-mono text-xs whitespace-nowrap shrink-0">
+                  <div className="text-stone-900 font-bold text-xs whitespace-nowrap">{user.username}</div>
+                  <div className="text-[10px] text-indigo-700 font-extrabold uppercase mt-0.5 tracking-wider whitespace-nowrap">{user.role}</div>
                 </div>
               </div>
             )}
 
-            <ThemeToggle />
-
             <button
               onClick={handleLogout}
-              className="p-2 hover:bg-rose-50 border border-transparent hover:border-rose-200 rounded-xl text-stone-600 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 dark:hover:bg-rose-950/50 transition-all cursor-pointer"
+              className="p-2 hover:bg-rose-50 border border-transparent hover:border-rose-200 rounded-xl text-stone-700 hover:text-rose-700 transition-all cursor-pointer shrink-0"
               title="Terminate Session"
             >
               <LogOut className="w-4 h-4" />
@@ -142,19 +138,6 @@ export const App: React.FC = () => {
   return (
     <LenisProvider>
       <BrowserRouter>
-        {/* Global Progressive Bottom Scroll Blur Overlay (Top blur removed to preserve nav bar clarity) */}
-        <GradualBlur
-          target="page"
-          position="bottom"
-          height="4.5rem"
-          strength={2}
-          divCount={6}
-          curve="bezier"
-          exponential={true}
-          opacity={0.9}
-          zIndex={35}
-        />
-
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />

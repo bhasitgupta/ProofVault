@@ -202,103 +202,100 @@ export function ChooseCryptoWalletLogin({ onSuccess }: ChooseCryptoWalletLoginPr
   };
 
   return (
-    <Card className="mx-auto w-full max-w-lg glass-ivory border border-stone-200/90 rounded-3xl shadow-lg shadow-stone-900/5">
-      <CardHeader className="text-center pb-2">
-        <div className="mx-auto w-12 h-12 rounded-2xl bg-crimson-50 border border-crimson-200/80 flex items-center justify-center text-crimson-800 shadow-xs mb-1">
-          <Landmark className="w-6 h-6" />
+    <Card className="mx-auto w-full max-w-md glass-ivory border border-stone-200/90 rounded-2xl shadow-lg shadow-stone-900/5">
+      <CardHeader className="text-center p-4 pb-1">
+        <div className="mx-auto w-9 h-9 rounded-xl bg-crimson-50 border border-crimson-200/80 flex items-center justify-center text-crimson-800 shadow-xs mb-1">
+          <Landmark className="w-4 h-4" />
         </div>
-        <CardTitle className="font-serif-judicial text-xl sm:text-2xl font-bold text-stone-900">
+        <CardTitle className="font-serif-judicial text-lg sm:text-xl font-bold text-stone-900">
           Choose Your Wallet
         </CardTitle>
-        <CardDescription className="mx-auto max-w-md text-xs text-stone-600 font-sans [text-wrap:balance]">
-          Select from authenticated Web3 wallets for sovereign cryptographic authentication on Polygon Amoy EVM.
+        <CardDescription className="mx-auto max-w-xs text-[11px] text-stone-600 font-sans leading-tight">
+          Select Web3 wallet for sovereign cryptographic authentication on Polygon Amoy EVM.
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-4 px-6 sm:px-8 pt-2 pb-6">
+      <CardContent className="space-y-3 px-4 sm:px-5 pt-1 pb-3">
         {error && (
-          <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2 font-mono">
-            <AlertCircle className="w-4 h-4 shrink-0" />
+          <div className="p-2 bg-rose-50 border border-rose-200 rounded-lg text-[11px] text-rose-700 flex items-center gap-1.5 font-mono">
+            <AlertCircle className="w-3.5 h-3.5 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {/* Search Input Filter - Creative Tim Architecture */}
-        <div className="w-full space-y-1.5">
-          <Label htmlFor="search" className="text-xs font-semibold text-stone-700 font-mono uppercase tracking-wider flex items-center justify-between">
+        <div className="w-full space-y-1">
+          <Label htmlFor="search" className="text-[10px] font-semibold text-stone-700 font-mono uppercase tracking-wider flex items-center justify-between">
             <span>Choose Wallet</span>
             <span className="text-[10px] text-emerald-700 font-bold">Polygon Amoy (80002)</span>
           </Label>
           <div className="relative">
-            <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
             <Input
               id="search"
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search through 50+ wallets available..."
-              className="pl-9.5 bg-white border-stone-200 text-stone-900 placeholder:text-stone-400 rounded-xl text-xs font-mono shadow-xs focus-visible:border-crimson-700 focus-visible:ring-crimson-700/20"
+              placeholder="Search wallets..."
+              className="h-8 pl-8.5 bg-white border-stone-200 text-stone-900 placeholder:text-stone-400 rounded-lg text-xs font-mono shadow-2xs focus-visible:border-crimson-700 focus-visible:ring-crimson-700/20"
             />
           </div>
         </div>
 
-        {/* Wallet Selection List - Creative Tim Architecture Styled with Nyaya-Vault Theme */}
-        <div className="space-y-2">
+        {/* Wallet Selection Grid 2x2 - Compact & Zero Scroll */}
+        <div>
           {filteredWallets.length === 0 ? (
-            <div className="p-4 text-center text-xs text-stone-500 font-mono bg-stone-50 rounded-xl border border-dashed border-stone-200">
+            <div className="p-3 text-center text-xs text-stone-500 font-mono bg-stone-50 rounded-xl border border-dashed border-stone-200">
               No wallets matching &quot;{searchQuery}&quot;
             </div>
           ) : (
-            filteredWallets.map((wallet) => {
-              const isSelected = selectedWallet === wallet.id;
-              return (
-                <button
-                  key={wallet.id}
-                  type="button"
-                  onClick={() => setSelectedWallet(wallet.id)}
-                  className={`w-full flex items-center justify-between p-3.5 rounded-xl border text-left transition-all cursor-pointer ${
-                    isSelected
-                      ? 'bg-crimson-50/70 border-crimson-800 text-crimson-950 shadow-xs ring-1 ring-crimson-800/30'
-                      : 'bg-white hover:bg-stone-50/90 border-stone-200/90 text-stone-800'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    {wallet.isSvgUrl ? (
-                      <img src={wallet.icon as string} alt={wallet.name} className="h-5 w-5 shrink-0" />
-                    ) : (
-                      wallet.icon
-                    )}
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-xs sm:text-sm text-stone-900">{wallet.name}</span>
-                        <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-stone-100 text-stone-600 border border-stone-200/80">
-                          {wallet.badge}
-                        </span>
+            <div className="grid grid-cols-2 gap-2">
+              {filteredWallets.map((wallet) => {
+                const isSelected = selectedWallet === wallet.id;
+                return (
+                  <button
+                    key={wallet.id}
+                    type="button"
+                    onClick={() => setSelectedWallet(wallet.id)}
+                    className={`w-full flex items-center justify-between p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
+                      isSelected
+                        ? 'bg-crimson-50/90 border-crimson-800 text-crimson-950 shadow-xs ring-1 ring-crimson-800/30'
+                        : 'bg-white hover:bg-stone-50/90 border-stone-200 text-stone-800'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      {wallet.isSvgUrl ? (
+                        <img src={wallet.icon as string} alt={wallet.name} className="h-4 w-4 shrink-0 object-contain" />
+                      ) : (
+                        wallet.icon
+                      )}
+                      <div className="min-w-0">
+                        <span className="font-bold text-xs text-stone-900 block truncate">{wallet.name}</span>
+                        <span className="text-[9px] font-mono text-stone-500 block truncate">{wallet.badge}</span>
                       </div>
-                      <p className="text-[10px] text-stone-500 font-sans">{wallet.category}</p>
                     </div>
-                  </div>
 
-                  <div className="flex items-center">
-                    {isSelected ? (
-                      <div className="w-5 h-5 rounded-full bg-crimson-800 text-white flex items-center justify-center shadow-xs">
-                        <Check className="w-3 h-3 stroke-[3]" />
-                      </div>
-                    ) : (
-                      <div className="w-4 h-4 rounded-full border border-stone-300" />
-                    )}
-                  </div>
-                </button>
-              );
-            })
+                    <div className="flex items-center pl-1 shrink-0">
+                      {isSelected ? (
+                        <div className="w-4 h-4 rounded-full bg-crimson-800 text-white flex items-center justify-center shadow-xs">
+                          <Check className="w-2.5 h-2.5 stroke-[3]" />
+                        </div>
+                      ) : (
+                        <div className="w-3.5 h-3.5 rounded-full border border-stone-300" />
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           )}
         </div>
 
         {/* Institutional Clearance / Role Selector */}
-        <div className="pt-2 space-y-1.5">
-          <Label className="text-[11px] font-mono font-bold uppercase tracking-wider text-stone-600 flex items-center justify-between">
-            <span>Institutional Clearance & Authority</span>
-            <span className="text-[10px] text-crimson-800 font-bold">RBAC Clearance</span>
+        <div className="pt-0.5 space-y-1">
+          <Label className="text-[10px] font-mono font-bold uppercase tracking-wider text-stone-600 flex items-center justify-between">
+            <span>Clearance & Authority</span>
+            <span className="text-[9px] text-crimson-800 font-bold">RBAC Clearance</span>
           </Label>
           <div className="grid grid-cols-2 gap-1.5 font-mono text-[11px]">
             {roles.map((r) => {
@@ -308,7 +305,7 @@ export function ChooseCryptoWalletLogin({ onSuccess }: ChooseCryptoWalletLoginPr
                   key={r.id}
                   type="button"
                   onClick={() => setSelectedRole(r.id)}
-                  className={`p-2 rounded-lg border text-left transition-all cursor-pointer ${
+                  className={`px-2 py-1.5 rounded-lg border text-left transition-all cursor-pointer ${
                     r.isSuper ? 'col-span-2' : ''
                   } ${
                     isSelected
@@ -321,11 +318,11 @@ export function ChooseCryptoWalletLogin({ onSuccess }: ChooseCryptoWalletLoginPr
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-xs flex items-center gap-1">
+                    <span className="font-semibold text-[11px] flex items-center gap-1">
                       {r.isSuper && <Sparkles className="w-3 h-3 text-amber-400" />}
                       {r.label}
                     </span>
-                    <span className={`text-[9px] px-1.5 py-0.2 rounded ${isSelected ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-600'}`}>
+                    <span className={`text-[9px] px-1 py-0.2 rounded ${isSelected ? 'bg-white/20 text-white' : 'bg-stone-100 text-stone-600'}`}>
                       {r.badge}
                     </span>
                   </div>
@@ -339,32 +336,27 @@ export function ChooseCryptoWalletLogin({ onSuccess }: ChooseCryptoWalletLoginPr
         <Button
           onClick={handleConnect}
           disabled={isConnecting}
-          className="w-full mt-2 py-3 bg-crimson-800 hover:bg-crimson-700 text-white font-semibold rounded-xl transition-all shadow-md shadow-crimson-900/15 cursor-pointer disabled:opacity-50"
+          className="w-full mt-1 py-2.5 h-10 bg-crimson-800 hover:bg-crimson-700 text-white text-xs font-bold rounded-xl transition-all shadow-md shadow-crimson-900/15 cursor-pointer disabled:opacity-50"
         >
           {isConnecting ? (
             <span className="flex items-center gap-2">
-              <RefreshCw className="w-4 h-4 animate-spin" />
+              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
               <span>Connecting & Gating to Polygon Amoy...</span>
             </span>
           ) : (
             <span className="flex items-center justify-center gap-2">
               <span>Connect Wallet</span>
-              <ArrowRight className="w-4 h-4" />
+              <ArrowRight className="w-3.5 h-3.5" />
             </span>
           )}
         </Button>
       </CardContent>
 
-      <CardFooter className="px-6 sm:px-8 pt-0 pb-6 border-t border-stone-100 mt-2">
-        <p className="text-stone-500 mx-auto block max-w-sm text-center text-[11px] font-mono leading-relaxed">
+      <CardFooter className="px-4 sm:px-5 py-2 border-t border-stone-100">
+        <p className="text-stone-500 mx-auto block max-w-sm text-center text-[10px] font-mono leading-tight">
           Upon connecting, you consent to statutory evidence custody under{' '}
-          <span className="text-crimson-800 font-semibold underline underline-offset-2">
-            Bharatiya Sakshya Adhiniyam, 2023 §63
-          </span>{' '}
-          &amp;{' '}
-          <span className="text-crimson-800 font-semibold underline underline-offset-2">
-            Polygon Amoy On-Chain Provenance
-          </span>.
+          <span className="text-crimson-800 font-semibold">BSA 2023 §63</span> &amp;{' '}
+          <span className="text-crimson-800 font-semibold">Polygon Amoy</span>.
         </p>
       </CardFooter>
     </Card>
