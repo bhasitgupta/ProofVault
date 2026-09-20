@@ -17,6 +17,7 @@ import { ChooseCryptoWalletLoginPage } from './pages/ChooseCryptoWalletLoginPage
 import { LenisProvider } from './components/LenisProvider';
 import { GradualBlur } from './components/GradualBlur';
 import { ThemeToggle } from './components/ThemeToggle';
+import { TubelightNavBar } from './components/ui/tubelight-navbar';
 
 const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, logout } = useAuth();
@@ -29,16 +30,17 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
   };
 
   const navItems = [
-    { to: '/dossiers', label: 'Dossiers', icon: Folder, active: location.pathname === '/dossiers' },
-    { to: '/documents', label: 'Evidence Vault', icon: FileText, active: location.pathname.startsWith('/documents') },
-    { to: '/ask', label: 'Judicial AI', icon: HelpCircle, active: location.pathname === '/ask' },
-    { to: '/upload', label: 'Ingest Evidence', icon: Upload, active: location.pathname === '/upload', highlight: true },
-    { to: '/incidents', label: 'Chain of Custody', icon: ShieldAlert, active: location.pathname === '/incidents' },
+    { name: 'Dossiers', url: '/dossiers', icon: Folder },
+    { name: 'Evidence Vault', url: '/documents', icon: FileText },
+    { name: 'Judicial AI', url: '/ask', icon: HelpCircle },
+    { name: 'Ingest Evidence', url: '/upload', icon: Upload, highlight: true },
+    { name: 'Chain of Custody', url: '/incidents', icon: ShieldAlert },
+    ...(user?.role === 'ADMIN' ? [{ name: 'Admin', url: '/admin', icon: Lock }] : []),
   ];
 
   return (
     <div className="min-h-screen flex flex-col bg-ambient text-slate-900 relative selection:bg-indigo-500/10 selection:text-indigo-900">
-      {/* Floating Modern Glassmorphic Header */}
+      {/* Floating Modern Glassmorphic Header with Tubelight Navigation */}
       <header className="sticky top-3 z-40 max-w-7xl mx-auto px-4 sm:px-6 w-full pointer-events-none">
         <div className="glass-nav-obsidian rounded-2xl px-5 h-18 flex items-center justify-between shadow-2xl pointer-events-auto transition-all">
           
@@ -49,68 +51,36 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-serif-judicial font-black tracking-wide text-white text-lg">
+                  <span className="font-serif-judicial font-black tracking-wide text-stone-900 dark:text-white text-lg">
                     Proof Vault
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-indigo-950/80 text-cyan-300 border border-cyan-500/30 shadow-xs">
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 dark:bg-indigo-950/80 dark:text-cyan-300 dark:border-cyan-500/30 shadow-xs">
                     EVM 80002
                   </span>
                 </div>
-                <span className="text-[10px] text-slate-400 font-mono tracking-wide block -mt-0.5">
+                <span className="text-[10px] text-stone-600 dark:text-stone-400 font-mono tracking-wide block -mt-0.5 font-medium">
                   Secure Evidence • Stronger Justice
                 </span>
               </div>
             </Link>
 
-            <nav className="hidden lg:flex items-center gap-1.5 text-xs font-semibold">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    className={`px-3.5 py-2 rounded-xl flex items-center gap-2 transition-all duration-150 ${
-                      item.active
-                        ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 text-white shadow-lg shadow-indigo-500/30 font-bold border border-indigo-400/30'
-                        : item.highlight
-                        ? 'text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-500/30 shadow-xs'
-                        : 'text-slate-300 hover:bg-white/10 hover:text-white'
-                    }`}
-                  >
-                    <Icon className="w-3.5 h-3.5" />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
-
-              {user?.role === 'ADMIN' && (
-                <Link
-                  to="/admin"
-                  className={`px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-colors ${
-                    location.pathname === '/admin'
-                      ? 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-bold shadow-md shadow-indigo-500/30'
-                      : 'text-amber-300 bg-amber-950/30 hover:bg-amber-900/40 border border-amber-500/30'
-                  }`}
-                >
-                  <Lock className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Admin</span>
-                </Link>
-              )}
-            </nav>
+            <div className="hidden lg:flex items-center">
+              <TubelightNavBar items={navItems} />
+            </div>
           </div>
 
           <div className="flex items-center gap-3.5">
             {/* Network Badge */}
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-[10px] font-mono text-emerald-400 font-bold shadow-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-[10px] font-mono text-emerald-800 font-bold dark:bg-emerald-950/60 dark:border-emerald-500/30 dark:text-emerald-400 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
               <span>POLYGON AMOY ANCHORED</span>
             </div>
 
             {user && (
-              <div className="flex items-center gap-3 pl-3 border-l border-slate-800">
+              <div className="flex items-center gap-3 pl-3 border-l border-stone-200 dark:border-slate-800">
                 <div className="text-right font-mono text-xs">
-                  <div className="text-white font-bold text-xs">{user.username}</div>
-                  <div className="text-[10px] text-cyan-400 font-extrabold uppercase mt-0.5 tracking-wider">{user.role}</div>
+                  <div className="text-stone-900 dark:text-white font-bold text-xs">{user.username}</div>
+                  <div className="text-[10px] text-indigo-600 dark:text-cyan-400 font-extrabold uppercase mt-0.5 tracking-wider">{user.role}</div>
                 </div>
               </div>
             )}
@@ -119,7 +89,7 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
 
             <button
               onClick={handleLogout}
-              className="p-2 hover:bg-rose-950/50 border border-transparent hover:border-rose-800/40 rounded-xl text-slate-400 hover:text-rose-400 transition-all cursor-pointer"
+              className="p-2 hover:bg-rose-50 border border-transparent hover:border-rose-200 rounded-xl text-stone-600 hover:text-rose-600 dark:text-slate-400 dark:hover:text-rose-400 dark:hover:bg-rose-950/50 transition-all cursor-pointer"
               title="Terminate Session"
             >
               <LogOut className="w-4 h-4" />
@@ -129,9 +99,14 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10 pb-24 lg:pb-8">
         {children}
       </main>
+
+      {/* Mobile Floating Tubelight Navigation Bar */}
+      <div className="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50 pointer-events-auto">
+        <TubelightNavBar items={navItems} />
+      </div>
 
       {/* Refined Modern Footer */}
       <footer className="border-t border-slate-200/80 py-4 bg-white/70 backdrop-blur-xl relative z-10 text-xs text-slate-500 font-mono">

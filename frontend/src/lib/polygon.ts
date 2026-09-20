@@ -9,9 +9,8 @@ export const POLYGONSCAN_BASE = 'https://amoy.polygonscan.com';
 
 const SUPABASE_URL = ((import.meta as any).env?.VITE_SUPABASE_URL as string) || 'https://kraxwwwkhprczuiqkxuw.supabase.co';
 const SUPABASE_KEY =
-  ((import.meta as any).env?.VITE_SUPABASE_SERVICE_ROLE_KEY as string) ||
   ((import.meta as any).env?.VITE_SUPABASE_ANON_KEY as string) ||
-  'sb_secret_J56_I0CRFrA9Rn-T65_TWg_A8cgYWdb';
+  'sb_publishable_yBEvcnfdSVjN_5ZlxSw_5w_bDe53Czq';
 
 const EVIDENCE_REGISTRY_ABI = [
   'function registerEvidence(bytes32 docIdHash, bytes32 contentHash, bytes32 merkleRoot, bytes32 blobHash, string calldata caseId, uint256 batchId) external',
@@ -293,6 +292,8 @@ export async function anchorEvidenceToPolygon(params: {
               to: EVIDENCE_REGISTRY_ADDR,
               data: calldata,
               value: '0x0',
+              maxPriorityFeePerGas: '0x6fc23ac00', // 30 Gwei (>= 25 Gwei Amoy minimum)
+              maxFeePerGas: '0x9502f9000',         // 40 Gwei
             }],
           });
 
@@ -316,6 +317,8 @@ export async function anchorEvidenceToPolygon(params: {
                 to: fromAddress,
                 data: calldata,
                 value: '0x0',
+                maxPriorityFeePerGas: '0x6fc23ac00', // 30 Gwei
+                maxFeePerGas: '0x9502f9000',         // 40 Gwei
               }],
             });
 
