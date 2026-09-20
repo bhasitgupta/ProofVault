@@ -181,7 +181,8 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({ onSuccess }) => {
 
       // 3. Authenticate with backend wallet login
       try {
-        const res = await fetch('/api/v1/auth/wallet-login', {
+        const apiBase = (((import.meta as any).env?.VITE_API_URL as string) || '').replace(/\/+$/, '') + '/api/v1';
+        const res = await fetch(`${apiBase}/auth/wallet-login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -191,7 +192,8 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({ onSuccess }) => {
           }),
         });
 
-        if (res.ok) {
+        const contentType = res.headers.get('content-type') || '';
+        if (res.ok && contentType.includes('application/json')) {
           const data = await res.json();
           if (data.access_token) {
             saveToken(data.access_token);

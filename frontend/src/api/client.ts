@@ -1,4 +1,4 @@
-const API_BASE = '/api/v1';
+const API_BASE = (((import.meta as any).env?.VITE_API_URL as string) || '').replace(/\/+$/, '') + '/api/v1';
 
 export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = localStorage.getItem('sdms_token');
@@ -28,6 +28,11 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
       errorDetail = response.statusText ? `HTTP ${response.status}: ${response.statusText}` : `HTTP ${response.status} (Internal Server Error)`;
     }
     throw new Error(errorDetail);
+  }
+
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    throw new Error(`Invalid response format: expected JSON but received ${contentType || 'HTML'}`);
   }
 
   return response.json();
