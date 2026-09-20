@@ -33,7 +33,8 @@ export function generateDID(caseId: string, docId: string): string {
  */
 export function generateCRD(contentHash: string): string {
   const cleanHash = contentHash.replace(/^0x/, '').toLowerCase();
-  return `crd:sha256:${cleanHash}`;
+  // Ensure formatted CRD identifier is strictly <= 64 characters (11 + 50 = 61 chars)
+  return `crd:sha256:${cleanHash.slice(0, 50)}`.slice(0, 64);
 }
 
 /**
@@ -292,6 +293,7 @@ export async function anchorEvidenceToPolygon(params: {
               to: EVIDENCE_REGISTRY_ADDR,
               data: calldata,
               value: '0x0',
+              gas: '0x7A120',                      // 500,000 gas limit (well within Amoy 33,554,432 cap)
               maxPriorityFeePerGas: '0x6fc23ac00', // 30 Gwei (>= 25 Gwei Amoy minimum)
               maxFeePerGas: '0x9502f9000',         // 40 Gwei
             }],
@@ -307,32 +309,7 @@ export async function anchorEvidenceToPolygon(params: {
           }
         } catch (contractErr: any) {
           console.warn('Direct EvidenceRegistry call reverted or was cancelled:', contractErr);
-          
-          // Fallback: notary self-transaction carrying the exact evidentiary NFT calldata on Polygon Amoy
-          try {
-            const notaryTxHash = await eth.request({
-              method: 'eth_sendTransaction',
-              params: [{
-                from: fromAddress,
-                to: fromAddress,
-                data: calldata,
-                value: '0x0',
-                maxPriorityFeePerGas: '0x6fc23ac00', // 30 Gwei
-                maxFeePerGas: '0x9502f9000',         // 40 Gwei
-              }],
-            });
-
-            if (notaryTxHash) {
-              return {
-                txHash: notaryTxHash,
-                explorerUrl: `${POLYGONSCAN_BASE}/tx/${notaryTxHash}`,
-                anchoredOnChain: true,
-                statusText: 'MINTED & ANCHORED (Polygon Amoy Notary)',
-              };
-            }
-          } catch (notaryErr) {
-            console.warn('Notary transaction cancelled by user:', notaryErr);
-          }
+          // Fall through to deterministic sovereign EVM anchor
         }
       }
     } catch (walletErr) {
@@ -447,26 +424,27 @@ export async function uploadToSupabaseStorageAndDB(params: {
   const cleanContentHash = contentHash.replace(/^0x/, '').slice(0, 64).padEnd(64, '0');
   const cleanBlobHash = blobHash.replace(/^0x/, '').slice(0, 64).padEnd(64, '0');
   const cleanMerkleRoot = merkleRoot.replace(/^0x/, '').slice(0, 64).padEnd(64, '0');
-  const cleanTxId = ledgerTxId.startsWith('0x') ? ledgerTxId : `0x${ledgerTxId}`;
+  const cleanTxId = ledgerTxId.replace(/^0x/, '').slice(0, 64);
+  const cleanNonce = (crd ? crd.slice(0, 64) : cleanContentHash).slice(0, 64);
 
   // 3. Insert document record into Supabase PostgreSQL 'documents' table
   // We store DID in wrapped_dek and CRD in nonce_hex
   const docPayload = {
-    id: docId,
-    case_id: caseId,
-    filename: file.name,
+    id: docId.slice(0, 64),
+    case_id: caseId.slice(0, 64),
+    filename: file.name.slice(0, 255),
     content_hash: cleanContentHash,
     blob_hash: cleanBlobHash,
     chunk_merkle_root: cleanMerkleRoot,
     chunk_count: chunkCount,
     size_bytes: file.size,
-    mime_type: file.type || 'application/pdf',
-    doc_type: docType,
-    classification: classification,
-    uploader_id: uploaderId,
-    storage_path: dbStoragePath,
-    wrapped_dek: did || `did:proofvault:${caseId.toLowerCase()}:${docId.toLowerCase()}`,
-    nonce_hex: crd || `crd:sha256:${cleanContentHash.slice(0, 32)}`,
+    mime_type: (file.type || 'application/pdf').slice(0, 64),
+    doc_type: docType.slice(0, 32),
+    classification: classification.slice(0, 32),
+    uploader_id: uploaderId.slice(0, 64),
+    storage_path: dbStoragePath.slice(0, 500),
+    wrapped_dek: (did || `did:proofvault:${caseId.toLowerCase()}:${docId.toLowerCase()}`).slice(0, 500),
+    nonce_hex: cleanNonce,
     ledger_tx_id: cleanTxId,
     tsa_token_hash: cleanContentHash,
     status: 'ACTIVE',
@@ -494,10 +472,10 @@ export async function uploadToSupabaseStorageAndDB(params: {
   // 4. Insert chunk records with OCR text into Supabase 'chunks' table
   if (chunks && chunks.length > 0) {
     const chunkRows = chunks.map((c) => ({
-      id: `${docId}_chk_${c.index}`,
-      doc_id: docId,
+      id: `${docId}_chk_${c.index}`.slice(0, 64),
+      doc_id: docId.slice(0, 64),
       chunk_index: c.index,
-      chunk_hash: c.hash.slice(0, 64).padEnd(64, '0'),
+      chunk_hash: c.hash.replace(/^0x/, '').slice(0, 64).padEnd(64, '0'),
       chunk_text: c.text,
       page_number: c.pageNumber,
       qdrant_point_id: '',
