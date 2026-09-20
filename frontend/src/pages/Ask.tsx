@@ -212,10 +212,10 @@ export const AskPage: React.FC = () => {
               className="bg-transparent text-stone-800 font-mono font-semibold focus:outline-none cursor-pointer"
             >
               <option value="auto">⚡ Auto Cascade (T1 → T2 → T3 → T4)</option>
-              <option value="tier1">Tier 1: GPT 6 Astra</option>
-              <option value="tier2">Tier 2: Claude Fable 5.1</option>
-              <option value="tier3">Tier 3: Grok 4.6</option>
-              <option value="tier4">Tier 4: Nemotron 3 Ultra</option>
+              <option value="tier1">Tier 1: GPT-6 Astra</option>
+              <option value="tier2">Tier 2: Grok 4.6</option>
+              <option value="tier3">Tier 3: Nemotron 3 Ultra</option>
+              <option value="tier4">Tier 4: Gemini 3.8 Flash</option>
             </select>
           </div>
 
@@ -542,82 +542,82 @@ export const AskPage: React.FC = () => {
             </div>
 
             <form onSubmit={handleSaveKeys} className="space-y-4">
-              {/* Tier 1 - GPT 6 Astra */}
+              {/* Tier 1 - GPT-6 Astra */}
               <div className="p-3.5 bg-white border border-stone-200 rounded-xl space-y-2 shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-stone-800">
                     <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                    <span>Tier 1: GPT 6 Astra (Primary)</span>
+                    <span>Tier 1: GPT-6 Astra (Primary)</span>
                   </div>
                   <span className="text-[10px] font-mono text-stone-500 bg-stone-100 px-2 py-0.5 rounded">
-                    gpt-6-astra
+                    openai/gpt-6-astra
                   </span>
                 </div>
                 <input
                   type="password"
                   value={tier1Key}
                   onChange={(e) => setTier1Key(e.target.value)}
-                  placeholder="Paste GPT 6 Astra API Key..."
+                  placeholder="Paste GPT-6 Astra API Key..."
                   className="w-full px-3 py-2 text-xs font-mono bg-parchment-50/70 border border-stone-200 rounded-lg focus:outline-none focus:border-crimson-700"
                 />
               </div>
 
-              {/* Tier 2 - Claude Fable 5.1 */}
+              {/* Tier 2 - Grok 4.6 */}
               <div className="p-3.5 bg-white border border-stone-200 rounded-xl space-y-2 shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-stone-800">
                     <span className="w-2 h-2 rounded-full bg-amber-500" />
-                    <span>Tier 2: Claude Fable 5.1 (Failover 1)</span>
+                    <span>Tier 2: Grok 4.6 (Failover 1)</span>
                   </div>
                   <span className="text-[10px] font-mono text-stone-500 bg-stone-100 px-2 py-0.5 rounded">
-                    claude-fable-5.1
+                    x-ai/grok-4.6
                   </span>
                 </div>
                 <input
                   type="password"
                   value={tier2Key}
                   onChange={(e) => setTier2Key(e.target.value)}
-                  placeholder="Paste Claude Fable 5.1 API Key..."
+                  placeholder="Paste Grok 4.6 API Key..."
                   className="w-full px-3 py-2 text-xs font-mono bg-parchment-50/70 border border-stone-200 rounded-lg focus:outline-none focus:border-crimson-700"
                 />
               </div>
 
-              {/* Tier 3 - Grok 4.6 */}
+              {/* Tier 3 - Nemotron 3 Ultra */}
               <div className="p-3.5 bg-white border border-stone-200 rounded-xl space-y-2 shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-stone-800">
                     <span className="w-2 h-2 rounded-full bg-blue-500" />
-                    <span>Tier 3: Grok 4.6 (Failover 2)</span>
+                    <span>Tier 3: Nemotron 3 Ultra (Failover 2)</span>
                   </div>
                   <span className="text-[10px] font-mono text-stone-500 bg-stone-100 px-2 py-0.5 rounded">
-                    grok-4.6
+                    nvidia/nemotron-3-ultra-550b-a55b
                   </span>
                 </div>
                 <input
                   type="password"
                   value={tier3Key}
                   onChange={(e) => setTier3Key(e.target.value)}
-                  placeholder="Paste Grok 4.6 API Key..."
+                  placeholder="Paste Nemotron 3 Ultra API Key..."
                   className="w-full px-3 py-2 text-xs font-mono bg-parchment-50/70 border border-stone-200 rounded-lg focus:outline-none focus:border-crimson-700"
                 />
               </div>
 
-              {/* Tier 4 - Nemotron 3 Ultra */}
+              {/* Tier 4 - Gemini 3.8 Flash */}
               <div className="p-3.5 bg-white border border-stone-200 rounded-xl space-y-2 shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-stone-800">
                     <span className="w-2 h-2 rounded-full bg-purple-500" />
-                    <span>Tier 4: Nemotron 3 Ultra (Failover 3)</span>
+                    <span>Tier 4: Gemini 3.8 Flash (Failover 3)</span>
                   </div>
                   <span className="text-[10px] font-mono text-stone-500 bg-stone-100 px-2 py-0.5 rounded">
-                    nemotron-3-ultra
+                    google/gemini-3.8-flash
                   </span>
                 </div>
                 <input
                   type="password"
                   value={tier4Key}
                   onChange={(e) => setTier4Key(e.target.value)}
-                  placeholder="Paste Nemotron 3 Ultra API Key..."
+                  placeholder="Paste Gemini 3.8 Flash API Key..."
                   className="w-full px-3 py-2 text-xs font-mono bg-parchment-50/70 border border-stone-200 rounded-lg focus:outline-none focus:border-crimson-700"
                 />
               </div>

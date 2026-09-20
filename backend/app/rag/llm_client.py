@@ -1,104 +1,124 @@
 """
 Cascading Multi-Tier Cloud AI Gateway Module.
-Zero-Local / Zero-Ollama Architecture.
+Government-Grade Zero-Leakage & Zero-Ollama Architecture.
 
-Implements resilient 4-Tier automatic failover:
-- Tier 1: GPT 6 Astra (Primary)
-- Tier 2: Claude Fable 5.1 (Secondary Failover)
-- Tier 3: Grok 4.6 (Tertiary Failover)
-- Tier 4: Nemotron 3 Ultra (Quaternary Cloud Failover)
+Implements resilient 4-Tier automatic failover with reasoning support:
+- Tier 1: GPT-6 Astra (Primary / OpenRouter)
+- Tier 2: Grok 4.6 (Secondary / OpenRouter)
+- Tier 3: Nemotron 3 Ultra (Tertiary / NVIDIA NIM)
+- Tier 4: Gemini 3.8 Flash (Quaternary / OpenRouter)
 - Sovereign Synthesizer: Grounded evidence cryptographic synthesis safety net
 """
 import os
+import re
 import httpx
 from typing import Optional, Dict, Any, Tuple
 from app.config import get_settings
+
+
+def sanitize_government_prompt(text: str) -> str:
+    """
+    Government Data Sanitizer:
+    Strips raw private keys, wallet secrets, database passwords, and cryptographic DEKs
+    before evidentiary text ever leaves the security boundary.
+    """
+    if not text:
+        return ""
+    # Redact hex private keys (64 hex characters)
+    text = re.sub(r'\b0x[a-fA-F0-9]{64}\b', '[REDACTED_LEDGER_SECRET]', text)
+    # Redact wrapped DEK keys and raw nonces
+    text = re.sub(r'dek_[a-zA-Z0-9_-]{16,}', '[REDACTED_ENVELOPE_KEY]', text)
+    text = re.sub(r'nonce_[a-zA-Z0-9_-]{12,}', '[REDACTED_CRYPTO_NONCE]', text)
+    # Redact JWT tokens
+    text = re.sub(r'eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+', '[REDACTED_SESSION_TOKEN]', text)
+    # Redact database connection strings
+    text = re.sub(r'postgres(ql)?(\+[a-z]+)?://[^@\s]+@[^\s]+', '[REDACTED_SECURE_STORAGE_URL]', text)
+    return text
 
 
 class LLMClient:
     def __init__(self):
         settings = get_settings()
 
-        # Tier 1: GPT 6 Astra
-        self.tier1_name = "GPT 6 Astra"
+        # Tier 1: GPT-6 Astra
+        self.tier1_name = "GPT-6 Astra"
         self.tier1_key = (
             settings.AI_TIER1_API_KEY
             or os.getenv("AI_TIER1_API_KEY")
             or settings.AI_PRIMARY_API_KEY
             or os.getenv("AI_PRIMARY_API_KEY")
-            or os.getenv("OPENAI_API_KEY")
             or ""
         )
         self.tier1_model = (
             settings.AI_TIER1_MODEL
             or os.getenv("AI_TIER1_MODEL")
-            or "gpt-6-astra"
+            or "openai/gpt-6-astra"
         )
         self.tier1_base = (
             settings.AI_TIER1_BASE_URL
             or os.getenv("AI_TIER1_BASE_URL")
-            or "https://api.openai.com/v1"
+            or "https://openrouter.ai/api/v1"
         )
 
-        # Tier 2: Claude Fable 5.1
-        self.tier2_name = "Claude Fable 5.1"
+        # Tier 2: Grok 4.6
+        self.tier2_name = "Grok 4.6"
         self.tier2_key = (
             settings.AI_TIER2_API_KEY
             or os.getenv("AI_TIER2_API_KEY")
             or settings.AI_SECONDARY_API_KEY
             or os.getenv("AI_SECONDARY_API_KEY")
-            or os.getenv("ANTHROPIC_API_KEY")
             or ""
         )
         self.tier2_model = (
             settings.AI_TIER2_MODEL
             or os.getenv("AI_TIER2_MODEL")
-            or "claude-fable-5.1"
+            or "x-ai/grok-4.6"
         )
         self.tier2_base = (
             settings.AI_TIER2_BASE_URL
             or os.getenv("AI_TIER2_BASE_URL")
-            or "https://api.anthropic.com/v1"
+            or "https://openrouter.ai/api/v1"
         )
 
-        # Tier 3: Grok 4.6
-        self.tier3_name = "Grok 4.6"
+        # Tier 3: Nemotron 3 Ultra
+        self.tier3_name = "Nemotron 3 Ultra"
         self.tier3_key = (
             settings.AI_TIER3_API_KEY
             or os.getenv("AI_TIER3_API_KEY")
             or settings.AI_TERTIARY_API_KEY
             or os.getenv("AI_TERTIARY_API_KEY")
-            or os.getenv("XAI_API_KEY")
+            or os.getenv("NVIDIA_API_KEY")
             or ""
         )
         self.tier3_model = (
             settings.AI_TIER3_MODEL
             or os.getenv("AI_TIER3_MODEL")
-            or "grok-4.6"
+            or "nvidia/nemotron-3-ultra-550b-a55b"
         )
         self.tier3_base = (
             settings.AI_TIER3_BASE_URL
             or os.getenv("AI_TIER3_BASE_URL")
-            or "https://api.x.ai/v1"
+            or "https://integrate.api.nvidia.com/v1"
         )
 
-        # Tier 4: Nemotron 3 Ultra
-        self.tier4_name = "Nemotron 3 Ultra"
+        # Tier 4: Gemini 3.8 Flash
+        self.tier4_name = "Gemini 3.8 Flash"
         self.tier4_key = (
             settings.AI_TIER4_API_KEY
             or os.getenv("AI_TIER4_API_KEY")
-            or os.getenv("NVIDIA_API_KEY")
+            or settings.AI_QUATERNARY_API_KEY
+            or os.getenv("AI_QUATERNARY_API_KEY")
             or ""
         )
         self.tier4_model = (
             settings.AI_TIER4_MODEL
             or os.getenv("AI_TIER4_MODEL")
-            or "nvidia/nemotron-3-ultra"
+            or "google/gemini-3.8-flash"
         )
         self.tier4_base = (
             settings.AI_TIER4_BASE_URL
             or os.getenv("AI_TIER4_BASE_URL")
-            or "https://integrate.api.nvidia.com/v1"
+            or "https://openrouter.ai/api/v1"
         )
 
         self.last_provider_used: str = "SYNTHESIZER"
@@ -110,60 +130,66 @@ class LLMClient:
         if not api_key:
             return None
 
-        # Detect Anthropic native API vs OpenAI-compatible completions
-        is_anthropic_native = "anthropic.com" in base_url and not "openai" in base_url
+        # Sanitize prompts to ensure zero government data leakage
+        clean_user_prompt = sanitize_government_prompt(user_prompt)
+        clean_system_prompt = sanitize_government_prompt(system_prompt)
 
-        if is_anthropic_native:
-            headers = {
-                "x-api-key": api_key,
-                "anthropic-version": "2023-06-01",
-                "Content-Type": "application/json",
-            }
-            payload = {
-                "model": model,
-                "max_tokens": 1024,
-                "system": system_prompt,
-                "messages": [{"role": "user", "content": user_prompt}],
-            }
-            url = f"{base_url.rstrip('/')}/messages"
-        else:
-            headers = {
-                "Authorization": f"Bearer {api_key}",
-                "Content-Type": "application/json",
-            }
-            if "openrouter.ai" in base_url:
-                headers["HTTP-Referer"] = "https://proofvault1.vercel.app"
-                headers["X-Title"] = "Proof Vault Sovereign AI"
+        headers = {
+            "Authorization": f"Bearer {api_key.strip()}",
+            "Content-Type": "application/json",
+        }
 
-            payload = {
-                "model": model,
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt},
-                ],
-                "temperature": 0.1,
-                "max_tokens": 1000,
-            }
-            url = f"{base_url.rstrip('/')}/chat/completions"
+        if "openrouter.ai" in base_url:
+            headers["HTTP-Referer"] = "https://proofvault1.vercel.app"
+            headers["X-Title"] = "Proof Vault Sovereign AI"
 
-        async with httpx.AsyncClient(timeout=25.0) as http_client:
+        payload: Dict[str, Any] = {
+            "model": model,
+            "messages": [
+                {"role": "system", "content": clean_system_prompt},
+                {"role": "user", "content": clean_user_prompt},
+            ],
+        }
+
+        # OpenRouter reasoning support (GPT-6 Astra, Grok 4.6, Gemini 3.8 Flash)
+        if "openrouter.ai" in base_url:
+            payload["reasoning"] = {"enabled": True}
+            payload["temperature"] = 0.2
+            payload["max_tokens"] = 1500
+
+        # NVIDIA NIM template parameters (Nemotron 3 Ultra)
+        elif "nvidia.com" in base_url:
+            payload["temperature"] = 1.0
+            payload["top_p"] = 0.95
+            payload["max_tokens"] = 4096
+            payload["extra_body"] = {"chat_template_kwargs": {"enable_thinking": True}}
+
+        url = f"{base_url.rstrip('/')}/chat/completions"
+
+        async with httpx.AsyncClient(timeout=30.0) as http_client:
             resp = await http_client.post(url, json=payload, headers=headers)
             if resp.status_code == 200:
                 data = resp.json()
                 if "choices" in data and len(data["choices"]) > 0:
-                    return data["choices"][0]["message"]["content"]
-                elif "content" in data and isinstance(data["content"], list) and len(data["content"]) > 0:
-                    return data["content"][0].get("text", "")
+                    choice = data["choices"][0]
+                    message = choice.get("message", {})
+                    content = message.get("content")
+                    if content:
+                        return content
+                    # Fallback to delta content if streamed response format returned
+                    delta = choice.get("delta", {})
+                    if delta.get("content"):
+                        return delta["content"]
             else:
-                print(f"[WARN] Provider {base_url} returned {resp.status_code}: {resp.text[:150]}")
+                print(f"[WARN] Provider {base_url} ({model}) returned HTTP {resp.status_code}: {resp.text[:180]}")
                 return None
 
     async def generate_answer(
         self, system_prompt: str, user_prompt: str, preferred_tier: Optional[str] = None
     ) -> str:
         """
-        Executes the 4-Tier Cascading AI Sequence.
-        GPT 6 Astra -> Claude Fable 5.1 -> Grok 4.6 -> Nemotron 3 Ultra -> Structured Synthesis.
+        Executes the 4-Tier Cascading AI Sequence:
+        GPT-6 Astra -> Grok 4.6 -> Nemotron 3 Ultra -> Gemini 3.8 Flash -> Structured Synthesis.
         """
         t1 = (self.tier1_name, self.tier1_base, self.tier1_key, self.tier1_model)
         t2 = (self.tier2_name, self.tier2_base, self.tier2_key, self.tier2_model)

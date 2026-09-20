@@ -102,42 +102,46 @@ class Settings(BaseSettings):
     QDRANT_COLLECTION: str = "sdms_evidence"
 
     # Cascading 4-Tier Cloud AI Gateway
-    # Tier 1: GPT 6 Astra (Primary)
-    AI_TIER1_NAME: str = "GPT 6 Astra"
-    AI_TIER1_MODEL: str = "gpt-6-astra"
-    AI_TIER1_BASE_URL: str = "https://api.openai.com/v1"
+    # Tier 1: GPT-6 Astra (Primary)
+    AI_TIER1_NAME: str = "GPT-6 Astra"
+    AI_TIER1_MODEL: str = "openai/gpt-6-astra"
+    AI_TIER1_BASE_URL: str = "https://openrouter.ai/api/v1"
     AI_TIER1_API_KEY: str = ""
 
-    # Tier 2: Claude Fable 5.1 (Secondary Failover)
-    AI_TIER2_NAME: str = "Claude Fable 5.1"
-    AI_TIER2_MODEL: str = "claude-fable-5.1"
-    AI_TIER2_BASE_URL: str = "https://api.anthropic.com/v1"
+    # Tier 2: Grok 4.6 (Secondary Failover)
+    AI_TIER2_NAME: str = "Grok 4.6"
+    AI_TIER2_MODEL: str = "x-ai/grok-4.6"
+    AI_TIER2_BASE_URL: str = "https://openrouter.ai/api/v1"
     AI_TIER2_API_KEY: str = ""
 
-    # Tier 3: Grok 4.6 (Tertiary Failover)
-    AI_TIER3_NAME: str = "Grok 4.6"
-    AI_TIER3_MODEL: str = "grok-4.6"
-    AI_TIER3_BASE_URL: str = "https://api.x.ai/v1"
+    # Tier 3: Nemotron 3 Ultra (Tertiary Failover)
+    AI_TIER3_NAME: str = "Nemotron 3 Ultra"
+    AI_TIER3_MODEL: str = "nvidia/nemotron-3-ultra-550b-a55b"
+    AI_TIER3_BASE_URL: str = "https://integrate.api.nvidia.com/v1"
     AI_TIER3_API_KEY: str = ""
 
-    # Tier 4: Nemotron 3 Ultra (Quaternary Cloud Failover)
-    AI_TIER4_NAME: str = "Nemotron 3 Ultra"
-    AI_TIER4_MODEL: str = "nvidia/nemotron-3-ultra"
-    AI_TIER4_BASE_URL: str = "https://integrate.api.nvidia.com/v1"
+    # Tier 4: Gemini 3.8 Flash (Quaternary Cloud Failover)
+    AI_TIER4_NAME: str = "Gemini 3.8 Flash"
+    AI_TIER4_MODEL: str = "google/gemini-3.8-flash"
+    AI_TIER4_BASE_URL: str = "https://openrouter.ai/api/v1"
     AI_TIER4_API_KEY: str = ""
 
     # Aliases
     AI_PRIMARY_API_KEY: str = ""
-    AI_PRIMARY_MODEL: str = "gpt-6-astra"
-    AI_PRIMARY_BASE_URL: str = "https://api.openai.com/v1"
+    AI_PRIMARY_MODEL: str = "openai/gpt-6-astra"
+    AI_PRIMARY_BASE_URL: str = "https://openrouter.ai/api/v1"
 
     AI_SECONDARY_API_KEY: str = ""
-    AI_SECONDARY_MODEL: str = "claude-fable-5.1"
-    AI_SECONDARY_BASE_URL: str = "https://api.anthropic.com/v1"
+    AI_SECONDARY_MODEL: str = "x-ai/grok-4.6"
+    AI_SECONDARY_BASE_URL: str = "https://openrouter.ai/api/v1"
 
     AI_TERTIARY_API_KEY: str = ""
-    AI_TERTIARY_MODEL: str = "grok-4.6"
-    AI_TERTIARY_BASE_URL: str = "https://api.x.ai/v1"
+    AI_TERTIARY_MODEL: str = "nvidia/nemotron-3-ultra-550b-a55b"
+    AI_TERTIARY_BASE_URL: str = "https://integrate.api.nvidia.com/v1"
+
+    AI_QUATERNARY_API_KEY: str = ""
+    AI_QUATERNARY_MODEL: str = "google/gemini-3.8-flash"
+    AI_QUATERNARY_BASE_URL: str = "https://openrouter.ai/api/v1"
 
     # Legacy / alias settings
     LLM_API_KEY: str = ""

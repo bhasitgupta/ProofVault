@@ -16,6 +16,15 @@ export interface QueryOptions {
   preferredTier?: 'auto' | 'tier1' | 'tier2' | 'tier3' | 'tier4';
 }
 
+function sanitizeGovernmentPrompt(text: string): string {
+  if (!text) return '';
+  return text
+    .replace(/\b0x[a-fA-F0-9]{64}\b/g, '[REDACTED_LEDGER_SECRET]')
+    .replace(/dek_[a-zA-Z0-9_-]{16,}/g, '[REDACTED_ENVELOPE_KEY]')
+    .replace(/nonce_[a-zA-Z0-9_-]{12,}/g, '[REDACTED_CRYPTO_NONCE]')
+    .replace(/eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+/g, '[REDACTED_SESSION_TOKEN]');
+}
+
 /**
  * Retrieves configured AI keys from localStorage or environment
  */
@@ -23,32 +32,32 @@ export function getAIProviderConfigs(): Record<'tier1' | 'tier2' | 'tier3' | 'ti
   const env = (import.meta as any).env || {};
   return {
     tier1: {
-      name: 'GPT 6 Astra',
+      name: 'GPT-6 Astra',
       tier: 'tier1',
-      model: localStorage.getItem('pv_tier1_model') || env.VITE_AI_TIER1_MODEL || 'gpt-6-astra',
-      baseUrl: localStorage.getItem('pv_tier1_base') || env.VITE_AI_TIER1_BASE_URL || 'https://api.openai.com/v1',
-      apiKey: localStorage.getItem('pv_tier1_key') || env.VITE_AI_TIER1_API_KEY || env.VITE_OPENAI_API_KEY || '',
+      model: localStorage.getItem('pv_tier1_model') || env.VITE_AI_TIER1_MODEL || 'openai/gpt-6-astra',
+      baseUrl: localStorage.getItem('pv_tier1_base') || env.VITE_AI_TIER1_BASE_URL || 'https://openrouter.ai/api/v1',
+      apiKey: localStorage.getItem('pv_tier1_key') || env.VITE_AI_TIER1_API_KEY || '',
     },
     tier2: {
-      name: 'Claude Fable 5.1',
+      name: 'Grok 4.6',
       tier: 'tier2',
-      model: localStorage.getItem('pv_tier2_model') || env.VITE_AI_TIER2_MODEL || 'claude-fable-5.1',
-      baseUrl: localStorage.getItem('pv_tier2_base') || env.VITE_AI_TIER2_BASE_URL || 'https://api.anthropic.com/v1',
-      apiKey: localStorage.getItem('pv_tier2_key') || env.VITE_AI_TIER2_API_KEY || env.VITE_ANTHROPIC_API_KEY || '',
+      model: localStorage.getItem('pv_tier2_model') || env.VITE_AI_TIER2_MODEL || 'x-ai/grok-4.6',
+      baseUrl: localStorage.getItem('pv_tier2_base') || env.VITE_AI_TIER2_BASE_URL || 'https://openrouter.ai/api/v1',
+      apiKey: localStorage.getItem('pv_tier2_key') || env.VITE_AI_TIER2_API_KEY || '',
     },
     tier3: {
-      name: 'Grok 4.6',
+      name: 'Nemotron 3 Ultra',
       tier: 'tier3',
-      model: localStorage.getItem('pv_tier3_model') || env.VITE_AI_TIER3_MODEL || 'grok-4.6',
-      baseUrl: localStorage.getItem('pv_tier3_base') || env.VITE_AI_TIER3_BASE_URL || 'https://api.x.ai/v1',
-      apiKey: localStorage.getItem('pv_tier3_key') || env.VITE_AI_TIER3_API_KEY || env.VITE_XAI_API_KEY || '',
+      model: localStorage.getItem('pv_tier3_model') || env.VITE_AI_TIER3_MODEL || 'nvidia/nemotron-3-ultra-550b-a55b',
+      baseUrl: localStorage.getItem('pv_tier3_base') || env.VITE_AI_TIER3_BASE_URL || 'https://integrate.api.nvidia.com/v1',
+      apiKey: localStorage.getItem('pv_tier3_key') || env.VITE_AI_TIER3_API_KEY || '',
     },
     tier4: {
-      name: 'Nemotron 3 Ultra',
+      name: 'Gemini 3.8 Flash',
       tier: 'tier4',
-      model: localStorage.getItem('pv_tier4_model') || env.VITE_AI_TIER4_MODEL || 'nvidia/nemotron-3-ultra',
-      baseUrl: localStorage.getItem('pv_tier4_base') || env.VITE_AI_TIER4_BASE_URL || 'https://integrate.api.nvidia.com/v1',
-      apiKey: localStorage.getItem('pv_tier4_key') || env.VITE_AI_TIER4_API_KEY || env.VITE_NVIDIA_API_KEY || '',
+      model: localStorage.getItem('pv_tier4_model') || env.VITE_AI_TIER4_MODEL || 'google/gemini-3.8-flash',
+      baseUrl: localStorage.getItem('pv_tier4_base') || env.VITE_AI_TIER4_BASE_URL || 'https://openrouter.ai/api/v1',
+      apiKey: localStorage.getItem('pv_tier4_key') || env.VITE_AI_TIER4_API_KEY || '',
     },
   };
 }
@@ -62,49 +71,43 @@ async function callChatCompletions(
 ): Promise<string> {
   if (!apiKey) throw new Error('API key not configured');
 
-  const isAnthropicNative = baseUrl.includes('anthropic.com') && !baseUrl.includes('openai');
+  const cleanSystem = sanitizeGovernmentPrompt(systemPrompt);
+  const cleanUser = sanitizeGovernmentPrompt(userPrompt);
 
-  let response: Response;
-  if (isAnthropicNative) {
-    response = await fetch(`${baseUrl.replace(/\/+$/, '')}/messages`, {
-      method: 'POST',
-      headers: {
-        'x-api-key': apiKey.trim(),
-        'anthropic-version': '2023-06-01',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: 1024,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userPrompt }],
-      }),
-    });
-  } else {
-    const headers: Record<string, string> = {
-      Authorization: `Bearer ${apiKey.trim()}`,
-      'Content-Type': 'application/json',
-    };
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${apiKey.trim()}`,
+    'Content-Type': 'application/json',
+  };
 
-    if (baseUrl.includes('openrouter.ai')) {
-      headers['HTTP-Referer'] = window.location.origin;
-      headers['X-Title'] = 'Proof Vault Sovereign AI';
-    }
-
-    response = await fetch(`${baseUrl.replace(/\/+$/, '')}/chat/completions`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
-        ],
-        temperature: 0.1,
-        max_tokens: 1000,
-      }),
-    });
+  if (baseUrl.includes('openrouter.ai')) {
+    headers['HTTP-Referer'] = window.location.origin;
+    headers['X-Title'] = 'Proof Vault Sovereign AI';
   }
+
+  const payload: Record<string, any> = {
+    model,
+    messages: [
+      { role: 'system', content: cleanSystem },
+      { role: 'user', content: cleanUser },
+    ],
+  };
+
+  if (baseUrl.includes('openrouter.ai')) {
+    payload['reasoning'] = { enabled: true };
+    payload['temperature'] = 0.2;
+    payload['max_tokens'] = 1500;
+  } else if (baseUrl.includes('nvidia.com')) {
+    payload['temperature'] = 1.0;
+    payload['top_p'] = 0.95;
+    payload['max_tokens'] = 4096;
+    payload['extra_body'] = { chat_template_kwargs: { enable_thinking: true } };
+  }
+
+  const response = await fetch(`${baseUrl.replace(/\/+$/, '')}/chat/completions`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(payload),
+  });
 
   if (!response.ok) {
     const errorText = await response.text();
