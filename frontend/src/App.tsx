@@ -16,6 +16,7 @@ import { AdminPage } from './pages/Admin';
 import { ChooseCryptoWalletLoginPage } from './pages/ChooseCryptoWalletLoginPage';
 import { ThreeAnimation } from './components/ThreeAnimation';
 import { LenisProvider } from './components/LenisProvider';
+import { GradualBlur } from './components/GradualBlur';
 
 const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, logout } = useAuth();
@@ -167,6 +168,30 @@ export const App: React.FC = () => {
   return (
     <LenisProvider>
       <BrowserRouter>
+        {/* Global Progressive Scroll Blur Overlays */}
+        <GradualBlur
+          target="page"
+          position="top"
+          height="4rem"
+          strength={2}
+          divCount={6}
+          curve="bezier"
+          exponential={true}
+          opacity={0.9}
+          zIndex={35}
+        />
+        <GradualBlur
+          target="page"
+          position="bottom"
+          height="4rem"
+          strength={2}
+          divCount={6}
+          curve="bezier"
+          exponential={true}
+          opacity={0.9}
+          zIndex={35}
+        />
+
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
