@@ -145,8 +145,8 @@ class Settings(BaseSettings):
 
     # Legacy / alias settings
     LLM_API_KEY: str = ""
-    LLM_API_BASE: str = "https://api.groq.com/openai/v1"
-    LLM_MODEL: str = "llama-3.3-70b-versatile"
+    LLM_API_BASE: str = "https://openrouter.ai/api/v1"
+    LLM_MODEL: str = "openai/gpt-6-astra"
 
     # Feature flags
     MFA_REQUIRED: bool = True
