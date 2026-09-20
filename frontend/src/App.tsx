@@ -39,43 +39,43 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       {/* 3D Evidentiary Lattice Animation */}
       <ThreeAnimation />
 
-      {/* Floating Modern Header */}
+      {/* Floating Modern Glassmorphic Header */}
       <header className="sticky top-3 z-40 max-w-7xl mx-auto px-4 sm:px-6 w-full pointer-events-none">
-        <div className="glass-panel rounded-2xl px-6 h-16 flex items-center justify-between shadow-xs pointer-events-auto transition-all">
+        <div className="glass-nav-obsidian rounded-2xl px-5 h-18 flex items-center justify-between shadow-2xl pointer-events-auto transition-all">
           
-          <div className="flex items-center gap-8">
-            <Link to="/dossiers" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform overflow-hidden p-1 border border-slate-700/50">
-                <img src="/logo.png" alt="Proof Vault" className="w-full h-full object-contain" />
+          <div className="flex items-center gap-6 lg:gap-8">
+            <Link to="/dossiers" className="flex items-center gap-3.5 group">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-slate-900 via-slate-850 to-indigo-950 flex items-center justify-center shadow-lg shadow-indigo-500/20 group-hover:scale-105 transition-transform overflow-hidden p-1 border border-indigo-400/40 ring-1 ring-white/10">
+                <img src="/logo.png" alt="Proof Vault" className="w-full h-full object-contain filter drop-shadow(0 2px 8px rgba(99,102,241,0.6))" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-serif-judicial font-black tracking-wider text-slate-900 text-base">
+                  <span className="font-serif-judicial font-black tracking-wide text-white text-lg">
                     Proof Vault
                   </span>
-                  <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                  <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-indigo-950/80 text-cyan-300 border border-cyan-500/30 shadow-xs">
                     EVM 80002
                   </span>
                 </div>
-                <span className="text-[10px] text-slate-500 font-mono tracking-wide block -mt-0.5">
+                <span className="text-[10px] text-slate-400 font-mono tracking-wide block -mt-0.5">
                   Secure Evidence • Stronger Justice
                 </span>
               </div>
             </Link>
 
-            <nav className="hidden lg:flex items-center gap-2 text-xs font-semibold">
+            <nav className="hidden lg:flex items-center gap-1.5 text-xs font-semibold">
               {navItems.map((item) => {
                 const Icon = item.icon;
                 return (
                   <Link
                     key={item.to}
                     to={item.to}
-                    className={`px-4 py-2 rounded-xl flex items-center gap-2 transition-all duration-150 ${
+                    className={`px-3.5 py-2 rounded-xl flex items-center gap-2 transition-all duration-150 ${
                       item.active
-                        ? 'bg-slate-900 text-white shadow-sm font-bold'
+                        ? 'bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-700 text-white shadow-lg shadow-indigo-500/30 font-bold border border-indigo-400/30'
                         : item.highlight
-                        ? 'text-indigo-700 bg-indigo-50/70 hover:bg-indigo-100/70 border border-indigo-100'
-                        : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
+                        ? 'text-emerald-300 bg-emerald-950/40 hover:bg-emerald-900/50 border border-emerald-500/30 shadow-xs'
+                        : 'text-slate-300 hover:bg-white/10 hover:text-white'
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -87,38 +87,38 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
               {user?.role === 'ADMIN' && (
                 <Link
                   to="/admin"
-                  className={`px-4 py-2 rounded-xl flex items-center gap-1.5 transition-colors ${
+                  className={`px-3.5 py-2 rounded-xl flex items-center gap-1.5 transition-colors ${
                     location.pathname === '/admin'
-                      ? 'bg-slate-900 text-white font-bold'
-                      : 'text-slate-600 hover:bg-slate-100/80 hover:text-slate-900'
+                      ? 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white font-bold shadow-md shadow-indigo-500/30'
+                      : 'text-amber-300 bg-amber-950/30 hover:bg-amber-900/40 border border-amber-500/30'
                   }`}
                 >
-                  <Lock className="w-3.5 h-3.5 text-indigo-400" />
+                  <Lock className="w-3.5 h-3.5 text-amber-400" />
                   <span>Admin</span>
                 </Link>
               )}
             </nav>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3.5">
             {/* Network Badge */}
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200/60 text-[10px] font-mono text-emerald-800 font-bold">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-[10px] font-mono text-emerald-400 font-bold shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
               <span>POLYGON AMOY ANCHORED</span>
             </div>
 
             {user && (
-              <div className="flex items-center gap-3 pl-3 border-l border-slate-200">
+              <div className="flex items-center gap-3 pl-3 border-l border-slate-800">
                 <div className="text-right font-mono text-xs">
-                  <div className="text-slate-900 font-bold text-xs">{user.username}</div>
-                  <div className="text-[10px] text-indigo-600 font-extrabold uppercase mt-0.5 tracking-wider">{user.role}</div>
+                  <div className="text-white font-bold text-xs">{user.username}</div>
+                  <div className="text-[10px] text-cyan-400 font-extrabold uppercase mt-0.5 tracking-wider">{user.role}</div>
                 </div>
               </div>
             )}
 
             <button
               onClick={handleLogout}
-              className="p-2.5 hover:bg-rose-50 border border-transparent hover:border-rose-200 rounded-xl text-slate-400 hover:text-rose-700 transition-all cursor-pointer"
+              className="p-2 hover:bg-rose-950/50 border border-transparent hover:border-rose-800/40 rounded-xl text-slate-400 hover:text-rose-400 transition-all cursor-pointer"
               title="Terminate Session"
             >
               <LogOut className="w-4 h-4" />

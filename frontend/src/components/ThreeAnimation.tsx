@@ -510,7 +510,7 @@ export const ThreeAnimation: React.FC = () => {
       ref={containerRef}
       className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
       aria-hidden="true"
-      style={{ opacity: 0.92 }}
+      style={{ opacity: 0.38 }}
     />
   );
 };
