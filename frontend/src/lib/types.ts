@@ -125,4 +125,5 @@ export interface AuditEvent {
   outcome: string;
   reason?: string;
   timestamp?: string;
+  ledgerTxId?: string;
 }

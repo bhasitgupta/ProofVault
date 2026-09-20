@@ -485,17 +485,20 @@ export async function uploadToSupabaseStorageAndDB(params: {
   }
 
   // 5. Log immutable custody audit event into Supabase 'audit_logs' table
+  const auditEventId = `evt_${Date.now().toString().slice(-6)}_${Math.random().toString(36).slice(2, 6)}`;
   const auditPayload = {
-    id: `EVT-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    id: `aud_${Date.now().toString().slice(-6)}_${Math.random().toString(36).slice(2, 6)}`,
+    event_id: auditEventId,
     actor_id: uploaderId,
     actor_role: 'INVESTIGATOR',
-    actor_msp: 'PoliceMSP',
-    action: 'EVIDENCE_MINTED_AND_ANCHORED',
+    action: cleanTxId ? 'EVIDENCE_ANCHORED_ON_CHAIN' : 'EVIDENCE_INGESTED_LOCAL',
     case_id: caseId,
-    doc_id: docId,
     outcome: 'ALLOW',
-    reason: `NFT Evidence Minted & Anchored on Polygon Amoy (DID: ${docPayload.wrapped_dek}, CRD: ${docPayload.nonce_hex}, TX: ${cleanTxId ? cleanTxId.slice(0, 10) + '...' : 'LOCAL_PROOF'})`,
-    timestamp: nowIso,
+    reason: `Evidence registered: ${file.name} (DID: ${docPayload.wrapped_dek.slice(0, 40)}..., Merkle: ${cleanMerkleRoot.slice(0, 16)}...)`,
+    raw_query_encrypted: '',
+    ledger_tx_id: cleanTxId,
+    created_at: nowIso,
+    updated_at: nowIso,
   };
 
   fetch(`${SUPABASE_URL}/rest/v1/audit_logs`, {
@@ -507,6 +510,23 @@ export async function uploadToSupabaseStorageAndDB(params: {
     },
     body: JSON.stringify(auditPayload),
   }).catch(err => console.warn('Audit log insert warning:', err));
+
+  // Increment active_document_count on case if possible
+  fetch(`${SUPABASE_URL}/rest/v1/cases?case_id=eq.${encodeURIComponent(caseId)}`, {
+    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
+  })
+    .then(r => r.json())
+    .then(cases => {
+      if (cases && cases[0]) {
+        const curCount = (cases[0].active_document_count || 0) + 1;
+        fetch(`${SUPABASE_URL}/rest/v1/cases?case_id=eq.${encodeURIComponent(caseId)}`, {
+          method: 'PATCH',
+          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ active_document_count: curCount, updated_at: nowIso }),
+        }).catch(() => {});
+      }
+    })
+    .catch(() => {});
 
   return docPayload;
 }
