@@ -68,14 +68,8 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
           </div>
 
           <div className="flex items-center gap-3 shrink-0 whitespace-nowrap">
-            {/* Network Badge */}
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-300 text-[10px] font-mono text-emerald-900 font-bold shadow-xs whitespace-nowrap shrink-0">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>POLYGON AMOY ANCHORED</span>
-            </div>
-
             {user && (
-              <div className="flex items-center gap-3 pl-3 border-l border-stone-300 shrink-0 whitespace-nowrap">
+              <div className="flex items-center gap-3 shrink-0 whitespace-nowrap">
                 <div className="text-right font-mono text-xs whitespace-nowrap shrink-0">
                   <div className="text-stone-900 font-bold text-xs whitespace-nowrap">{user.username}</div>
                   <div className="text-[10px] text-indigo-700 font-extrabold uppercase mt-0.5 tracking-wider whitespace-nowrap">{user.role}</div>
