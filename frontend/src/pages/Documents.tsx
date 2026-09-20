@@ -471,6 +471,22 @@ export const DocumentsPage: React.FC = () => {
                       <span>DOC ID:</span>
                       <span className="text-stone-700">{truncateHash(doc.doc_id, 4, 4)}</span>
                     </div>
+                    {doc.did && (
+                      <div className="flex items-center justify-between text-stone-500">
+                        <span>DID:</span>
+                        <span className="text-crimson-800 font-semibold truncate max-w-[130px]" title={doc.did}>
+                          {doc.did}
+                        </span>
+                      </div>
+                    )}
+                    {doc.crd && (
+                      <div className="flex items-center justify-between text-stone-500">
+                        <span>CRD:</span>
+                        <span className="text-indigo-800 font-semibold truncate max-w-[130px]" title={doc.crd}>
+                          {doc.crd}
+                        </span>
+                      </div>
+                    )}
                     <div className="flex items-center justify-between text-stone-500">
                       <span>MERKLE:</span>
                       <span className="text-emerald-700 font-semibold truncate max-w-[120px]" title={doc.chunk_merkle_root}>
@@ -552,7 +568,7 @@ export const DocumentsPage: React.FC = () => {
                   <th className="py-4 px-4">Case ID</th>
                   <th className="py-4 px-4">Classification</th>
                   <th className="py-4 px-4">Type</th>
-                  <th className="py-4 px-4">Size</th>
+                  <th className="py-4 px-4">DID / CRD Commitment</th>
                   <th className="py-4 px-4">Merkle Root</th>
                   <th className="py-4 px-4">Access Status</th>
                   <th className="py-4 px-5 text-right">Actions</th>
@@ -588,7 +604,18 @@ export const DocumentsPage: React.FC = () => {
                         </span>
                       </td>
                       <td className="py-4 px-4 text-slate-600 font-sans">{doc.doc_type}</td>
-                      <td className="py-4 px-4 text-slate-600">{formatBytes(doc.size_bytes)}</td>
+                      <td className="py-4 px-4">
+                        <div className="space-y-0.5 text-[10px]">
+                          <div className="text-crimson-800 font-semibold truncate max-w-[120px]" title={doc.did || doc.doc_id}>
+                            {doc.did ? truncateHash(doc.did, 6, 4) : truncateHash(doc.doc_id, 4, 4)}
+                          </div>
+                          {doc.crd && (
+                            <div className="text-indigo-800 font-semibold truncate max-w-[120px]" title={doc.crd}>
+                              {truncateHash(doc.crd, 6, 4)}
+                            </div>
+                          )}
+                        </div>
+                      </td>
                       <td className="py-4 px-4 text-slate-600 truncate max-w-[120px]" title={doc.chunk_merkle_root}>
                         {truncateHash(doc.chunk_merkle_root, 4, 4)}
                       </td>
@@ -767,12 +794,28 @@ export const DocumentsPage: React.FC = () => {
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-3 bg-parchment-100 rounded-xl border border-stone-200 text-[11px] font-mono">
                         <div>
                           <span className="text-stone-500">Document ID:</span>{' '}
-                          <span className="text-stone-800">{previewData.doc_id}</span>
+                          <span className="text-stone-800 font-bold">{previewData.doc_id}</span>
                         </div>
                         <div>
                           <span className="text-stone-500">Chunk Merkle Root:</span>{' '}
                           <span className="text-emerald-700 font-bold">{truncateHash(previewData.chunk_merkle_root, 8, 8)}</span>
                         </div>
+                        {previewData.did && (
+                          <div>
+                            <span className="text-stone-500">DID Identifier:</span>{' '}
+                            <span className="text-crimson-800 font-bold truncate max-w-[200px]" title={previewData.did}>
+                              {previewData.did}
+                            </span>
+                          </div>
+                        )}
+                        {previewData.crd && (
+                          <div>
+                            <span className="text-stone-500">CRD / CID:</span>{' '}
+                            <span className="text-indigo-800 font-bold truncate max-w-[200px]" title={previewData.crd}>
+                              {previewData.crd}
+                            </span>
+                          </div>
+                        )}
                         <div>
                           <span className="text-stone-500">Plaintext SHA-256:</span>{' '}
                           <span className="text-stone-800">{truncateHash(previewData.content_hash, 8, 8)}</span>
@@ -910,12 +953,24 @@ export const DocumentsPage: React.FC = () => {
                 <span>EVM Anchor:</span>
                 <LedgerTxLink txId={previewData?.ledger_tx_id || ''} contract="EvidenceRegistry" />
               </div>
-              <button
-                onClick={handleClosePreview}
-                className="px-4 py-1.5 bg-white hover:bg-parchment-200 text-stone-800 rounded-lg font-semibold transition-colors border border-stone-200 shadow-sm"
-              >
-                Close
-              </button>
+              <div className="flex items-center gap-2">
+                {previewData && (
+                  <button
+                    onClick={() => handleDownload(previewData.doc_id, previewData.filename)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-lg font-semibold transition-colors shadow-xs"
+                    title="Download decrypted evidence payload from Supabase"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download Payload</span>
+                  </button>
+                )}
+                <button
+                  onClick={handleClosePreview}
+                  className="px-4 py-1.5 bg-white hover:bg-parchment-200 text-stone-800 rounded-lg font-semibold transition-colors border border-stone-200 shadow-sm"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>

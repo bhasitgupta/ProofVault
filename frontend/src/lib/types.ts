@@ -43,6 +43,10 @@ export interface DocumentRecord {
   created_at?: string;
   has_access?: boolean;
   access_reason?: string;
+  did?: string;
+  crd?: string;
+  thumbnail_url?: string;
+  ocr_preview?: string;
 }
 
 export interface DocumentChunk {
@@ -67,6 +71,9 @@ export interface DocumentPreview {
   preview_text: string;
   chunk_count: number;
   chunks: DocumentChunk[];
+  did?: string;
+  crd?: string;
+  thumbnail_url?: string;
 }
 
 export interface Citation {
