@@ -101,11 +101,26 @@ class Settings(BaseSettings):
     QDRANT_URL: str = "http://localhost:6333"
     QDRANT_COLLECTION: str = "sdms_evidence"
 
-    # LLM (Cloud API - OpenAI / Groq / OpenRouter / Anthropic compatible)
+    # Cascading Multi-Tier AI Gateway (Primary -> Secondary -> Tertiary)
+    # Tier 1: Primary High-Speed Provider (Default: Groq Llama-3.3-70b or custom)
+    AI_PRIMARY_API_KEY: str = ""
+    AI_PRIMARY_MODEL: str = "llama-3.3-70b-versatile"
+    AI_PRIMARY_BASE_URL: str = "https://api.groq.com/openai/v1"
+
+    # Tier 2: Secondary Failover Provider (Default: OpenAI GPT-4o / gpt-4o-mini or custom)
+    AI_SECONDARY_API_KEY: str = ""
+    AI_SECONDARY_MODEL: str = "gpt-4o-mini"
+    AI_SECONDARY_BASE_URL: str = "https://api.openai.com/v1"
+
+    # Tier 3: Tertiary Failover Provider (Default: OpenRouter / Gemini or custom)
+    AI_TERTIARY_API_KEY: str = ""
+    AI_TERTIARY_MODEL: str = "google/gemini-2.0-flash-exp:free"
+    AI_TERTIARY_BASE_URL: str = "https://openrouter.ai/api/v1"
+
+    # Legacy / alias settings
     LLM_API_KEY: str = ""
-    LLM_API_BASE: str = ""
+    LLM_API_BASE: str = "https://api.groq.com/openai/v1"
     LLM_MODEL: str = "llama-3.3-70b-versatile"
-    OLLAMA_URL: str = ""   # Deprecated: offline Ollama no longer required
 
     # Feature flags
     MFA_REQUIRED: bool = True

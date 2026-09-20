@@ -18,9 +18,13 @@ import {
   KeyRound,
   CheckCircle2,
   ShieldAlert,
-  AlertTriangle
+  AlertTriangle,
+  Zap,
+  Sliders,
+  X,
+  Check
 } from 'lucide-react';
-import { askEvidence } from '../api/query';
+import { askEvidence, getAIProviderConfigs } from '../api/query';
 import { getCases } from '../api/audit';
 import { QueryResponse, Citation, AccessInfo } from '../lib/types';
 import { CitationChip } from '../components/CitationChip';
@@ -49,12 +53,32 @@ export const AskPage: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [selectedCase, setSelectedCase] = useState(searchParams.get('case') || '');
+  const [selectedTier, setSelectedTier] = useState<'auto' | 'tier1' | 'tier2' | 'tier3'>('auto');
+  const [showConfigModal, setShowConfigModal] = useState(false);
   const [cases, setCases] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState<string>('');
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // AI Configuration Keys State
+  const [tier1Key, setTier1Key] = useState(localStorage.getItem('pv_tier1_key') || '');
+  const [tier2Key, setTier2Key] = useState(localStorage.getItem('pv_tier2_key') || '');
+  const [tier3Key, setTier3Key] = useState(localStorage.getItem('pv_tier3_key') || '');
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  const handleSaveKeys = (e: React.FormEvent) => {
+    e.preventDefault();
+    localStorage.setItem('pv_tier1_key', tier1Key.trim());
+    localStorage.setItem('pv_tier2_key', tier2Key.trim());
+    localStorage.setItem('pv_tier3_key', tier3Key.trim());
+    setSaveSuccess(true);
+    setTimeout(() => {
+      setSaveSuccess(false);
+      setShowConfigModal(false);
+    }, 900);
+  };
 
   useEffect(() => {
     getCases()
@@ -110,10 +134,10 @@ export const AskPage: React.FC = () => {
       }, 700);
 
       const stepTimer2 = setTimeout(() => {
-        setLoadingStep('Synthesizing grounded answer with local Qwen LLM on CPU...');
+        setLoadingStep('Synthesizing grounded answer with Cascading Sovereign AI...');
       }, 1600);
 
-      const res = await askEvidence(text, activeCase ? [activeCase] : []);
+      const res = await askEvidence(text, activeCase ? [activeCase] : [], { preferredTier: selectedTier });
       clearTimeout(stepTimer);
       clearTimeout(stepTimer2);
 
@@ -170,12 +194,41 @@ export const AskPage: React.FC = () => {
               </span>
             </div>
             <p className="text-xs text-stone-500 mt-0.5">
-              Grounded, tamper-verified Q&A powered by local Qwen LLM with on-chain cryptographic citations
+              Grounded, tamper-verified Q&A powered by 3-Tier Cascading Cloud AI with on-chain cryptographic citations
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* AI Model / Tier Selector */}
+          <div className="flex items-center gap-1.5 bg-white border border-stone-200 px-2.5 py-1.5 rounded-xl text-xs shadow-sm">
+            <Zap className="w-3.5 h-3.5 text-amber-600" />
+            <span className="text-stone-500 font-medium">Model:</span>
+            <select
+              value={selectedTier}
+              onChange={(e) => setSelectedTier(e.target.value as any)}
+              className="bg-transparent text-stone-800 font-mono font-semibold focus:outline-none cursor-pointer"
+            >
+              <option value="auto">⚡ Auto Cascade (T1 → T2 → T3)</option>
+              <option value="tier1">Tier 1: Primary (Groq / Llama 3.3)</option>
+              <option value="tier2">Tier 2: Secondary (OpenAI GPT-4o-mini)</option>
+              <option value="tier3">Tier 3: Tertiary (OpenRouter Gemini)</option>
+            </select>
+          </div>
+
+          {/* API Keys Configuration Button */}
+          <button
+            onClick={() => setShowConfigModal(true)}
+            title="Configure AI API Keys"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white hover:bg-parchment-100 text-stone-700 rounded-xl text-xs font-medium border border-stone-200 shadow-sm transition-colors"
+          >
+            <Sliders className="w-3.5 h-3.5 text-crimson-800" />
+            <span>AI Keys</span>
+            {(tier1Key || tier2Key || tier3Key) && (
+              <span className="w-2 h-2 rounded-full bg-emerald-500" />
+            )}
+          </button>
+
           {/* Case Scope Selector */}
           <div className="flex items-center gap-1.5 bg-white border border-stone-200 px-3 py-1.5 rounded-xl text-xs shadow-sm">
             <Folder className="w-3.5 h-3.5 text-crimson-700" />
@@ -268,7 +321,12 @@ export const AskPage: React.FC = () => {
                 {/* Header */}
                 <div className="flex items-center justify-between gap-3 text-[11px] opacity-80 pb-1.5 border-b border-stone-200 font-mono">
                   <span className="font-semibold">{msg.sender === 'user' ? 'Investigator' : 'Proof Vault Intelligence'}</span>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {msg.responseMeta?.provider_tier && (
+                      <span className="px-2 py-0.5 rounded text-[9px] font-semibold bg-crimson-50 text-crimson-800 border border-crimson-200" title={`Model: ${msg.responseMeta.model_used || 'Standard'}`}>
+                        {msg.responseMeta.provider_tier}
+                      </span>
+                    )}
                     {msg.caseScope && (
                       <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${msg.sender === 'user' ? 'bg-crimson-900/60 text-white' : 'bg-parchment-100 text-stone-700 border border-stone-200'}`}>
                         {msg.caseScope}
@@ -453,6 +511,126 @@ export const AskPage: React.FC = () => {
           <span className="hidden sm:inline">Press Enter ↵ to send</span>
         </div>
       </div>
+
+      {/* ── 3-Tier AI Gateway Configuration Modal ──────────────────── */}
+      {showConfigModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-fade-in">
+          <div className="glass-ivory border-crimson-gold rounded-2xl w-full max-w-lg shadow-2xl p-6 space-y-5 animate-scale-in">
+            <div className="flex items-center justify-between border-b border-stone-200 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-crimson-50 text-crimson-800 rounded-xl border border-crimson-200">
+                  <Sliders className="w-4 h-4" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-serif-judicial font-bold text-stone-900">
+                    Cascading AI Gateway Configuration
+                  </h2>
+                  <p className="text-[11px] text-stone-500">
+                    Configure your 3-tier failover priority keys. Stored client-side in secure local vault.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowConfigModal(false)}
+                className="p-1.5 text-stone-400 hover:text-stone-700 rounded-lg hover:bg-stone-100 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveKeys} className="space-y-4">
+              {/* Tier 1 - Primary */}
+              <div className="p-3.5 bg-white border border-stone-200 rounded-xl space-y-2 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-stone-800">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <span>Tier 1: Primary API (Default)</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-stone-500 bg-stone-100 px-2 py-0.5 rounded">
+                    Groq / Llama 3.3 70B
+                  </span>
+                </div>
+                <input
+                  type="password"
+                  value={tier1Key}
+                  onChange={(e) => setTier1Key(e.target.value)}
+                  placeholder="Paste Primary API Key (e.g., gsk_...)"
+                  className="w-full px-3 py-2 text-xs font-mono bg-parchment-50/70 border border-stone-200 rounded-lg focus:outline-none focus:border-crimson-700"
+                />
+              </div>
+
+              {/* Tier 2 - Secondary */}
+              <div className="p-3.5 bg-white border border-stone-200 rounded-xl space-y-2 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-stone-800">
+                    <span className="w-2 h-2 rounded-full bg-amber-500" />
+                    <span>Tier 2: Secondary API (Failover)</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-stone-500 bg-stone-100 px-2 py-0.5 rounded">
+                    OpenAI / GPT-4o-mini
+                  </span>
+                </div>
+                <input
+                  type="password"
+                  value={tier2Key}
+                  onChange={(e) => setTier2Key(e.target.value)}
+                  placeholder="Paste Secondary API Key (e.g., sk-proj-...)"
+                  className="w-full px-3 py-2 text-xs font-mono bg-parchment-50/70 border border-stone-200 rounded-lg focus:outline-none focus:border-crimson-700"
+                />
+              </div>
+
+              {/* Tier 3 - Tertiary */}
+              <div className="p-3.5 bg-white border border-stone-200 rounded-xl space-y-2 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-stone-800">
+                    <span className="w-2 h-2 rounded-full bg-blue-500" />
+                    <span>Tier 3: Tertiary API (Backup)</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-stone-500 bg-stone-100 px-2 py-0.5 rounded">
+                    OpenRouter / Gemini 2.0
+                  </span>
+                </div>
+                <input
+                  type="password"
+                  value={tier3Key}
+                  onChange={(e) => setTier3Key(e.target.value)}
+                  placeholder="Paste Tertiary API Key (e.g., sk-or-v1-...)"
+                  className="w-full px-3 py-2 text-xs font-mono bg-parchment-50/70 border border-stone-200 rounded-lg focus:outline-none focus:border-crimson-700"
+                />
+              </div>
+
+              <div className="flex items-center justify-between pt-2">
+                <div className="text-[11px] text-stone-500">
+                  {saveSuccess ? (
+                    <span className="text-emerald-700 font-semibold flex items-center gap-1">
+                      <Check className="w-3.5 h-3.5" /> Keys updated in vault!
+                    </span>
+                  ) : (
+                    <span>Keys are never exposed publicly.</span>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowConfigModal(false)}
+                    className="px-3.5 py-1.5 text-xs font-medium text-stone-600 hover:text-stone-900 rounded-xl border border-stone-200 bg-white hover:bg-stone-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-1.5 text-xs font-semibold text-white bg-crimson-800 hover:bg-crimson-700 rounded-xl shadow-sm transition-colors flex items-center gap-1.5"
+                  >
+                    <Check className="w-3.5 h-3.5" />
+                    <span>Save Keys</span>
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

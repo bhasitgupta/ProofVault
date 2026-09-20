@@ -34,6 +34,7 @@ async def run_rag_pipeline(
     max_classification: str,
     session: AsyncSession,
     ledger,
+    preferred_tier: Optional[str] = None,
 ) -> Dict[str, Any]:
     timings: Dict[str, float] = {}
     t0 = time.time()
@@ -195,9 +196,9 @@ async def run_rag_pipeline(
     user_prompt = f"Query: {query}\n\n{context_blocks}"
     timings["prompt_ms"] = int((time.time() - t3) * 1000)
 
-    # ── Step 4: LLM call (Ollama local or LiteLLM fallback) ──────────────────
+    # ── Step 4: Multi-Tier Cascading AI Execution (Primary -> Secondary -> Tertiary) ───
     t4 = time.time()
-    answer = await _call_llm(system_prompt, user_prompt)
+    answer, provider_tier, model_used = await _call_llm(system_prompt, user_prompt, preferred_tier)
     timings["llm_ms"] = int((time.time() - t4) * 1000)
 
     # ── Step 5: Citation validator — reject out-of-scope doc_ids ─────────────
@@ -233,6 +234,8 @@ async def run_rag_pipeline(
         "scope_note": f"Searched cases: {allowed_case_ids}",
         "timings_ms": timings,
         "access_info": access_info,
+        "provider_tier": provider_tier,
+        "model_used": model_used,
     }
 
 
@@ -357,14 +360,15 @@ def _neutralize_injection(text: str) -> str:
     return text
 
 
-async def _call_llm(system_prompt: str, user_prompt: str) -> str:
+async def _call_llm(system_prompt: str, user_prompt: str, preferred_tier: Optional[str] = None) -> Tuple[str, str, str]:
     """
-    Calls configured Cloud LLM (or optional local inference) via LLMClient.
-    Falls back to structured evidence synthesis if external API is unreachable.
+    Calls Cascading Multi-Tier AI Gateway (Primary -> Secondary -> Tertiary).
+    Falls back to structured evidence synthesis if external APIs are unreachable.
     """
     from app.rag.llm_client import LLMClient
     client = LLMClient()
-    return await client.generate_answer(system_prompt, user_prompt)
+    answer = await client.generate_answer(system_prompt, user_prompt, preferred_tier)
+    return answer, client.last_provider_used, client.last_model_used
 
 
 def _extract_and_validate_citations(

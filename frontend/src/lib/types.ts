@@ -103,6 +103,8 @@ export interface QueryResponse {
   timings_ms?: Record<string, number>;
   message?: string;
   access_info?: AccessInfo;
+  provider_tier?: string;
+  model_used?: string;
 }
 
 export interface AuditEvent {
