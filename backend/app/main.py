@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="SIH26190 — Secure Digital Document Management System",
+    title="Proof Vault — Secure Digital Evidence Management System",
     version="1.0.0",
     description="Cryptographic chain-of-custody, Merkle-verified RAG, and BSA §63 certificate generation.",
     lifespan=lifespan,

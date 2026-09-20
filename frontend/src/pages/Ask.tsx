@@ -164,7 +164,7 @@ export const AskPage: React.FC = () => {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-base font-serif-judicial font-bold text-stone-900 tracking-tight">Nyaya-Vault Intelligence Bot</h1>
+              <h1 className="text-base font-serif-judicial font-bold text-stone-900 tracking-tight">Proof Vault Intelligence Bot</h1>
               <span className="text-[10px] px-2 py-0.5 rounded-md bg-emerald-50 border border-emerald-300 text-emerald-700 font-mono font-semibold flex items-center gap-1">
                 <ShieldCheck className="w-3 h-3" /> Merkle-Gated
               </span>
@@ -267,7 +267,7 @@ export const AskPage: React.FC = () => {
               >
                 {/* Header */}
                 <div className="flex items-center justify-between gap-3 text-[11px] opacity-80 pb-1.5 border-b border-stone-200 font-mono">
-                  <span className="font-semibold">{msg.sender === 'user' ? 'Investigator' : 'Nyaya-Vault Intelligence'}</span>
+                  <span className="font-semibold">{msg.sender === 'user' ? 'Investigator' : 'Proof Vault Intelligence'}</span>
                   <div className="flex items-center gap-2">
                     {msg.caseScope && (
                       <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${msg.sender === 'user' ? 'bg-crimson-900/60 text-white' : 'bg-parchment-100 text-stone-700 border border-stone-200'}`}>
@@ -430,7 +430,7 @@ export const AskPage: React.FC = () => {
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Ask the Nyaya-Vault Bot about evidence... (Enter to send, Shift+Enter for newline)"
+              placeholder="Ask the Proof Vault Bot about evidence... (Enter to send, Shift+Enter for newline)"
               disabled={loading}
               className="w-full px-4 py-2.5 bg-white border border-stone-200 rounded-xl text-xs sm:text-sm text-stone-900 placeholder-stone-400 focus:outline-none focus:border-crimson-700 resize-none disabled:opacity-50 shadow-inner"
             />

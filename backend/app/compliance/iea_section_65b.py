@@ -8,7 +8,7 @@ class IEASection65BEngine:
     Maintains backwards statutory compliance for pending cases filed under IPC / CrPC regimes.
     """
     @staticmethod
-    def generate_form_a_certificate(doc_id: str, sha256_hash: str, system_name: str = "NYAYA-VAULT-PROD-01") -> Dict[str, Any]:
+    def generate_form_a_certificate(doc_id: str, sha256_hash: str, system_name: str = "PROOF-VAULT-PROD-01") -> Dict[str, Any]:
         data = {
             "act": "Indian Evidence Act, 1872",
             "section": "Section 65B(4)",

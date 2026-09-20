@@ -1,8 +1,10 @@
 <div align="center">
 
-# ⚖️ NYAYA-VAULT (SIH26190)
+<img src="frontend/public/logo.png" alt="Proof Vault Logo" width="220" />
+
+# ⚖️ Proof Vault
 ### Sovereign Electronic Evidence Provenance & Cryptographic Chain-of-Custody Platform
-#### *Engineered for Indian Law Enforcement, Forensic Laboratories, and Judicial Workflows*
+#### *Secure Evidence • Stronger Justice • Blockchain For A Fairer Tomorrow*
 
 <p align="center">
   <img src="https://img.shields.io/badge/Blockchain-Polygon%20Amoy%20(80002)-8247E5?style=for-the-badge&logo=polygon&logoColor=white" alt="Polygon Amoy" />
@@ -30,11 +32,11 @@
 
 During criminal investigations, sensitive digital artifacts—First Information Reports (FIRs), mobile forensic phone extractions, CCTV records, seized cryptocurrency ledgers, chemical assays, and ballistic comparisons—must withstand stringent judicial scrutiny. Traditional repositories suffer from insider tampering, unverified custody transitions, lack of mathematical non-repudiation, and manual §65B certification overhead.
 
-**NYAYA-VAULT** is a zero-trust electronic evidence provenance architecture built to eliminate evidence tampering and automate judicial admissibility under the **Bharatiya Sakshya Adhiniyam, 2023 (BSA §63)** and the **Indian Evidence Act (IEA §65B)**.
+**Proof Vault** is a zero-trust electronic evidence provenance architecture built to eliminate evidence tampering and automate judicial admissibility under the **Bharatiya Sakshya Adhiniyam, 2023 (BSA §63)** and the **Indian Evidence Act (IEA §65B)**.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────────┐
-│                              NYAYA-VAULT ARCHITECTURE                        │
+│                              PROOF VAULT ARCHITECTURE                        │
 ├──────────────────────────────────────────────────────────────────────────────┤
 │  Frontend: React 18 + Vite + Three.js 3D Scales of Justice + Tailwind CSS    │
 │  Auth: Web3 Hardware & Software Wallets (MetaMask, Phantom, Coinbase Wallet) │
@@ -73,7 +75,7 @@ During criminal investigations, sensitive digital artifacts—First Information 
 
 ## 🌐 Web3 Infrastructure & Polygon Amoy EVM
 
-NYAYA-VAULT anchors digital evidence to the **Polygon Amoy Testnet** (EVM Chain ID `80002`), ensuring non-repudiable state commitments accessible by courts, defense counsels, and state forensic examiners.
+Proof Vault anchors digital evidence to the **Polygon Amoy Testnet** (EVM Chain ID `80002`), ensuring non-repudiable state commitments accessible by courts, defense counsels, and state forensic examiners.
 
 ### Verified Smart Contracts
 
@@ -91,7 +93,7 @@ NYAYA-VAULT anchors digital evidence to the **Polygon Amoy Testnet** (EVM Chain 
 
 ## ⚡ 14-Step Atomic Evidence Ingestion Pipeline
 
-Every evidence file uploaded to NYAYA-VAULT passes through an unskippable 14-step cryptographic pipeline:
+Every evidence file uploaded to Proof Vault passes through an unskippable 14-step cryptographic pipeline:
 
 ```
 [1. Upload Guard Validation] ➔ [2. Malware & Magic-Byte Scan] ➔ [3. SHA-256 Plaintext Hash]
@@ -113,7 +115,7 @@ Every evidence file uploaded to NYAYA-VAULT passes through an unskippable 14-ste
 
 Under Section 63 of the Bharatiya Sakshya Adhiniyam, 2023, electronic records are admissible only when accompanied by a statutory certificate proving integrity and continuous lawful custody.
 
-NYAYA-VAULT automatically produces courtroom-ready, cryptographically sealed certificates:
+Proof Vault automatically produces courtroom-ready, cryptographically sealed certificates:
 - **Part A (Custodian Statement)**: Operating environment status, officer credentials, and integrity affirmations.
 - **Part B (Technical Affidavit)**: Cryptographic SHA-256 content hashes, EVM block receipts, Merkle root proofs, and envelope parameters.
 - **Tamper Verification Seal**: Instant QR verification linking directly to smart contract transaction receipts.
@@ -185,7 +187,7 @@ npm run dev
 
 ## 🧪 Test Verification Suite
 
-NYAYA-VAULT features a comprehensive automated test suite covering unit encryption, domain-separated Merkle trees, access control, legal compliance, red-team adversarial attacks, and Polygon EVM adapters.
+Proof Vault features a comprehensive automated test suite covering unit encryption, domain-separated Merkle trees, access control, legal compliance, red-team adversarial attacks, and Polygon EVM adapters.
 
 ```bash
 cd backend
@@ -220,7 +222,7 @@ tests/unit/test_merkle.py::test_merkle_tree_construction_and_verification     PA
 
 ## ☁️ Vercel Serverless Deployment
 
-NYAYA-VAULT is pre-configured for seamless monorepo deployment on **Vercel**:
+Proof Vault is pre-configured for seamless monorepo deployment on **Vercel**:
 - **Automatic path handling**: Detects cloud serverless runtimes and routes temporary SQLite and encrypted blobs to `/tmp`.
 - **Auto-seeding**: Database and case dockets auto-seed on cold boot with zero external provisioning required.
 - **Frontend SPA routing**: Client-side routing seamlessly rewrites `/api/*` requests to the Python FastAPI backend.

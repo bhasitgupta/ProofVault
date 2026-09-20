@@ -45,20 +45,20 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
           
           <div className="flex items-center gap-8">
             <Link to="/dossiers" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
-                <Scale className="w-5 h-5 text-indigo-300" />
+              <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-md group-hover:scale-105 transition-transform overflow-hidden p-1 border border-slate-700/50">
+                <img src="/logo.png" alt="Proof Vault" className="w-full h-full object-contain" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-serif-judicial font-black tracking-wider text-slate-900 text-base">
-                    NYAYA-VAULT
+                    Proof Vault
                   </span>
                   <span className="px-2 py-0.5 rounded-full text-[9px] font-mono font-bold bg-slate-100 text-slate-700 border border-slate-200">
                     EVM 80002
                   </span>
                 </div>
                 <span className="text-[10px] text-slate-500 font-mono tracking-wide block -mt-0.5">
-                  Sovereign Electronic Provenance Platform
+                  Secure Evidence • Stronger Justice
                 </span>
               </div>
             </Link>
@@ -136,8 +136,8 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
       <footer className="border-t border-slate-200/80 py-4 bg-white/70 backdrop-blur-xl relative z-10 text-xs text-slate-500 font-mono">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <Scale className="w-3.5 h-3.5 text-slate-700" />
-            <span>NYAYA-VAULT • Electronic Evidence Management • BSA §63 & IEA §65B Admissible</span>
+            <img src="/favicon.png" alt="Proof Vault" className="w-4 h-4 object-contain" />
+            <span>Proof Vault • Electronic Evidence Management • BSA §63 & IEA §65B Admissible</span>
           </div>
           <div className="text-[11px] flex items-center gap-2">
             <span>Polygon Amoy Network</span>

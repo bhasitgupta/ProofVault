@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
 
 /**
- * NYAYA-VAULT 3D Sovereign Law, Judiciary & Forensic Crime Dossier Scene
+ * Proof Vault 3D Sovereign Law, Judiciary & Forensic Crime Dossier Scene
  * 
  * Features:
  * 1. The Sovereign Scales of Justice (Nyaya Tula):

@@ -40,15 +40,15 @@ export const LandingPage: React.FC = () => {
       <header className="sticky top-4 z-40 max-w-6xl mx-auto px-4 sm:px-6 w-full pointer-events-none">
         <div className="glass-panel rounded-2xl px-6 h-16 flex items-center justify-between shadow-sm pointer-events-auto transition-all">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-md">
-              <Scale className="w-5 h-5 text-indigo-300" />
+            <div className="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shadow-md overflow-hidden p-1 border border-slate-700/50">
+              <img src="/logo.png" alt="Proof Vault" className="w-full h-full object-contain" />
             </div>
             <div>
               <span className="font-serif-judicial font-black tracking-wider text-slate-900 text-base block">
-                NYAYA-VAULT
+                Proof Vault
               </span>
               <span className="text-[10px] text-slate-500 font-mono tracking-wide block -mt-0.5">
-                Sovereign Provenance Trust Layer
+                Secure Evidence • Stronger Justice
               </span>
             </div>
           </div>
@@ -203,8 +203,8 @@ export const LandingPage: React.FC = () => {
       <footer className="border-t border-slate-200/80 py-6 bg-white/60 backdrop-blur-xl relative z-10 text-xs text-slate-500 font-mono">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <Scale className="w-4 h-4 text-slate-700" />
-            <span>NYAYA-VAULT • High-Assurance Electronic Evidence & Provenance Platform</span>
+            <img src="/favicon.png" alt="Proof Vault" className="w-4 h-4 object-contain" />
+            <span>Proof Vault • High-Assurance Electronic Evidence & Provenance Platform</span>
           </div>
           <div className="text-[11px] flex items-center gap-2">
             <span>Polygon Amoy Network</span>

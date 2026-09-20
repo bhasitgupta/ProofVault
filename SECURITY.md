@@ -2,7 +2,7 @@
 
 ## About This Policy
 
-NYAYA-VAULT is a security-first research and prototype project for
+Proof Vault is a security-first research and prototype project for
 **SIH26190 — Secure Digital Document Management System for Legal and
 Investigation Documents**.
 
@@ -16,7 +16,7 @@ operational information.
 
 ## Security Objectives
 
-NYAYA-VAULT is designed around the following security objectives:
+Proof Vault is designed around the following security objectives:
 
 - Confidentiality of sensitive legal and investigation information
 - Integrity and verifiability of digital documents
@@ -204,7 +204,7 @@ Use synthetic or explicitly authorized data for testing.
 
 ## Blockchain Security Boundary
 
-NYAYA-VAULT uses blockchain as a **trust and provenance layer**, not as
+Proof Vault uses blockchain as a **trust and provenance layer**, not as
 the repository for confidential documents.
 
 The following must not be placed on a public blockchain:
@@ -587,7 +587,7 @@ Do not use a public issue for sensitive vulnerability reports.
 ## Acknowledgements
 
 We appreciate responsible security researchers and contributors who help
-improve NYAYA-VAULT while protecting confidential information and
+improve Proof Vault while protecting confidential information and
 avoiding unauthorized testing.
 
 **Security is a system property. Evidence integrity, confidentiality,
