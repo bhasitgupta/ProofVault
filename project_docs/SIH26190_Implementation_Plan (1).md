@@ -214,8 +214,8 @@ Prompt
 | Sparse / keyword | `Qdrant/bm25` via FastEmbed | Qdrant supports sparse vectors alongside dense ones, generalising BM25/TF-IDF ranking — native hybrid, no separate Elasticsearch |
 | Vector DB | Qdrant | Native hybrid in one Query API call with RRF fusion, plus filterable HNSW with guaranteed recall (see C7) |
 | Reranker | `BAAI/bge-reranker-v2-m3` | Precision on clause-level legal queries |
-| LLM | Ollama, `qwen2.5:14b-instruct` (Q4_K_M, ~9 GB) | **Runs fully offline on your 16 GB GPU — this is the air-gap proof point for MHA.** Do the demo on local inference. |
-| Model gateway | **LiteLLM** | You already have this pattern from the Chargebee eval harness. Put it in front of Ollama so you can fall back to a hosted model in 30 seconds if the GPU machine isn't at the venue — without touching application code. |
+| LLM | Cascading 4-Tier Cloud AI Gateway (GPT-6 Astra, Grok 4.6, Nemotron 3 Ultra, Gemini 3.8 Flash) | High-availability cloud inference with automatic cascading failover and BSA §63 sovereign cryptographic synthesis |
+| Model gateway | Multi-Tier Gateway (OpenRouter + NVIDIA NIM) | Resilient cascading multi-tier failover with zero credential leakage and automatic payload redaction |
 | MFA | `pyotp` (TOTP) + `qrcode` | Real authenticator-app enrolment, not a stubbed OTP |
 | Certificate PDF | WeasyPrint (HTML→PDF) | BSA §63 Schedule Part A/B templating |
 | Timestamping | `rfc3161ng` against a public TSA, with offline stub | Court-grade time anchor |
@@ -288,9 +288,8 @@ Domain-separation prefixes (`0x00`/`0x01`) prevent second-preimage attacks. Prom
 
 ## 3.4 Demo hardware / deployment
 
-- Single machine, `docker compose up`, plus your RTX 5060 Ti 16 GB box for Ollama.
-- Total footprint: ~8 app containers + ~7 Fabric containers. Budget 16 GB system RAM.
-- Everything offline once images and models are pulled — **rehearse with the network cable unplugged.** "It runs air-gapped" is a claim you should be able to demonstrate, not assert.
+- Single machine or cloud deployment, `docker compose up` / Vercel cloud frontend.
+- Total footprint: lightweight cloud architecture with instant API latency.
 
 ---
 
@@ -321,7 +320,7 @@ SIH 2026 launched on 21 August 2026, internal hackathons run through **September
 - **Freeze the OpenAPI contract first** (`docs/api-contract.yaml`) so E can build the frontend against mocks while A–D build the backend
 - **Freeze the `LedgerAdapter` Python interface** so C and D never wait on Fabric
 - Postgres schema + Alembic migration 0001
-- Bring up Postgres, MinIO, Qdrant, Vault, ClamAV, Ollama
+- Bring up Postgres, MinIO, Qdrant, Vault, ClamAV, Cloud AI Gateway
 - Build the synthetic corpus: **5 cases × ~8 documents** (FIR, chargesheet, forensic report, court order, seizure memo, witness statement, evidence photo). Generate them as realistic typed PDFs. Watermark every page **"SYNTHETIC — NOT REAL CASE DATA"** — an MHA panel will notice and respect it.
 
 **Demo gate:** `make up` → all containers healthy, `/health` returns green for every dependency.
@@ -393,7 +392,7 @@ This is the **highest-risk phase**. Start it in parallel with Phase 2, not after
 - Qdrant Query API: dense + sparse prefetch → RRF fusion → `bge-reranker-v2-m3`
 - Integrity gate **before** the LLM: chunk hash → Merkle proof → blob hash → (on citation) full decrypt-and-verify
 - Prompt assembly with delimited data blocks + treat-as-data system instruction (C11)
-- LiteLLM → Ollama (`qwen2.5:14b-instruct`)
+- Cascading Cloud AI Gateway → Tier 1 (GPT-6 Astra) ➔ Tier 2 (Grok 4.6) ➔ Tier 3 (Nemotron 3 Ultra) ➔ Tier 4 (Gemini 3.8 Flash)
 - Grounding check + citation validator: reject any answer citing a `doc_id` outside the approved candidate set
 - Answer rendering: inline citation chips → doc, page, and a **green/red verification badge per citation**
 
@@ -878,7 +877,7 @@ sdms/
 | `reranker.py` | `bge-reranker-v2-m3` cross-encoder over the fused candidate set. |
 | `prompt.py` | Assembles the system and user prompts, wrapping each chunk in a delimited, tagged data block with its doc ID and page. |
 | `injection_guard.py` | Scans retrieved chunk text for instruction-like patterns, neutralises delimiters, and flags suspicious chunks in the response so the analyst can see that a document tried to talk to the model (C11). |
-| `llm_client.py` | LiteLLM wrapper over Ollama with a hosted fallback provider, retries, timeouts, and token accounting. Provider is swappable by config alone. |
+| `llm_client.py` | Cascading Cloud AI client across 4 tiers (GPT-6 Astra, Grok 4.6, Nemotron 3 Ultra, Gemini 3.8 Flash) with zero-leakage prompt sanitization and BSA §63 grounded synthesis fallback. |
 | `grounding.py` | Verifies each answer sentence is supported by a retrieved chunk; flags unsupported sentences rather than silently emitting them. |
 | `citation.py` | Parses citation markers, resolves them to doc/page/chunk, and **rejects any answer citing a `doc_id` outside the ABAC-approved candidate set**. |
 
@@ -1048,7 +1047,7 @@ sdms/
 
 | File | Responsibility |
 |---|---|
-| `bootstrap.sh` | One-time setup: pull images, pull Ollama and embedding models, init Vault, create buckets, create the Qdrant collection with payload indexes. |
+| `bootstrap.sh` | One-time setup: pull images, verify Cloud AI Gateway and embedding models, init Vault, create buckets, create the Qdrant collection with payload indexes. |
 | `seed.py` | Loads users/cases/assignments and ingests the entire corpus through the **real pipeline** (not by direct database insert — the seed must exercise the same code path the demo does). |
 | `generate_corpus.py` | Produces the synthetic PDFs with realistic legal structure and the synthetic watermark. |
 | `tamper.py` | The demo weapon. Three modes: `--blob` corrupts a stored object, `--chunk` edits a Qdrant payload, `--swap` exchanges two documents' blobs. Run live in front of the judges. |

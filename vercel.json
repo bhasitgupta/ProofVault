@@ -7,9 +7,22 @@
   },
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/assets/(.*)",
       "destination": {
         "service": "frontend"
+      }
+    },
+    {
+      "source": "/((?!assets/).*\\.(?:js|css|png|jpg|jpeg|gif|svg|ico|json|woff2?|ttf|webp|enc))",
+      "destination": {
+        "service": "frontend"
+      }
+    },
+    {
+      "source": "/(.*)",
+      "destination": {
+        "service": "frontend",
+        "path": "/index.html"
       }
     }
   ]

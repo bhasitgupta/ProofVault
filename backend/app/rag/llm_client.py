@@ -1,6 +1,6 @@
 """
 Cascading Multi-Tier Cloud AI Gateway Module.
-Government-Grade Zero-Leakage & Zero-Ollama Architecture.
+Government-Grade Zero-Leakage Cloud AI Gateway Architecture.
 
 Implements resilient 4-Tier automatic failover with reasoning support:
 - Tier 1: GPT-6 Astra (Primary / OpenRouter)
