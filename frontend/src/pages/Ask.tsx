@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 import { 
   Bot, 
   User as UserIcon, 
@@ -49,6 +50,8 @@ const SUGGESTED_PROMPTS = [
 ];
 
 export const AskPage: React.FC = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'ADMIN';
   const [searchParams] = useSearchParams();
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
@@ -219,18 +222,21 @@ export const AskPage: React.FC = () => {
             </select>
           </div>
 
-          {/* API Keys Configuration Button */}
-          <button
-            onClick={() => setShowConfigModal(true)}
-            title="Configure AI API Keys"
-            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white hover:bg-parchment-100 text-stone-700 rounded-xl text-xs font-medium border border-stone-200 shadow-sm transition-colors"
-          >
-            <Sliders className="w-3.5 h-3.5 text-crimson-800" />
-            <span>AI Keys</span>
-            {(tier1Key || tier2Key || tier3Key || tier4Key) && (
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            )}
-          </button>
+          {/* API Keys Configuration Button (Restricted: Root Admin Only) */}
+          {isAdmin && (
+            <button
+              onClick={() => setShowConfigModal(true)}
+              title="Configure AI API Keys (Root Admin Only)"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 rounded-xl text-xs font-semibold border border-amber-300 shadow-xs transition-colors"
+            >
+              <Sliders className="w-3.5 h-3.5 text-amber-700" />
+              <span>AI Keys</span>
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-amber-200/80 text-amber-900 font-bold">ADMIN</span>
+              {(tier1Key || tier2Key || tier3Key || tier4Key) && (
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+              )}
+            </button>
+          )}
 
           {/* Case Scope Selector */}
           <div className="flex items-center gap-1.5 bg-white border border-stone-200 px-3 py-1.5 rounded-xl text-xs shadow-sm">
@@ -515,21 +521,27 @@ export const AskPage: React.FC = () => {
         </div>
       </div>
 
-      {/* ── 3-Tier AI Gateway Configuration Modal ──────────────────── */}
-      {showConfigModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="glass-ivory border-crimson-gold rounded-2xl w-full max-w-lg shadow-2xl p-6 space-y-5 animate-scale-in">
-            <div className="flex items-center justify-between border-b border-stone-200 pb-3">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 bg-crimson-50 text-crimson-800 rounded-xl border border-crimson-200">
-                  <Sliders className="w-4 h-4" />
+      {/* ── AI Gateway Configuration Modal (ADMIN ONLY) ─────────── */}
+      {showConfigModal && isAdmin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm animate-fade-in">
+          <div className="glass-ivory border-crimson-gold rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl space-y-5 animate-scale-in">
+            <div className="flex items-center justify-between border-b border-stone-200/80 pb-3.5">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-crimson-50 border border-crimson-200 rounded-xl text-crimson-800">
+                  <Sliders className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-sm font-serif-judicial font-bold text-stone-900">
-                    Cascading AI Gateway Configuration
-                  </h2>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-base font-serif-judicial font-bold text-stone-900">
+                      Cascading AI Gateway Configuration
+                    </h2>
+                    <span className="px-1.5 py-0.5 rounded text-[9px] font-mono bg-amber-100 text-amber-800 border border-amber-300 font-bold">
+                      ADMIN ONLY
+                    </span>
+                  </div>
                   <p className="text-[11px] text-stone-500">
-                    Configure your 3-tier failover priority keys. Stored client-side in secure local vault.
+                    Configure your 4-tier failover priority keys. Stored in client-side sovereign vault or managed in{' '}
+                    <Link to="/admin" className="text-crimson-800 underline font-semibold hover:text-crimson-900">Admin Panel</Link>.
                   </p>
                 </div>
               </div>

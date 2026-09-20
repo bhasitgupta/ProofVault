@@ -150,10 +150,14 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
   );
 };
 
-const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const ProtectedRoute: React.FC<{ children: React.ReactNode; requiredRole?: string }> = ({ children, requiredRole }) => {
   const token = localStorage.getItem('sdms_token');
+  const { user } = useAuth();
   if (!token) {
     return <Navigate to="/login" replace />;
+  }
+  if (requiredRole && user && user.role !== requiredRole) {
+    return <Navigate to="/dossiers" replace />;
   }
   return <NavigationLayout>{children}</NavigationLayout>;
 };
@@ -173,7 +177,7 @@ export const App: React.FC = () => {
           <Route path="/documents/:docId" element={<ProtectedRoute><DocumentDetailPage /></ProtectedRoute>} />
           <Route path="/custody/:caseId" element={<ProtectedRoute><CustodyTimelinePage /></ProtectedRoute>} />
           <Route path="/incidents" element={<ProtectedRoute><AuditLogPage /></ProtectedRoute>} />
-          <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute requiredRole="ADMIN"><AdminPage /></ProtectedRoute>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

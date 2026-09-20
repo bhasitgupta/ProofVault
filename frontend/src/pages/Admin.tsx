@@ -16,11 +16,22 @@ import {
   KeyRound,
   Check,
   CheckCircle2,
+  AlertCircle,
   Sliders,
   ShieldCheck,
   Edit2,
+  Cpu,
+  Zap,
+  Eye,
+  EyeOff,
+  Activity,
+  Sparkles,
+  RefreshCw,
+  ExternalLink,
 } from 'lucide-react';
 import { apiFetch } from '../api/client';
+import { useAuth } from '../hooks/useAuth';
+import { getAIProviderConfigs } from '../api/query';
 
 // Role → max document classification clearance (mirrors backend opa_client.py)
 const ROLE_CLEARANCE: Record<string, { level: string; weight: number; color: string }> = {
@@ -35,6 +46,9 @@ const ROLE_CLEARANCE: Record<string, { level: string; weight: number; color: str
 const CLS_WEIGHT: Record<string, number> = { RESTRICTED: 1, CONFIDENTIAL: 2, SECRET: 3 };
 
 export const AdminPage: React.FC = () => {
+  const { user } = useAuth();
+  const isAdmin = user?.role === 'ADMIN';
+
   const [stats, setStats] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [cases, setCases] = useState<any[]>([]);
@@ -42,6 +56,85 @@ export const AdminPage: React.FC = () => {
   const [roleClearances, setRoleClearances] = useState<Record<string, { level: string; weight: number; color: string }>>(ROLE_CLEARANCE);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Sovereign AI Gateway States for 4 Models
+  const [tier1Key, setTier1Key] = useState('');
+  const [tier2Key, setTier2Key] = useState('');
+  const [tier3Key, setTier3Key] = useState('');
+  const [tier4Key, setTier4Key] = useState('');
+  const [showKeys, setShowKeys] = useState({ t1: false, t2: false, t3: false, t4: false });
+  const [aiSaveSuccess, setAiSaveSuccess] = useState(false);
+  const [testingTier, setTestingTier] = useState<string | null>(null);
+  const [testResults, setTestResults] = useState<Record<string, { ok: boolean; message: string; latencyMs?: number }>>({});
+
+  useEffect(() => {
+    if (isAdmin) {
+      const cfgs = getAIProviderConfigs();
+      setTier1Key(cfgs.tier1.apiKey);
+      setTier2Key(cfgs.tier2.apiKey);
+      setTier3Key(cfgs.tier3.apiKey);
+      setTier4Key(cfgs.tier4.apiKey);
+    }
+  }, [isAdmin]);
+
+  const handleSaveAIKeys = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (tier1Key.trim()) localStorage.setItem('pv_tier1_key', tier1Key.trim());
+    else localStorage.removeItem('pv_tier1_key');
+
+    if (tier2Key.trim()) localStorage.setItem('pv_tier2_key', tier2Key.trim());
+    else localStorage.removeItem('pv_tier2_key');
+
+    if (tier3Key.trim()) localStorage.setItem('pv_tier3_key', tier3Key.trim());
+    else localStorage.removeItem('pv_tier3_key');
+
+    if (tier4Key.trim()) localStorage.setItem('pv_tier4_key', tier4Key.trim());
+    else localStorage.removeItem('pv_tier4_key');
+
+    setAiSaveSuccess(true);
+    setTimeout(() => setAiSaveSuccess(false), 2500);
+  };
+
+  const handleTestTier = async (tier: 'tier1' | 'tier2' | 'tier3' | 'tier4') => {
+    setTestingTier(tier);
+    const cfgs = getAIProviderConfigs();
+    const cfg = cfgs[tier];
+    const key = tier === 'tier1' ? tier1Key : tier === 'tier2' ? tier2Key : tier === 'tier3' ? tier3Key : tier4Key;
+    const effectiveKey = key.trim() || cfg.apiKey;
+
+    if (!effectiveKey) {
+      setTestResults(prev => ({ ...prev, [tier]: { ok: false, message: 'No API key configured' } }));
+      setTestingTier(null);
+      return;
+    }
+
+    const start = Date.now();
+    try {
+      const resp = await fetch(`${cfg.baseUrl}/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${effectiveKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: cfg.model,
+          messages: [{ role: 'user', content: 'respond with OK' }],
+          max_tokens: 5,
+        }),
+      });
+      const latency = Date.now() - start;
+      if (resp.ok) {
+        setTestResults(prev => ({ ...prev, [tier]: { ok: true, message: `Operational (${latency}ms)`, latencyMs: latency } }));
+      } else {
+        const errJson = await resp.json().catch(() => ({}));
+        setTestResults(prev => ({ ...prev, [tier]: { ok: false, message: errJson.error?.message || `HTTP ${resp.status}` } }));
+      }
+    } catch (e: any) {
+      setTestResults(prev => ({ ...prev, [tier]: { ok: false, message: e.message || 'Network error' } }));
+    } finally {
+      setTestingTier(null);
+    }
+  };
 
   // Helper: Returns true if a role can access documents of given classification
   const roleCanAccess = (role: string, classification: string): boolean => {
@@ -278,6 +371,34 @@ export const AdminPage: React.FC = () => {
     return 'bg-stone-100 text-stone-700 border border-stone-200';
   };
 
+  if (!isAdmin) {
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center p-6">
+        <div className="max-w-md w-full glass-ivory border-crimson-gold rounded-3xl p-8 shadow-xl space-y-5">
+          <div className="w-16 h-16 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 flex items-center justify-center mx-auto shadow-sm">
+            <Lock className="w-8 h-8" />
+          </div>
+          <div className="space-y-2">
+            <h2 className="text-xl font-serif-judicial font-bold text-stone-900">Restricted Sovereign Console</h2>
+            <p className="text-xs text-stone-600 leading-relaxed">
+              This module is strictly restricted to verified <span className="font-bold text-rose-800">Root Administrators</span>. Your active account or connected Web3 wallet lacks administrative clearance.
+            </p>
+          </div>
+          <div className="p-3 bg-stone-100 rounded-xl font-mono text-xs text-stone-600 flex items-center justify-between">
+            <span>Current Role:</span>
+            <span className="font-bold uppercase text-stone-900">{user?.role || 'UNAUTHENTICATED'}</span>
+          </div>
+          <a
+            href="/dossiers"
+            className="inline-block w-full py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors"
+          >
+            Return to Authorized Case Dossiers
+          </a>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -333,6 +454,240 @@ export const AdminPage: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* ── Cascading Sovereign AI Gateway & Model Governance (ADMIN ONLY) ──────────── */}
+      <div id="ai-gateway" className="glass-ivory border-crimson-gold rounded-3xl p-6 sm:p-7 shadow-md space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-stone-200/80 pb-5">
+          <div className="flex items-center gap-3">
+            <div className="p-3 bg-crimson-50 border border-crimson-200 rounded-2xl text-crimson-800 shadow-sm">
+              <Cpu className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-serif-judicial font-bold text-stone-900">
+                  Cascading AI Gateway & Model Governance
+                </h2>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                  ROOT ADMIN ONLY
+                </span>
+              </div>
+              <p className="text-xs text-stone-600 mt-0.5">
+                Configure 4-tier failover reasoning models and manage cryptographic API keys. Other judicial roles cannot view or edit these secrets.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleSaveAIKeys}
+              className="flex items-center gap-1.5 px-4 py-2 bg-crimson-800 hover:bg-crimson-700 text-white text-xs font-semibold rounded-xl shadow-sm transition-colors cursor-pointer"
+            >
+              {aiSaveSuccess ? <Check className="w-4 h-4 text-emerald-300" /> : <ShieldCheck className="w-4 h-4" />}
+              <span>{aiSaveSuccess ? 'Vault Updated!' : 'Save AI Gateway Keys'}</span>
+            </button>
+          </div>
+        </div>
+
+        <form onSubmit={handleSaveAIKeys} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Tier 1: GPT-6 Astra */}
+          <div className="bg-white border border-stone-200/90 rounded-2xl p-4.5 space-y-3 shadow-xs">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs font-bold font-serif-judicial text-stone-900">Tier 1: GPT-6 Astra (Primary)</span>
+              </div>
+              <span className="text-[10px] font-mono text-stone-500 bg-stone-100 px-2 py-0.5 rounded-md border border-stone-200">
+                openai/gpt-6-astra
+              </span>
+            </div>
+            <div className="relative">
+              <input
+                type={showKeys.t1 ? 'text' : 'password'}
+                value={tier1Key}
+                onChange={(e) => setTier1Key(e.target.value)}
+                placeholder="Enter GPT-6 Astra API Key..."
+                className="w-full pl-3 pr-20 py-2.5 text-xs font-mono bg-parchment-50/70 border border-stone-200 rounded-xl focus:outline-none focus:border-crimson-700 shadow-xs"
+              />
+              <div className="absolute right-2 top-2 flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setShowKeys(s => ({ ...s, t1: !s.t1 }))}
+                  className="p-1 text-stone-400 hover:text-stone-700 transition-colors"
+                  title="Toggle Visibility"
+                >
+                  {showKeys.t1 ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleTestTier('tier1')}
+                  disabled={testingTier === 'tier1'}
+                  className="px-2 py-1 text-[10px] font-mono font-semibold bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-md border border-stone-200 transition-colors"
+                  title="Run Diagnostic Ping"
+                >
+                  {testingTier === 'tier1' ? 'Pinging...' : 'Ping'}
+                </button>
+              </div>
+            </div>
+            {testResults['tier1'] && (
+              <div className={`text-[11px] font-mono flex items-center gap-1.5 ${testResults['tier1'].ok ? 'text-emerald-700' : 'text-rose-700'}`}>
+                {testResults['tier1'].ok ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
+                <span>{testResults['tier1'].message}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Tier 2: Grok 4.6 */}
+          <div className="bg-white border border-stone-200/90 rounded-2xl p-4.5 space-y-3 shadow-xs">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                <span className="text-xs font-bold font-serif-judicial text-stone-900">Tier 2: Grok 4.6 (Failover 1)</span>
+              </div>
+              <span className="text-[10px] font-mono text-stone-500 bg-stone-100 px-2 py-0.5 rounded-md border border-stone-200">
+                x-ai/grok-4.6
+              </span>
+            </div>
+            <div className="relative">
+              <input
+                type={showKeys.t2 ? 'text' : 'password'}
+                value={tier2Key}
+                onChange={(e) => setTier2Key(e.target.value)}
+                placeholder="Enter Grok 4.6 API Key..."
+                className="w-full pl-3 pr-20 py-2.5 text-xs font-mono bg-parchment-50/70 border border-stone-200 rounded-xl focus:outline-none focus:border-crimson-700 shadow-xs"
+              />
+              <div className="absolute right-2 top-2 flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setShowKeys(s => ({ ...s, t2: !s.t2 }))}
+                  className="p-1 text-stone-400 hover:text-stone-700 transition-colors"
+                  title="Toggle Visibility"
+                >
+                  {showKeys.t2 ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleTestTier('tier2')}
+                  disabled={testingTier === 'tier2'}
+                  className="px-2 py-1 text-[10px] font-mono font-semibold bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-md border border-stone-200 transition-colors"
+                  title="Run Diagnostic Ping"
+                >
+                  {testingTier === 'tier2' ? 'Pinging...' : 'Ping'}
+                </button>
+              </div>
+            </div>
+            {testResults['tier2'] && (
+              <div className={`text-[11px] font-mono flex items-center gap-1.5 ${testResults['tier2'].ok ? 'text-emerald-700' : 'text-rose-700'}`}>
+                {testResults['tier2'].ok ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
+                <span>{testResults['tier2'].message}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Tier 3: Nemotron 3 Ultra */}
+          <div className="bg-white border border-stone-200/90 rounded-2xl p-4.5 space-y-3 shadow-xs">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-blue-500" />
+                <span className="text-xs font-bold font-serif-judicial text-stone-900">Tier 3: Nemotron 3 Ultra (Failover 2)</span>
+              </div>
+              <span className="text-[10px] font-mono text-stone-500 bg-stone-100 px-2 py-0.5 rounded-md border border-stone-200">
+                nvidia/nemotron-3-ultra-550b
+              </span>
+            </div>
+            <div className="relative">
+              <input
+                type={showKeys.t3 ? 'text' : 'password'}
+                value={tier3Key}
+                onChange={(e) => setTier3Key(e.target.value)}
+                placeholder="Enter Nemotron 3 Ultra API Key..."
+                className="w-full pl-3 pr-20 py-2.5 text-xs font-mono bg-parchment-50/70 border border-stone-200 rounded-xl focus:outline-none focus:border-crimson-700 shadow-xs"
+              />
+              <div className="absolute right-2 top-2 flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setShowKeys(s => ({ ...s, t3: !s.t3 }))}
+                  className="p-1 text-stone-400 hover:text-stone-700 transition-colors"
+                  title="Toggle Visibility"
+                >
+                  {showKeys.t3 ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleTestTier('tier3')}
+                  disabled={testingTier === 'tier3'}
+                  className="px-2 py-1 text-[10px] font-mono font-semibold bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-md border border-stone-200 transition-colors"
+                  title="Run Diagnostic Ping"
+                >
+                  {testingTier === 'tier3' ? 'Pinging...' : 'Ping'}
+                </button>
+              </div>
+            </div>
+            {testResults['tier3'] && (
+              <div className={`text-[11px] font-mono flex items-center gap-1.5 ${testResults['tier3'].ok ? 'text-emerald-700' : 'text-rose-700'}`}>
+                {testResults['tier3'].ok ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
+                <span>{testResults['tier3'].message}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Tier 4: Gemini 3.8 Flash */}
+          <div className="bg-white border border-stone-200/90 rounded-2xl p-4.5 space-y-3 shadow-xs">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-purple-500" />
+                <span className="text-xs font-bold font-serif-judicial text-stone-900">Tier 4: Gemini 3.8 Flash (Failover 3)</span>
+              </div>
+              <span className="text-[10px] font-mono text-stone-500 bg-stone-100 px-2 py-0.5 rounded-md border border-stone-200">
+                google/gemini-3.8-flash
+              </span>
+            </div>
+            <div className="relative">
+              <input
+                type={showKeys.t4 ? 'text' : 'password'}
+                value={tier4Key}
+                onChange={(e) => setTier4Key(e.target.value)}
+                placeholder="Enter Gemini 3.8 Flash API Key..."
+                className="w-full pl-3 pr-20 py-2.5 text-xs font-mono bg-parchment-50/70 border border-stone-200 rounded-xl focus:outline-none focus:border-crimson-700 shadow-xs"
+              />
+              <div className="absolute right-2 top-2 flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setShowKeys(s => ({ ...s, t4: !s.t4 }))}
+                  className="p-1 text-stone-400 hover:text-stone-700 transition-colors"
+                  title="Toggle Visibility"
+                >
+                  {showKeys.t4 ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleTestTier('tier4')}
+                  disabled={testingTier === 'tier4'}
+                  className="px-2 py-1 text-[10px] font-mono font-semibold bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-md border border-stone-200 transition-colors"
+                  title="Run Diagnostic Ping"
+                >
+                  {testingTier === 'tier4' ? 'Pinging...' : 'Ping'}
+                </button>
+              </div>
+            </div>
+            {testResults['tier4'] && (
+              <div className={`text-[11px] font-mono flex items-center gap-1.5 ${testResults['tier4'].ok ? 'text-emerald-700' : 'text-rose-700'}`}>
+                {testResults['tier4'].ok ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
+                <span>{testResults['tier4'].message}</span>
+              </div>
+            )}
+          </div>
+        </form>
+
+        <div className="p-3.5 bg-parchment-100/70 rounded-2xl border border-stone-200 flex items-center justify-between text-xs text-stone-600 font-mono">
+          <div className="flex items-center gap-2">
+            <Lock className="w-3.5 h-3.5 text-crimson-800" />
+            <span>Zero-Trust Enforced: Non-admin roles (Investigator, Forensic Analyst, Prosecutor) are barred from viewing this gateway.</span>
+          </div>
+          <span className="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+            ZERO-LEAKAGE ACTIVE
+          </span>
+        </div>
+      </div>
 
       {/* ── Case Management ──────────────────────────────────────────────────── */}
       <div className="space-y-4">
