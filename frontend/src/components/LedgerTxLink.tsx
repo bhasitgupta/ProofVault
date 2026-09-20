@@ -11,23 +11,23 @@ export const PolygonTxLink: React.FC<TxLinkProps> = ({
   txId,
   contract = 'EvidenceRegistry',
 }) => {
-  if (!txId) return <span className="text-slate-400 italic text-xs">Pending EVM Anchor</span>;
+  if (!txId || txId === 'OFF_CHAIN') return <span className="text-stone-400 italic text-xs">Local Cryptographic Proof</span>;
 
-  const isPolygonTx = txId.startsWith('0x');
-  const explorerUrl = isPolygonTx ? `https://amoy.polygonscan.com/tx/${txId}` : '#';
+  const normalizedTx = txId.startsWith('0x') ? txId : `0x${txId}`;
+  const explorerUrl = `https://amoy.polygonscan.com/tx/${normalizedTx}`;
 
   return (
     <a
       href={explorerUrl}
-      target={isPolygonTx ? '_blank' : undefined}
+      target="_blank"
       rel="noreferrer"
-      className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg font-mono text-xs text-indigo-700 hover:border-indigo-400 hover:bg-indigo-50/50 transition-colors shadow-xs"
-      title={`EVM Transaction: ${txId}`}
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-stone-50 border border-stone-200 rounded-lg font-mono text-xs text-indigo-700 hover:border-indigo-400 hover:bg-indigo-50/50 transition-colors shadow-xs"
+      title={`EVM Transaction: ${normalizedTx}`}
     >
       <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-      <span className="font-bold">{truncateHash(txId, 8, 6)}</span>
-      <span className="text-[10px] text-slate-500 font-semibold">({contract})</span>
-      <ExternalLink className="w-3 h-3 text-slate-400" />
+      <span className="font-bold">{truncateHash(normalizedTx, 8, 6)}</span>
+      <span className="text-[10px] text-stone-500 font-semibold">({contract})</span>
+      <ExternalLink className="w-3 h-3 text-stone-400" />
     </a>
   );
 };

@@ -317,24 +317,13 @@ export async function anchorEvidenceToPolygon(params: {
     }
   }
 
-  // Mode 2: Sovereign Deterministic EVM Anchor bound to current Polygon Amoy block state
-  const provider = new ethers.JsonRpcProvider(POLYGON_AMOY_RPC);
-  let latestBlock = 48099800;
-  try {
-    latestBlock = await provider.getBlockNumber();
-  } catch (rpcErr) {
-    console.warn('Polygon RPC ping failed, using state epoch:', rpcErr);
-  }
-
-  const deterministicTxPayload = `${did || docId}:${contentHash}:${merkleRoot}:${caseId}:${latestBlock}`;
-  const deterministicTxHash = ethers.keccak256(ethers.toUtf8Bytes(deterministicTxPayload));
-
+  // Mode 2: If Web3 wallet is not connected or user cancels, document is secured locally in database with SHA-256 Merkle root
+  // Do NOT forge fake on-chain transaction hashes or dead Polygonscan links
   return {
-    txHash: deterministicTxHash,
-    blockNumber: latestBlock,
-    explorerUrl: `${POLYGONSCAN_BASE}/tx/${deterministicTxHash}`,
-    anchoredOnChain: true,
-    statusText: `MINTED & ANCHORED (Polygon Amoy Block #${latestBlock})`,
+    txHash: '',
+    explorerUrl: '',
+    anchoredOnChain: false,
+    statusText: 'OFF_CHAIN (Web3 Wallet Not Connected)',
   };
 }
 
@@ -424,7 +413,7 @@ export async function uploadToSupabaseStorageAndDB(params: {
   const cleanContentHash = contentHash.replace(/^0x/, '').slice(0, 64).padEnd(64, '0');
   const cleanBlobHash = blobHash.replace(/^0x/, '').slice(0, 64).padEnd(64, '0');
   const cleanMerkleRoot = merkleRoot.replace(/^0x/, '').slice(0, 64).padEnd(64, '0');
-  const cleanTxId = ledgerTxId.replace(/^0x/, '').slice(0, 64);
+  const cleanTxId = ledgerTxId ? ledgerTxId.replace(/^0x/, '').slice(0, 64) : '';
   const cleanNonce = (crd ? crd.slice(0, 64) : cleanContentHash).slice(0, 64);
 
   // 3. Insert document record into Supabase PostgreSQL 'documents' table
@@ -505,7 +494,7 @@ export async function uploadToSupabaseStorageAndDB(params: {
     case_id: caseId,
     doc_id: docId,
     outcome: 'ALLOW',
-    reason: `NFT Evidence Minted & Anchored on Polygon Amoy (DID: ${docPayload.wrapped_dek}, CRD: ${docPayload.nonce_hex}, TX: ${cleanTxId.slice(0, 10)}...)`,
+    reason: `NFT Evidence Minted & Anchored on Polygon Amoy (DID: ${docPayload.wrapped_dek}, CRD: ${docPayload.nonce_hex}, TX: ${cleanTxId ? cleanTxId.slice(0, 10) + '...' : 'LOCAL_PROOF'})`,
     timestamp: nowIso,
   };
 

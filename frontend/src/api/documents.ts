@@ -161,8 +161,9 @@ export async function uploadDocument(formData: FormData): Promise<any> {
     thumbnail_svg: thumbnailSvg,
     ocr_text: ocrFullText,
     storage_path: docPayload.storage_path,
-    explorer_url: `${POLYGONSCAN_BASE}/tx/${ledgerTxId}`,
+    explorer_url: ledgerTxId ? `${POLYGONSCAN_BASE}/tx/${ledgerTxId}` : '',
     blockchain_status: anchorResult.statusText,
+    anchored_on_chain: anchorResult.anchoredOnChain,
   };
 }
 

@@ -786,7 +786,7 @@ export const DocumentsPage: React.FC = () => {
                         </button>
                       </div>
 
-                      <div className="bg-parchment-50 p-4 rounded-xl border border-stone-200 font-mono text-xs text-stone-900 whitespace-pre-wrap leading-relaxed max-h-[50vh] overflow-y-auto select-text shadow-inner">
+                      <div className="bg-white p-4 rounded-xl border border-stone-300 font-mono text-xs text-stone-900 whitespace-pre-wrap leading-relaxed max-h-[50vh] overflow-y-auto select-text shadow-inner">
                         {previewData.preview_text || 'No readable text content available for this artifact.'}
                       </div>
 
