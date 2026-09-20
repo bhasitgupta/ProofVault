@@ -95,8 +95,8 @@ export const LandingPage: React.FC = () => {
           <div className="w-full max-w-xl mx-auto py-2">
             <StrokeText
               text="ProofVault"
-              strokeColor="#800020"
-              fillColor="#0F172A"
+              strokeColor="#F26A4B"
+              fillColor="#EDE8DF"
               strokeWidth={1.8}
               drawDuration={1.8}
               fillDelay={0.25}

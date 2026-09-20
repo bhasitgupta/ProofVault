@@ -1,17 +1,49 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  color-scheme: light;
-  letter-spacing: -0.012em;
+/* =========================================================================
+   Zen Linen Theme Tokens (from 21st.dev / shadcn/ui)
+   Inter · radius 0.5rem · Dark Mode
+   ========================================================================= */
+
+:root, .dark, html {
+  --background: #141414;
+  --foreground: #EDE8DF;
+  --card: #1C1C1C;
+  --card-foreground: #EDE8DF;
+  --popover: #1C1C1C;
+  --popover-foreground: #EDE8DF;
+  --primary: #EDE8DF;
+  --primary-foreground: #141414;
+  --secondary: #2C2C2C;
+  --secondary-foreground: #EDE8DF;
+  --muted: #242424;
+  --muted-foreground: #8E8A83;
+  --accent: #2C2C2C;
+  --accent-foreground: #EDE8DF;
+  --destructive: #F26A4B;
+  --destructive-foreground: #FFFFFF;
+  --border: #2C2C2C;
+  --input: #2C2C2C;
+  --ring: #D1CFC0;
+  --radius: 0.5rem;
+
+  --chart-1: #F26A4B;
+  --chart-2: #D9CFC2;
+  --chart-3: #8E8A83;
+  --chart-4: #5C5A56;
+  --chart-5: #3B3B3B;
+
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color-scheme: dark;
+  letter-spacing: -0.011em;
 }
 
 .font-serif-judicial {
-  font-family: 'Merriweather', Georgia, serif;
+  font-family: 'Inter', 'Merriweather', Georgia, serif;
   font-weight: 700;
   letter-spacing: -0.015em;
 }
@@ -22,8 +54,8 @@ code, kbd, samp, pre, .font-mono {
 }
 
 html {
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: #141414;
+  color: #EDE8DF;
   scroll-behavior: auto; /* Managed by Lenis */
 }
 
@@ -31,158 +63,251 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: #141414;
+  color: #EDE8DF;
   overflow-x: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* Modern Crisp Ambient Backdrop */
-.bg-ambient {
-  background-color: #f8fafc;
+/* Zen Linen Atmospheric Backdrop */
+.bg-ambient, .bg-parchment {
+  background-color: #141414 !important;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.05) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(185, 28, 28, 0.04) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(241, 245, 249, 0.9) 0px, transparent 60%);
+    radial-gradient(at 0% 0%, rgba(209, 207, 192, 0.035) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(242, 106, 75, 0.03) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(28, 28, 28, 0.7) 0px, transparent 60%) !important;
 }
 
-.bg-parchment {
-  background-color: #f8fafc;
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(185, 28, 28, 0.03) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(15, 23, 42, 0.03) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(248, 250, 252, 0.95) 0px, transparent 50%);
-}
-
-/* Premium Frosted Glassmorphism Tokens */
+/* Zen Linen Frosted Surface Tokens (Radius: 0.5rem / 8px) */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 20px 40px -12px rgba(15, 23, 42, 0.06), 0 1px 3px 0 rgba(0, 0, 0, 0.02), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+  background: rgba(28, 28, 28, 0.92) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid #2C2C2C !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.6) !important;
 }
 
 .glass-nav-obsidian {
-  background: rgba(11, 18, 36, 0.88);
-  backdrop-filter: blur(32px);
-  -webkit-backdrop-filter: blur(32px);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  box-shadow: 0 20px 48px -10px rgba(2, 6, 23, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+  background: rgba(20, 20, 20, 0.94) !important;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid #2C2C2C !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.75) !important;
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  box-shadow: 0 8px 24px -6px rgba(15, 23, 42, 0.04), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #1C1C1C !important;
+  border: 1px solid #2C2C2C !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-card-hover:hover {
-  background: rgba(255, 255, 255, 0.98);
-  border-color: rgba(199, 210, 254, 0.9);
-  transform: translateY(-3px);
-  box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.09), 0 0 20px -3px rgba(99, 102, 241, 0.12);
+  background: #242424 !important;
+  border-color: #3B3B3B !important;
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.6) !important;
 }
 
 .glass-tile {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.03);
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #1C1C1C !important;
+  border: 1px solid #2C2C2C !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.3) !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-tile:hover {
+  background: #242424 !important;
+  border-color: #D1CFC0 !important;
   transform: translateY(-2px);
-  box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.08), 0 0 15px -2px rgba(99, 102, 241, 0.08);
-  border-color: rgba(199, 210, 254, 1);
-}
-
-.glow-logo {
-  filter: drop-shadow(0 0 14px rgba(99, 102, 241, 0.5)) drop-shadow(0 0 4px rgba(245, 158, 11, 0.4));
+  box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.5) !important;
 }
 
 .glass-pill {
-  background: rgba(255, 255, 255, 0.65);
+  background: rgba(28, 28, 28, 0.8) !important;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(226, 232, 240, 0.7);
+  border: 1px solid #2C2C2C !important;
+  border-radius: 9999px !important;
 }
 
 .glass-modal {
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(28, 28, 28, 0.96) !important;
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.15);
+  border: 1px solid #2C2C2C !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8) !important;
 }
 
 /* Backward compatibility aliases */
 .glass-ivory {
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(0, 0, 0, 0.03);
-}
-
-.glass-ivory-hover {
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  background: #1C1C1C !important;
+  border: 1px solid #2C2C2C !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.4) !important;
 }
 
 .glass-ivory-hover:hover {
-  background: rgba(255, 255, 255, 0.95);
-  border-color: rgba(185, 28, 28, 0.3);
+  background: #242424 !important;
+  border-color: #3B3B3B !important;
   transform: translateY(-2px);
-  box-shadow: 0 16px 36px -10px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 14px 30px -8px rgba(0, 0, 0, 0.6) !important;
 }
 
 .border-crimson-gold {
-  border: 1px solid rgba(226, 232, 240, 0.9);
+  border: 1px solid #2C2C2C !important;
 }
 
-/* Clean Refined Classification Badges */
+/* =========================================================================
+   Zen Linen Universal Color Normalization
+   Adapts all existing view cards, tables, inputs, text to Zen Linen Dark
+   ========================================================================= */
+
+.text-slate-900, .text-stone-900, .text-stone-800, .text-slate-800 {
+  color: #EDE8DF !important;
+}
+
+.text-slate-700, .text-stone-700, .text-slate-600, .text-stone-600 {
+  color: #B5B0A4 !important;
+}
+
+.text-slate-500, .text-stone-500, .text-slate-400, .text-stone-400 {
+  color: #8E8A83 !important;
+}
+
+.bg-white, .bg-slate-50, .bg-stone-50, .bg-parchment-50, .bg-parchment-100, .bg-parchment-200 {
+  background-color: #1C1C1C !important;
+}
+
+.border-slate-100, .border-slate-200, .border-stone-200, .border-stone-300, .border-slate-200\/80, .border-stone-200\/80 {
+  border-color: #2C2C2C !important;
+}
+
+.hover\:bg-stone-50:hover, .hover\:bg-slate-50:hover, .hover\:bg-parchment-100:hover, .hover\:bg-parchment-200:hover, .hover\:bg-slate-100:hover {
+  background-color: #242424 !important;
+}
+
+.divide-stone-200 > :not([hidden]) ~ :not([hidden]),
+.divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+.divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #2C2C2C !important;
+}
+
+/* Input Fields & Controls in Zen Linen */
+input:not([type='checkbox']):not([type='radio']),
+select,
+textarea {
+  background-color: #181818 !important;
+  color: #EDE8DF !important;
+  border: 1px solid #2C2C2C !important;
+  border-radius: 0.5rem !important;
+}
+
+input:not([type='checkbox']):not([type='radio'])::placeholder,
+textarea::placeholder {
+  color: #8E8A83 !important;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none !important;
+  border-color: #D1CFC0 !important;
+  box-shadow: 0 0 0 1px #D1CFC0 !important;
+}
+
+/* Buttons adhering to Zen Linen Component Design */
+.btn-primary, button.bg-crimson-800, button.bg-slate-900 {
+  background-color: #EDE8DF !important;
+  color: #141414 !important;
+  border: 1px solid #EDE8DF !important;
+  border-radius: 0.5rem !important;
+  font-weight: 600 !important;
+  transition: all 0.15s ease !important;
+}
+
+.btn-primary:hover, button.bg-crimson-800:hover, button.bg-slate-900:hover {
+  background-color: #D9CFC2 !important;
+  border-color: #D9CFC2 !important;
+}
+
+.btn-secondary {
+  background-color: #2C2C2C !important;
+  color: #EDE8DF !important;
+  border: 1px solid #2C2C2C !important;
+  border-radius: 0.5rem !important;
+}
+
+.btn-secondary:hover {
+  background-color: #363636 !important;
+}
+
+.btn-outline {
+  background-color: transparent !important;
+  color: #EDE8DF !important;
+  border: 1px solid #2C2C2C !important;
+  border-radius: 0.5rem !important;
+}
+
+.btn-outline:hover {
+  background-color: #242424 !important;
+}
+
+.btn-destructive {
+  background-color: #F26A4B !important;
+  color: #FFFFFF !important;
+  border-radius: 0.5rem !important;
+}
+
+.btn-destructive:hover {
+  background-color: #e05638 !important;
+}
+
+/* Badges */
 .badge-secret {
-  background: rgba(244, 63, 94, 0.08);
-  color: #e11d48;
-  border: 1px solid rgba(244, 63, 94, 0.2);
-  font-weight: 700;
+  background: rgba(242, 106, 75, 0.12) !important;
+  color: #F26A4B !important;
+  border: 1px solid rgba(242, 106, 75, 0.3) !important;
+  border-radius: 0.5rem !important;
+  font-weight: 600;
 }
 
 .badge-confidential {
-  background: rgba(245, 158, 11, 0.08);
-  color: #d97706;
-  border: 1px solid rgba(245, 158, 11, 0.2);
-  font-weight: 700;
+  background: rgba(217, 207, 194, 0.12) !important;
+  color: #D9CFC2 !important;
+  border: 1px solid rgba(217, 207, 194, 0.3) !important;
+  border-radius: 0.5rem !important;
+  font-weight: 600;
 }
 
 .badge-restricted {
-  background: rgba(16, 185, 129, 0.08);
-  color: #059669;
-  border: 1px solid rgba(16, 185, 129, 0.2);
-  font-weight: 700;
+  background: rgba(142, 138, 131, 0.12) !important;
+  color: #8E8A83 !important;
+  border: 1px solid rgba(142, 138, 131, 0.3) !important;
+  border-radius: 0.5rem !important;
+  font-weight: 600;
 }
 
-/* Minimalist Scrollbar */
+/* Minimalist Zen Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #141414;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 9999px;
+  background: #2C2C2C;
+  border-radius: 0.5rem;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #3B3B3B;
 }
 
 /* Subtle Micro-Animations */
