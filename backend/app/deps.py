@@ -62,8 +62,8 @@ async def get_current_user(
     if not user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User account inactive")
 
-    # If no specific case assignments, grant access to all active cases in demo mode
-    if not live_case_ids:
+    # Admin has universal oversight across all cases; or fallback to all cases in demo mode
+    if user.role == "ADMIN" or not live_case_ids:
         from app.db.models.case import Case
         case_res = await session.execute(select(Case.case_id))
         live_case_ids = [row[0] for row in case_res.fetchall()]

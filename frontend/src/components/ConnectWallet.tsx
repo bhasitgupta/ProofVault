@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Shield, CheckCircle2, AlertCircle, ArrowRight, Wallet, ExternalLink, RefreshCw, KeyRound, Lock, Sparkles } from 'lucide-react';
+import { Shield, CheckCircle2, AlertCircle, ArrowRight, Wallet, ExternalLink, RefreshCw, KeyRound, Lock, Sparkles, ShieldAlert } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 export type SupportedWallet = 'metamask' | 'phantom' | 'coinbase';
+export type AuthRole = 'INVESTIGATOR' | 'FORENSIC_ANALYST' | 'LEGAL_OFFICER' | 'SUPERVISOR' | 'ADMIN';
 
 interface WalletOption {
   id: SupportedWallet;
@@ -68,7 +69,7 @@ interface ConnectWalletProps {
 export const ConnectWallet: React.FC<ConnectWalletProps> = ({ onSuccess }) => {
   const [connectingWallet, setConnectingWallet] = useState<SupportedWallet | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selectedRole, setSelectedRole] = useState<'INVESTIGATOR' | 'FORENSIC_ANALYST' | 'LEGAL_OFFICER' | 'ADMIN'>('INVESTIGATOR');
+  const [selectedRole, setSelectedRole] = useState<AuthRole>('INVESTIGATOR');
   const { saveToken } = useAuth();
 
   const walletOptions: WalletOption[] = [
@@ -98,6 +99,40 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({ onSuccess }) => {
       icon: <CoinbaseLogo className="w-9 h-9 shrink-0 drop-shadow-sm" />,
       detector: () => typeof window !== 'undefined' && Boolean((window as any).coinbaseWalletExtension || (window as any).ethereum?.isCoinbaseWallet),
       deepLink: 'https://www.coinbase.com/wallet/downloads',
+    },
+  ];
+
+  const roleOptions: { id: AuthRole; label: string; badge: string; desc: string; isSuper?: boolean }[] = [
+    {
+      id: 'INVESTIGATOR',
+      label: 'Chief Investigator',
+      badge: 'Confidential',
+      desc: 'Assigned crime dossiers & evidence capture',
+    },
+    {
+      id: 'FORENSIC_ANALYST',
+      label: 'Forensic Director',
+      badge: 'Secret',
+      desc: 'Ballistics, malware & media assays',
+    },
+    {
+      id: 'LEGAL_OFFICER',
+      label: 'Public Prosecutor',
+      badge: 'Confidential',
+      desc: 'Charge sheets & court statutory filings',
+    },
+    {
+      id: 'SUPERVISOR',
+      label: 'Supervisory Officer',
+      badge: 'Secret',
+      desc: 'Inter-agency oversight & case approvals',
+    },
+    {
+      id: 'ADMIN',
+      label: 'Root Administrator',
+      badge: 'ALL ACCESS',
+      desc: 'Full unrestricted root authority across all cases, evidence & settings',
+      isSuper: true,
     },
   ];
 
@@ -132,15 +167,16 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({ onSuccess }) => {
         }
       }
 
-      // 2. Fallback to deterministic sovereign investigator address if extension absent / cancelled in demo
+      // 2. Fallback to deterministic sovereign address if extension absent or cancelled
       if (!detectedAddress) {
-        const rolePrefix = {
+        const rolePrefix: Record<AuthRole, string> = {
           INVESTIGATOR: '0x71C8366420A88301570BC86d3b36523293e8',
           FORENSIC_ANALYST: '0x2546BcD3c84621e976D8185a91A922aE77EC',
           LEGAL_OFFICER: '0xbDA5747bFD65F08deb54cb465eB87D40e51B',
+          SUPERVISOR: '0x90F79bf6EB2c4f870365E785982E1f101E93b906',
           ADMIN: '0xdD870fA1b7C4700F2BD7f44238821C26f739',
-        }[selectedRole];
-        detectedAddress = `${rolePrefix}${wallet.id === 'phantom' ? '9999' : wallet.id === 'coinbase' ? '8888' : '7777'}`;
+        };
+        detectedAddress = `${rolePrefix[selectedRole]}${wallet.id === 'phantom' ? '9999' : wallet.id === 'coinbase' ? '8888' : '7777'}`;
       }
 
       // 3. Authenticate with backend wallet login
@@ -168,15 +204,31 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({ onSuccess }) => {
       }
 
       // 4. Client-side sovereign JWT generation fallback for resilience
+      const subMap: Record<AuthRole, string> = {
+        INVESTIGATOR: 'USR-101',
+        FORENSIC_ANALYST: 'USR-102',
+        LEGAL_OFFICER: 'USR-103',
+        SUPERVISOR: 'USR-104',
+        ADMIN: 'USR-001',
+      };
+
+      const mspMap: Record<AuthRole, string> = {
+        INVESTIGATOR: 'PoliceMSP',
+        FORENSIC_ANALYST: 'ForensicsMSP',
+        LEGAL_OFFICER: 'JudiciaryMSP',
+        SUPERVISOR: 'PoliceMSP',
+        ADMIN: 'PoliceMSP',
+      };
+
       const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
       const payload = btoa(
         JSON.stringify({
-          sub: selectedRole === 'ADMIN' ? 'USR-001' : 'USR-101',
+          sub: subMap[selectedRole],
           role: selectedRole,
           address: detectedAddress,
           wallet: wallet.name,
           mfa_verified: true,
-          msp_id: selectedRole === 'FORENSIC_ANALYST' ? 'ForensicsMSP' : 'PoliceMSP',
+          msp_id: mspMap[selectedRole],
           exp: Math.floor(Date.now() / 1000) + 86400,
         })
       );
@@ -196,34 +248,57 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({ onSuccess }) => {
   return (
     <div className="space-y-6">
       
-      {/* Role Clearance Selector (Institutional RBAC on-chain) */}
+      {/* 5 Institutional Roles Selector */}
       <div className="space-y-2">
-        <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
-          Institutional Clearance & Authority
+        <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 flex items-center justify-between">
+          <span>Institutional Clearance & Authority (5 Roles)</span>
+          <span className="text-[10px] text-indigo-700 font-semibold">Live RBAC</span>
         </label>
         <div className="grid grid-cols-2 gap-2 font-mono text-xs">
-          {[
-            { id: 'INVESTIGATOR', label: 'Chief Investigator', badge: 'Secret' },
-            { id: 'FORENSIC_ANALYST', label: 'Forensic Director', badge: 'Secret' },
-            { id: 'LEGAL_OFFICER', label: 'Public Prosecutor', badge: 'Confidential' },
-            { id: 'ADMIN', label: 'Security Controller', badge: 'Super' },
-          ].map((role) => (
-            <button
-              key={role.id}
-              type="button"
-              onClick={() => setSelectedRole(role.id as any)}
-              className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer ${
-                selectedRole === role.id
-                  ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
-                  : 'bg-white/80 hover:bg-slate-50 text-slate-700 border-slate-200'
-              }`}
-            >
-              <div className="font-bold text-[11px]">{role.label}</div>
-              <div className={`text-[10px] ${selectedRole === role.id ? 'text-amber-300' : 'text-slate-500'}`}>
-                {role.badge} Clearance
-              </div>
-            </button>
-          ))}
+          {roleOptions.map((role) => {
+            const isSelected = selectedRole === role.id;
+            return (
+              <button
+                key={role.id}
+                type="button"
+                onClick={() => setSelectedRole(role.id)}
+                className={`p-3 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden ${
+                  role.isSuper ? 'col-span-2' : ''
+                } ${
+                  isSelected
+                    ? role.isSuper
+                      ? 'bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white border-indigo-500 shadow-md ring-1 ring-indigo-400/40'
+                      : 'bg-slate-900 text-white border-slate-900 shadow-xs'
+                    : role.isSuper
+                    ? 'bg-amber-50/70 hover:bg-amber-100/70 text-slate-800 border-amber-300 shadow-xs'
+                    : 'bg-white/80 hover:bg-slate-50 text-slate-700 border-slate-200'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-1.5 mb-0.5">
+                  <div className="font-bold text-xs flex items-center gap-1.5">
+                    {role.isSuper && <Sparkles className="w-3.5 h-3.5 text-amber-400" />}
+                    <span>{role.label}</span>
+                  </div>
+                  <span
+                    className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                      isSelected
+                        ? role.isSuper
+                          ? 'bg-amber-400 text-slate-950'
+                          : 'bg-slate-800 text-amber-300'
+                        : role.isSuper
+                        ? 'bg-amber-200/90 text-amber-950 border border-amber-300'
+                        : 'bg-slate-100 text-slate-600'
+                    }`}
+                  >
+                    {role.badge}
+                  </span>
+                </div>
+                <div className={`text-[10px] ${isSelected ? 'text-slate-300' : 'text-slate-500'} font-sans leading-tight`}>
+                  {role.desc}
+                </div>
+              </button>
+            );
+          })}
         </div>
       </div>
 

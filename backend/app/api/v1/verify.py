@@ -49,7 +49,7 @@ async def verify_document(
     }
 
 
-@router.get("/audit/{case_id}")
+@router.get("/case-audit/{case_id}")
 async def get_audit_trail(
     case_id: str,
     limit: int = 50,
