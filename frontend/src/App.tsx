@@ -14,7 +14,6 @@ import { CustodyTimelinePage } from './pages/CustodyTimeline';
 import { AuditLogPage } from './pages/AuditLog';
 import { AdminPage } from './pages/Admin';
 import { ChooseCryptoWalletLoginPage } from './pages/ChooseCryptoWalletLoginPage';
-import { ThreeAnimation } from './components/ThreeAnimation';
 import { LenisProvider } from './components/LenisProvider';
 import { GradualBlur } from './components/GradualBlur';
 import { ThemeToggle } from './components/ThemeToggle';
@@ -39,9 +38,6 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
 
   return (
     <div className="min-h-screen flex flex-col bg-ambient text-slate-900 relative selection:bg-indigo-500/10 selection:text-indigo-900">
-      {/* 3D Evidentiary Lattice Animation */}
-      <ThreeAnimation />
-
       {/* Floating Modern Glassmorphic Header */}
       <header className="sticky top-3 z-40 max-w-7xl mx-auto px-4 sm:px-6 w-full pointer-events-none">
         <div className="glass-nav-obsidian rounded-2xl px-5 h-18 flex items-center justify-between shadow-2xl pointer-events-auto transition-all">

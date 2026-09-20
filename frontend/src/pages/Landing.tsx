@@ -22,7 +22,6 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { ConnectWallet } from '../components/ConnectWallet';
-import { ThreeAnimation } from '../components/ThreeAnimation';
 import { StrokeText } from '../components/StrokeText';
 import { ThemeToggle } from '../components/ThemeToggle';
 
@@ -49,9 +48,6 @@ export const LandingPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-ambient text-slate-900 relative overflow-hidden flex flex-col justify-between selection:bg-indigo-500/10 selection:text-indigo-900">
-      {/* Dynamic 3D Evidentiary Lattice */}
-      <ThreeAnimation />
-
       {/* Top Floating Glass Header */}
       <header className="sticky top-4 z-40 max-w-6xl mx-auto px-4 sm:px-6 w-full pointer-events-none">
         <div className="glass-panel rounded-2xl px-6 h-16 flex items-center justify-between shadow-sm pointer-events-auto transition-all">
