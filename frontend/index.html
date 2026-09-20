@@ -32,13 +32,19 @@
         if (redirect && redirect !== location.href) {
           history.replaceState(null, null, redirect);
         }
+        var theme = localStorage.getItem('proofvault_theme') || 'light';
+        if (theme === 'dark') {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
       })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-ambient text-[#EDE8DF] min-h-screen antialiased font-sans dark" style="background-color: #141414; color: #EDE8DF;">
+  <body class="bg-ambient text-stone-900 min-h-screen antialiased font-sans">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

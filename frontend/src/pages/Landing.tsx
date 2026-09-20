@@ -24,6 +24,7 @@ import { useAuth } from '../hooks/useAuth';
 import { ConnectWallet } from '../components/ConnectWallet';
 import { ThreeAnimation } from '../components/ThreeAnimation';
 import { StrokeText } from '../components/StrokeText';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 export const LandingPage: React.FC = () => {
   const { user } = useAuth();
@@ -31,6 +32,20 @@ export const LandingPage: React.FC = () => {
 
   // Login Modal State
   const [isLoginOpen, setIsLoginOpen] = useState(false);
+
+  // Theme reactive state for StrokeText
+  const [currentTheme, setCurrentTheme] = useState<'light' | 'dark'>(() => {
+    return (localStorage.getItem('proofvault_theme') as 'light' | 'dark') || 'light';
+  });
+
+  React.useEffect(() => {
+    const observer = new MutationObserver(() => {
+      const dark = document.documentElement.classList.contains('dark');
+      setCurrentTheme(dark ? 'dark' : 'light');
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div className="min-h-screen bg-ambient text-slate-900 relative overflow-hidden flex flex-col justify-between selection:bg-indigo-500/10 selection:text-indigo-900">
@@ -77,6 +92,8 @@ export const LandingPage: React.FC = () => {
                 <span>Institutional Login</span>
               </button>
             )}
+
+            <ThemeToggle />
           </div>
         </div>
       </header>
@@ -96,7 +113,7 @@ export const LandingPage: React.FC = () => {
             <StrokeText
               text="ProofVault"
               strokeColor="#F26A4B"
-              fillColor="#EDE8DF"
+              fillColor={currentTheme === 'dark' ? '#EDE8DF' : '#18181B'}
               strokeWidth={1.8}
               drawDuration={1.8}
               fillDelay={0.25}

@@ -17,6 +17,7 @@ import { ChooseCryptoWalletLoginPage } from './pages/ChooseCryptoWalletLoginPage
 import { ThreeAnimation } from './components/ThreeAnimation';
 import { LenisProvider } from './components/LenisProvider';
 import { GradualBlur } from './components/GradualBlur';
+import { ThemeToggle } from './components/ThemeToggle';
 
 const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, logout } = useAuth();
@@ -118,6 +119,8 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
               </div>
             )}
 
+            <ThemeToggle />
+
             <button
               onClick={handleLogout}
               className="p-2 hover:bg-rose-950/50 border border-transparent hover:border-rose-800/40 rounded-xl text-slate-400 hover:text-rose-400 transition-all cursor-pointer"
@@ -168,22 +171,11 @@ export const App: React.FC = () => {
   return (
     <LenisProvider>
       <BrowserRouter>
-        {/* Global Progressive Scroll Blur Overlays */}
-        <GradualBlur
-          target="page"
-          position="top"
-          height="4rem"
-          strength={2}
-          divCount={6}
-          curve="bezier"
-          exponential={true}
-          opacity={0.9}
-          zIndex={35}
-        />
+        {/* Global Progressive Bottom Scroll Blur Overlay (Top blur removed to preserve nav bar clarity) */}
         <GradualBlur
           target="page"
           position="bottom"
-          height="4rem"
+          height="4.5rem"
           strength={2}
           divCount={6}
           curve="bezier"
