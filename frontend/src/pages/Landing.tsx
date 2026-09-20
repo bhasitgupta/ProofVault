@@ -23,6 +23,7 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import { ConnectWallet } from '../components/ConnectWallet';
 import { ThreeAnimation } from '../components/ThreeAnimation';
+import { StrokeText } from '../components/StrokeText';
 
 export const LandingPage: React.FC = () => {
   const { user } = useAuth();
@@ -90,7 +91,27 @@ export const LandingPage: React.FC = () => {
             <span>Zero-Trust Electronic Evidence Architecture</span>
           </div>
 
-          <h1 className="font-serif-judicial text-4xl sm:text-6xl font-black text-slate-900 tracking-tight leading-[1.15]">
+          {/* StrokeText Animated Brand Name */}
+          <div className="w-full max-w-xl mx-auto py-2">
+            <StrokeText
+              text="ProofVault"
+              strokeColor="#800020"
+              fillColor="#0F172A"
+              strokeWidth={1.8}
+              drawDuration={1.8}
+              fillDelay={0.25}
+              stagger={0.06}
+              ease="power2.out"
+              trigger="mount"
+              fillMode="wipe"
+              fontSize={110}
+              fontWeight={900}
+              letterSpacing={-3}
+              className="font-serif-judicial"
+            />
+          </div>
+
+          <h1 className="font-serif-judicial text-3xl sm:text-5xl font-black text-slate-900 tracking-tight leading-[1.15]">
             Sovereign Digital Provenance & Evidence Vault
           </h1>
 
