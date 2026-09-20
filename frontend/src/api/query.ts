@@ -6,42 +6,49 @@ const SUPABASE_ANON_KEY = 'sb_publishable_yBEvcnfdSVjN_5ZlxSw_5w_bDe53Czq';
 
 export interface AIProviderConfig {
   name: string;
-  tier: 'tier1' | 'tier2' | 'tier3';
+  tier: 'tier1' | 'tier2' | 'tier3' | 'tier4';
   model: string;
   baseUrl: string;
   apiKey: string;
 }
 
 export interface QueryOptions {
-  preferredTier?: 'auto' | 'tier1' | 'tier2' | 'tier3';
+  preferredTier?: 'auto' | 'tier1' | 'tier2' | 'tier3' | 'tier4';
 }
 
 /**
  * Retrieves configured AI keys from localStorage or environment
  */
-export function getAIProviderConfigs(): Record<'tier1' | 'tier2' | 'tier3', AIProviderConfig> {
+export function getAIProviderConfigs(): Record<'tier1' | 'tier2' | 'tier3' | 'tier4', AIProviderConfig> {
   const env = (import.meta as any).env || {};
   return {
     tier1: {
-      name: 'Primary API (Tier 1)',
+      name: 'GPT 6 Astra',
       tier: 'tier1',
-      model: localStorage.getItem('pv_tier1_model') || env.VITE_AI_PRIMARY_MODEL || 'llama-3.3-70b-versatile',
-      baseUrl: localStorage.getItem('pv_tier1_base') || env.VITE_AI_PRIMARY_BASE_URL || 'https://api.groq.com/openai/v1',
-      apiKey: localStorage.getItem('pv_tier1_key') || env.VITE_AI_PRIMARY_API_KEY || env.VITE_GROQ_API_KEY || '',
+      model: localStorage.getItem('pv_tier1_model') || env.VITE_AI_TIER1_MODEL || 'gpt-6-astra',
+      baseUrl: localStorage.getItem('pv_tier1_base') || env.VITE_AI_TIER1_BASE_URL || 'https://api.openai.com/v1',
+      apiKey: localStorage.getItem('pv_tier1_key') || env.VITE_AI_TIER1_API_KEY || env.VITE_OPENAI_API_KEY || '',
     },
     tier2: {
-      name: 'Secondary API (Tier 2)',
+      name: 'Claude Fable 5.1',
       tier: 'tier2',
-      model: localStorage.getItem('pv_tier2_model') || env.VITE_AI_SECONDARY_MODEL || 'gpt-4o-mini',
-      baseUrl: localStorage.getItem('pv_tier2_base') || env.VITE_AI_SECONDARY_BASE_URL || 'https://api.openai.com/v1',
-      apiKey: localStorage.getItem('pv_tier2_key') || env.VITE_AI_SECONDARY_API_KEY || env.VITE_OPENAI_API_KEY || '',
+      model: localStorage.getItem('pv_tier2_model') || env.VITE_AI_TIER2_MODEL || 'claude-fable-5.1',
+      baseUrl: localStorage.getItem('pv_tier2_base') || env.VITE_AI_TIER2_BASE_URL || 'https://api.anthropic.com/v1',
+      apiKey: localStorage.getItem('pv_tier2_key') || env.VITE_AI_TIER2_API_KEY || env.VITE_ANTHROPIC_API_KEY || '',
     },
     tier3: {
-      name: 'Tertiary API (Tier 3)',
+      name: 'Grok 4.6',
       tier: 'tier3',
-      model: localStorage.getItem('pv_tier3_model') || env.VITE_AI_TERTIARY_MODEL || 'google/gemini-2.0-flash-exp:free',
-      baseUrl: localStorage.getItem('pv_tier3_base') || env.VITE_AI_TERTIARY_BASE_URL || 'https://openrouter.ai/api/v1',
-      apiKey: localStorage.getItem('pv_tier3_key') || env.VITE_AI_TERTIARY_API_KEY || env.VITE_OPENROUTER_API_KEY || '',
+      model: localStorage.getItem('pv_tier3_model') || env.VITE_AI_TIER3_MODEL || 'grok-4.6',
+      baseUrl: localStorage.getItem('pv_tier3_base') || env.VITE_AI_TIER3_BASE_URL || 'https://api.x.ai/v1',
+      apiKey: localStorage.getItem('pv_tier3_key') || env.VITE_AI_TIER3_API_KEY || env.VITE_XAI_API_KEY || '',
+    },
+    tier4: {
+      name: 'Nemotron 3 Ultra',
+      tier: 'tier4',
+      model: localStorage.getItem('pv_tier4_model') || env.VITE_AI_TIER4_MODEL || 'nvidia/nemotron-3-ultra',
+      baseUrl: localStorage.getItem('pv_tier4_base') || env.VITE_AI_TIER4_BASE_URL || 'https://integrate.api.nvidia.com/v1',
+      apiKey: localStorage.getItem('pv_tier4_key') || env.VITE_AI_TIER4_API_KEY || env.VITE_NVIDIA_API_KEY || '',
     },
   };
 }
@@ -55,29 +62,49 @@ async function callChatCompletions(
 ): Promise<string> {
   if (!apiKey) throw new Error('API key not configured');
 
-  const headers: Record<string, string> = {
-    Authorization: `Bearer ${apiKey.trim()}`,
-    'Content-Type': 'application/json',
-  };
+  const isAnthropicNative = baseUrl.includes('anthropic.com') && !baseUrl.includes('openai');
 
-  if (baseUrl.includes('openrouter.ai')) {
-    headers['HTTP-Referer'] = window.location.origin;
-    headers['X-Title'] = 'Proof Vault Sovereign AI';
+  let response: Response;
+  if (isAnthropicNative) {
+    response = await fetch(`${baseUrl.replace(/\/+$/, '')}/messages`, {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey.trim(),
+        'anthropic-version': '2023-06-01',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 1024,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }],
+      }),
+    });
+  } else {
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${apiKey.trim()}`,
+      'Content-Type': 'application/json',
+    };
+
+    if (baseUrl.includes('openrouter.ai')) {
+      headers['HTTP-Referer'] = window.location.origin;
+      headers['X-Title'] = 'Proof Vault Sovereign AI';
+    }
+
+    response = await fetch(`${baseUrl.replace(/\/+$/, '')}/chat/completions`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        model,
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt },
+        ],
+        temperature: 0.1,
+        max_tokens: 1000,
+      }),
+    });
   }
-
-  const response = await fetch(`${baseUrl.replace(/\/+$/, '')}/chat/completions`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt },
-      ],
-      temperature: 0.1,
-      max_tokens: 1000,
-    }),
-  });
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -87,6 +114,9 @@ async function callChatCompletions(
   const data = await response.json();
   if (data.choices && data.choices[0]?.message?.content) {
     return data.choices[0].message.content;
+  }
+  if (data.content && Array.isArray(data.content) && data.content[0]?.text) {
+    return data.content[0].text;
   }
   throw new Error('Malformed API response');
 }
@@ -114,19 +144,21 @@ export async function askEvidence(
       return res;
     }
   } catch (backendErr) {
-    console.warn('Backend query endpoint unavailable, executing client 3-tier cascade:', backendErr);
+    console.warn('Backend query endpoint unavailable, executing client 4-tier cascade:', backendErr);
   }
 
-  // 2. Client-Side 3-Tier Cascading AI Execution
+  // 2. Client-Side 4-Tier Cascading AI Execution
   const providers = getAIProviderConfigs();
 
   let cascadeOrder: AIProviderConfig[] = [];
   if (preferredTier === 'tier2') {
-    cascadeOrder = [providers.tier2, providers.tier1, providers.tier3];
+    cascadeOrder = [providers.tier2, providers.tier1, providers.tier3, providers.tier4];
   } else if (preferredTier === 'tier3') {
-    cascadeOrder = [providers.tier3, providers.tier1, providers.tier2];
+    cascadeOrder = [providers.tier3, providers.tier1, providers.tier2, providers.tier4];
+  } else if (preferredTier === 'tier4') {
+    cascadeOrder = [providers.tier4, providers.tier1, providers.tier2, providers.tier3];
   } else {
-    cascadeOrder = [providers.tier1, providers.tier2, providers.tier3];
+    cascadeOrder = [providers.tier1, providers.tier2, providers.tier3, providers.tier4];
   }
 
   // Retrieve relevant evidentiary records from Supabase REST

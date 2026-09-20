@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, Field
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
@@ -23,7 +24,7 @@ router = APIRouter(prefix="/query", tags=["query"])
 class QueryRequest(BaseModel):
     query: str = Field(..., min_length=3, max_length=2000)
     case_ids: list[str] = Field(default_factory=list)  # subset of live case scope
-    preferred_tier: str = Field(default="auto")  # "auto", "tier1", "tier2", "tier3"
+    preferred_tier: str = Field(default="auto")  # "auto", "tier1", "tier2", "tier3", "tier4"
 
 
 @router.post("")

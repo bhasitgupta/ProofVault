@@ -101,21 +101,43 @@ class Settings(BaseSettings):
     QDRANT_URL: str = "http://localhost:6333"
     QDRANT_COLLECTION: str = "sdms_evidence"
 
-    # Cascading Multi-Tier AI Gateway (Primary -> Secondary -> Tertiary)
-    # Tier 1: Primary High-Speed Provider (Default: Groq Llama-3.3-70b or custom)
+    # Cascading 4-Tier Cloud AI Gateway
+    # Tier 1: GPT 6 Astra (Primary)
+    AI_TIER1_NAME: str = "GPT 6 Astra"
+    AI_TIER1_MODEL: str = "gpt-6-astra"
+    AI_TIER1_BASE_URL: str = "https://api.openai.com/v1"
+    AI_TIER1_API_KEY: str = ""
+
+    # Tier 2: Claude Fable 5.1 (Secondary Failover)
+    AI_TIER2_NAME: str = "Claude Fable 5.1"
+    AI_TIER2_MODEL: str = "claude-fable-5.1"
+    AI_TIER2_BASE_URL: str = "https://api.anthropic.com/v1"
+    AI_TIER2_API_KEY: str = ""
+
+    # Tier 3: Grok 4.6 (Tertiary Failover)
+    AI_TIER3_NAME: str = "Grok 4.6"
+    AI_TIER3_MODEL: str = "grok-4.6"
+    AI_TIER3_BASE_URL: str = "https://api.x.ai/v1"
+    AI_TIER3_API_KEY: str = ""
+
+    # Tier 4: Nemotron 3 Ultra (Quaternary Cloud Failover)
+    AI_TIER4_NAME: str = "Nemotron 3 Ultra"
+    AI_TIER4_MODEL: str = "nvidia/nemotron-3-ultra"
+    AI_TIER4_BASE_URL: str = "https://integrate.api.nvidia.com/v1"
+    AI_TIER4_API_KEY: str = ""
+
+    # Aliases
     AI_PRIMARY_API_KEY: str = ""
-    AI_PRIMARY_MODEL: str = "llama-3.3-70b-versatile"
-    AI_PRIMARY_BASE_URL: str = "https://api.groq.com/openai/v1"
+    AI_PRIMARY_MODEL: str = "gpt-6-astra"
+    AI_PRIMARY_BASE_URL: str = "https://api.openai.com/v1"
 
-    # Tier 2: Secondary Failover Provider (Default: OpenAI GPT-4o / gpt-4o-mini or custom)
     AI_SECONDARY_API_KEY: str = ""
-    AI_SECONDARY_MODEL: str = "gpt-4o-mini"
-    AI_SECONDARY_BASE_URL: str = "https://api.openai.com/v1"
+    AI_SECONDARY_MODEL: str = "claude-fable-5.1"
+    AI_SECONDARY_BASE_URL: str = "https://api.anthropic.com/v1"
 
-    # Tier 3: Tertiary Failover Provider (Default: OpenRouter / Gemini or custom)
     AI_TERTIARY_API_KEY: str = ""
-    AI_TERTIARY_MODEL: str = "google/gemini-2.0-flash-exp:free"
-    AI_TERTIARY_BASE_URL: str = "https://openrouter.ai/api/v1"
+    AI_TERTIARY_MODEL: str = "grok-4.6"
+    AI_TERTIARY_BASE_URL: str = "https://api.x.ai/v1"
 
     # Legacy / alias settings
     LLM_API_KEY: str = ""

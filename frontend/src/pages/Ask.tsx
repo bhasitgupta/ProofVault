@@ -53,7 +53,7 @@ export const AskPage: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [selectedCase, setSelectedCase] = useState(searchParams.get('case') || '');
-  const [selectedTier, setSelectedTier] = useState<'auto' | 'tier1' | 'tier2' | 'tier3'>('auto');
+  const [selectedTier, setSelectedTier] = useState<'auto' | 'tier1' | 'tier2' | 'tier3' | 'tier4'>('auto');
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [cases, setCases] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -62,10 +62,11 @@ export const AskPage: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // AI Configuration Keys State
+  // AI Configuration Keys State for 4 Models
   const [tier1Key, setTier1Key] = useState(localStorage.getItem('pv_tier1_key') || '');
   const [tier2Key, setTier2Key] = useState(localStorage.getItem('pv_tier2_key') || '');
   const [tier3Key, setTier3Key] = useState(localStorage.getItem('pv_tier3_key') || '');
+  const [tier4Key, setTier4Key] = useState(localStorage.getItem('pv_tier4_key') || '');
   const [saveSuccess, setSaveSuccess] = useState(false);
 
   const handleSaveKeys = (e: React.FormEvent) => {
@@ -73,6 +74,7 @@ export const AskPage: React.FC = () => {
     localStorage.setItem('pv_tier1_key', tier1Key.trim());
     localStorage.setItem('pv_tier2_key', tier2Key.trim());
     localStorage.setItem('pv_tier3_key', tier3Key.trim());
+    localStorage.setItem('pv_tier4_key', tier4Key.trim());
     setSaveSuccess(true);
     setTimeout(() => {
       setSaveSuccess(false);
@@ -209,10 +211,11 @@ export const AskPage: React.FC = () => {
               onChange={(e) => setSelectedTier(e.target.value as any)}
               className="bg-transparent text-stone-800 font-mono font-semibold focus:outline-none cursor-pointer"
             >
-              <option value="auto">⚡ Auto Cascade (T1 → T2 → T3)</option>
-              <option value="tier1">Tier 1: Primary (Groq / Llama 3.3)</option>
-              <option value="tier2">Tier 2: Secondary (OpenAI GPT-4o-mini)</option>
-              <option value="tier3">Tier 3: Tertiary (OpenRouter Gemini)</option>
+              <option value="auto">⚡ Auto Cascade (T1 → T2 → T3 → T4)</option>
+              <option value="tier1">Tier 1: GPT 6 Astra</option>
+              <option value="tier2">Tier 2: Claude Fable 5.1</option>
+              <option value="tier3">Tier 3: Grok 4.6</option>
+              <option value="tier4">Tier 4: Nemotron 3 Ultra</option>
             </select>
           </div>
 
@@ -224,7 +227,7 @@ export const AskPage: React.FC = () => {
           >
             <Sliders className="w-3.5 h-3.5 text-crimson-800" />
             <span>AI Keys</span>
-            {(tier1Key || tier2Key || tier3Key) && (
+            {(tier1Key || tier2Key || tier3Key || tier4Key) && (
               <span className="w-2 h-2 rounded-full bg-emerald-500" />
             )}
           </button>
@@ -539,62 +542,82 @@ export const AskPage: React.FC = () => {
             </div>
 
             <form onSubmit={handleSaveKeys} className="space-y-4">
-              {/* Tier 1 - Primary */}
+              {/* Tier 1 - GPT 6 Astra */}
               <div className="p-3.5 bg-white border border-stone-200 rounded-xl space-y-2 shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-stone-800">
                     <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                    <span>Tier 1: Primary API (Default)</span>
+                    <span>Tier 1: GPT 6 Astra (Primary)</span>
                   </div>
                   <span className="text-[10px] font-mono text-stone-500 bg-stone-100 px-2 py-0.5 rounded">
-                    Groq / Llama 3.3 70B
+                    gpt-6-astra
                   </span>
                 </div>
                 <input
                   type="password"
                   value={tier1Key}
                   onChange={(e) => setTier1Key(e.target.value)}
-                  placeholder="Paste Primary API Key (e.g., gsk_...)"
+                  placeholder="Paste GPT 6 Astra API Key..."
                   className="w-full px-3 py-2 text-xs font-mono bg-parchment-50/70 border border-stone-200 rounded-lg focus:outline-none focus:border-crimson-700"
                 />
               </div>
 
-              {/* Tier 2 - Secondary */}
+              {/* Tier 2 - Claude Fable 5.1 */}
               <div className="p-3.5 bg-white border border-stone-200 rounded-xl space-y-2 shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-stone-800">
                     <span className="w-2 h-2 rounded-full bg-amber-500" />
-                    <span>Tier 2: Secondary API (Failover)</span>
+                    <span>Tier 2: Claude Fable 5.1 (Failover 1)</span>
                   </div>
                   <span className="text-[10px] font-mono text-stone-500 bg-stone-100 px-2 py-0.5 rounded">
-                    OpenAI / GPT-4o-mini
+                    claude-fable-5.1
                   </span>
                 </div>
                 <input
                   type="password"
                   value={tier2Key}
                   onChange={(e) => setTier2Key(e.target.value)}
-                  placeholder="Paste Secondary API Key (e.g., sk-proj-...)"
+                  placeholder="Paste Claude Fable 5.1 API Key..."
                   className="w-full px-3 py-2 text-xs font-mono bg-parchment-50/70 border border-stone-200 rounded-lg focus:outline-none focus:border-crimson-700"
                 />
               </div>
 
-              {/* Tier 3 - Tertiary */}
+              {/* Tier 3 - Grok 4.6 */}
               <div className="p-3.5 bg-white border border-stone-200 rounded-xl space-y-2 shadow-sm">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-xs font-bold text-stone-800">
                     <span className="w-2 h-2 rounded-full bg-blue-500" />
-                    <span>Tier 3: Tertiary API (Backup)</span>
+                    <span>Tier 3: Grok 4.6 (Failover 2)</span>
                   </div>
                   <span className="text-[10px] font-mono text-stone-500 bg-stone-100 px-2 py-0.5 rounded">
-                    OpenRouter / Gemini 2.0
+                    grok-4.6
                   </span>
                 </div>
                 <input
                   type="password"
                   value={tier3Key}
                   onChange={(e) => setTier3Key(e.target.value)}
-                  placeholder="Paste Tertiary API Key (e.g., sk-or-v1-...)"
+                  placeholder="Paste Grok 4.6 API Key..."
+                  className="w-full px-3 py-2 text-xs font-mono bg-parchment-50/70 border border-stone-200 rounded-lg focus:outline-none focus:border-crimson-700"
+                />
+              </div>
+
+              {/* Tier 4 - Nemotron 3 Ultra */}
+              <div className="p-3.5 bg-white border border-stone-200 rounded-xl space-y-2 shadow-sm">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-stone-800">
+                    <span className="w-2 h-2 rounded-full bg-purple-500" />
+                    <span>Tier 4: Nemotron 3 Ultra (Failover 3)</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-stone-500 bg-stone-100 px-2 py-0.5 rounded">
+                    nemotron-3-ultra
+                  </span>
+                </div>
+                <input
+                  type="password"
+                  value={tier4Key}
+                  onChange={(e) => setTier4Key(e.target.value)}
+                  placeholder="Paste Nemotron 3 Ultra API Key..."
                   className="w-full px-3 py-2 text-xs font-mono bg-parchment-50/70 border border-stone-200 rounded-lg focus:outline-none focus:border-crimson-700"
                 />
               </div>

@@ -44,7 +44,7 @@ def test_quarantine_manager():
     assert doc_id in res
 
 @pytest.mark.anyio
-async def test_llm_client_synthesis_without_ollama():
+async def test_cascading_cloud_ai_gateway():
     llm = LLMClient()
     prompt = """
     <EVIDENCE id="1">Forensic memo verifies recovered USB drive hash 0xABCDEF</EVIDENCE>
