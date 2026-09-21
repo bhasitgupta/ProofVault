@@ -26,7 +26,7 @@ import {
 import { getCases, createCase, updateCaseStatus, recordCustodyEvent } from '../api/audit';
 import { Case } from '../lib/types';
 import { formatClassificationBadge } from '../lib/format';
-import { ensurePolygonAmoyNetwork, POLYGONSCAN_BASE } from '../lib/polygon';
+import { ensurePolygonAmoyNetwork, POLYGONSCAN_BASE, PROVENANCE_REGISTRY_ADDR, anchorCaseOnChain } from '../lib/polygon';
 import { ethers } from 'ethers';
 
 const EVIDENCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_EVIDENCE_REGISTRY as string) || '0xE5A9000fe858f49f4e0520b44dBCC138ba2ef05b';
@@ -120,39 +120,11 @@ export const CaseWorkspace: React.FC = () => {
     setFormError(null);
     const caseIdNorm = newCaseId.trim().toUpperCase();
     try {
-      // Step 1: MetaMask — anchor case ID on Polygon Amoy
-      const eth = (window as any).ethereum;
-      let chainTxHash = '';
-      if (eth) {
-        try {
-          await ensurePolygonAmoyNetwork();
-          const accounts = await eth.request({ method: 'eth_requestAccounts' });
-          if (accounts && accounts.length > 0) {
-            const anchorPayload = `SDMS:CASE:${caseIdNorm}:${newCaseClearance}:${newCaseMsp}:${Date.now()}`;
-            const proofHash = ethers.keccak256(ethers.toUtf8Bytes(anchorPayload));
-            const txParams = {
-              from: accounts[0],
-              to: accounts[0],           // Self-anchor: EOA-to-EOA NEVER reverts
-              data: proofHash,
-              value: '0x0',
-              gas: '0x7A12',
-              maxPriorityFeePerGas: ethers.toBeHex(ethers.parseUnits('30', 'gwei')),
-              maxFeePerGas: ethers.toBeHex(ethers.parseUnits('60', 'gwei')),
-            };
-            chainTxHash = await eth.request({ method: 'eth_sendTransaction', params: [txParams] });
-            console.info(`[Chain] Case ${caseIdNorm} anchored: ${chainTxHash}`);
-          }
-        } catch (mmErr: any) {
-          if (mmErr?.code === 4001) {
-            setFormError('Case creation cancelled: MetaMask transaction rejected.');
-            setSavingCase(false);
-            return;
-          }
-          console.warn('[Chain] MetaMask unavailable, proceeding off-chain:', mmErr?.message);
-        }
-      }
+      // Step 1: Enforce on-chain case anchoring on Polygon Amoy via MetaMask wallet popup
+      const { txHash } = await anchorCaseOnChain(caseIdNorm);
+      console.info(`[Chain] logCase(${caseIdNorm}) confirmed: ${txHash}`);
 
-      // Step 2: Save to database
+      // Step 2: Save to database only after blockchain transaction succeeds
       const created = await createCase({
         case_id: caseIdNorm,
         title: newCaseTitle.trim(),
@@ -166,9 +138,9 @@ export const CaseWorkspace: React.FC = () => {
       setNewCaseId('');
       setNewCaseTitle('');
       setNewCaseDesc('');
-      if (chainTxHash) showChainToast(caseIdNorm, chainTxHash);
+      showChainToast(caseIdNorm, txHash);
     } catch (err: any) {
-      setFormError(err.message || 'Failed to initialize case');
+      setFormError(err.message || 'Failed to initialize case on Polygon blockchain');
     } finally {
       setSavingCase(false);
     }

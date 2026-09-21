@@ -6,6 +6,7 @@ pragma solidity ^0.8.20;
  * @notice Cryptographic Chain-of-Custody & Forensic Audit Trail for Nyaya-Vault (Polygon Amoy).
  * Records sequential, cryptographically linked transfer and access events across institutional agencies.
  * Governed by on-chain multi-admin architecture.
+ * Includes permissionless logCase() for court-admissible case anchoring by any wallet.
  */
 contract ProvenanceRegistry {
     struct CustodyEvent {
@@ -21,10 +22,22 @@ contract ProvenanceRegistry {
         bytes32 prevEventHash;
     }
 
+    struct CaseAnchor {
+        bytes32 caseIdHash;
+        string caseId;
+        address anchoredBy;
+        uint256 anchoredAt;
+        bool exists;
+    }
+
     // --- On-Chain Multi-Admin & Role State ---
     mapping(address => bool) public isAdmin;
     uint256 public adminCount;
     mapping(address => bool) public isWriter;
+
+    // --- Case Anchor Storage (permissionless) ---
+    mapping(bytes32 => CaseAnchor) private _caseAnchors;
+    bytes32[] private _allCaseHashes;
 
     // --- Event Storage ---
     mapping(bytes32 => CustodyEvent) private _events;
@@ -35,6 +48,14 @@ contract ProvenanceRegistry {
     event AdminAdded(address indexed newAdmin, address indexed addedBy);
     event AdminRemoved(address indexed admin, address indexed removedBy);
     event WriterUpdated(address indexed writer, bool authorized, address indexed updatedBy);
+
+    /// @notice Emitted when any wallet anchors a case ID on-chain (permissionless)
+    event CaseAnchored(
+        bytes32 indexed caseIdHash,
+        string caseId,
+        address indexed anchoredBy,
+        uint256 timestamp
+    );
 
     event CustodyLogged(
         bytes32 indexed eventId,
@@ -97,6 +118,54 @@ contract ProvenanceRegistry {
         emit WriterUpdated(writer, true, msg.sender);
     }
 
+    // ==========================================
+    // PERMISSIONLESS CASE ANCHORING
+    // Any wallet can call logCase() — no role required.
+    // Anchors the case ID permanently on Polygon Amoy.
+    // Emits CaseAnchored event (queryable by caseIdHash on Polygonscan).
+    // ==========================================
+
+    /**
+     * @notice Anchors a case ID on-chain. Callable by ANY wallet (no roles needed).
+     * @param caseId  The human-readable case ID (e.g. "CASE004")
+     */
+    function logCase(string calldata caseId) external {
+        require(bytes(caseId).length > 0, "ProvenanceRegistry: empty caseId");
+        bytes32 caseIdHash = keccak256(abi.encodePacked(caseId));
+
+        if (!_caseAnchors[caseIdHash].exists) {
+            _allCaseHashes.push(caseIdHash);
+        }
+
+        _caseAnchors[caseIdHash] = CaseAnchor({
+            caseIdHash: caseIdHash,
+            caseId: caseId,
+            anchoredBy: msg.sender,
+            anchoredAt: block.timestamp,
+            exists: true
+        });
+
+        emit CaseAnchored(caseIdHash, caseId, msg.sender, block.timestamp);
+    }
+
+    function getCaseAnchor(string calldata caseId) external view returns (CaseAnchor memory) {
+        bytes32 h = keccak256(abi.encodePacked(caseId));
+        require(_caseAnchors[h].exists, "ProvenanceRegistry: case not anchored");
+        return _caseAnchors[h];
+    }
+
+    function isCaseAnchored(string calldata caseId) external view returns (bool) {
+        return _caseAnchors[keccak256(abi.encodePacked(caseId))].exists;
+    }
+
+    function getTotalCasesAnchored() external view returns (uint256) {
+        return _allCaseHashes.length;
+    }
+
+    // ==========================================
+    // CHAIN-OF-CUSTODY RECORDING (onlyWriter)
+    // ==========================================
+
     struct EventInput {
         bytes32 eventId;
         bytes32 docIdHash;
@@ -107,10 +176,6 @@ contract ProvenanceRegistry {
         string outcome;
         string reason;
     }
-
-    // ==========================================
-    // CHAIN-OF-CUSTODY RECORDING
-    // ==========================================
 
     function recordCustodyEvent(EventInput calldata input) external onlyWriter {
         require(_events[input.eventId].eventId == bytes32(0), "Event ID already exists");

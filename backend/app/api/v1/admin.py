@@ -521,8 +521,8 @@ async def register_case_on_chain(
         raise HTTPException(status_code=404, detail="Case not found")
 
     private_key = os.getenv("POLYGON_PRIVATE_KEY", "")
-    contract_addr = os.getenv("POLYGON_PROVENANCE_REGISTRY_ADDRESS", "0x3eD98E9e810e232342429A69f4789b9C829c0Bd7")
-    rpc_url = os.getenv("POLYGON_RPC_URL", "https://rpc-amoy.polygon.technology/")
+    contract_addr = os.getenv("POLYGON_PROVENANCE_REGISTRY_ADDRESS", "0x5D94C63ABfAEFf3758A51642A03912F73a064ADA")
+    rpc_url = os.getenv("POLYGON_RPC_URL", "https://polygon-amoy-bor-rpc.publicnode.com")
 
     if not private_key or private_key.strip() == "":
         # No private key configured — return deterministic hash as proof-of-record
@@ -543,11 +543,9 @@ async def register_case_on_chain(
         PROVENANCE_ABI = [
             {
                 "inputs": [
-                    {"internalType": "bytes32", "name": "caseIdHash", "type": "bytes32"},
-                    {"internalType": "string", "name": "title", "type": "string"},
-                    {"internalType": "uint8", "name": "clearanceLevel", "type": "uint8"},
+                    {"internalType": "string", "name": "caseId", "type": "string"},
                 ],
-                "name": "registerCase",
+                "name": "logCase",
                 "outputs": [],
                 "stateMutability": "nonpayable",
                 "type": "function",
@@ -557,9 +555,9 @@ async def register_case_on_chain(
         # Try multiple RPC endpoints
         rpc_urls = [
             rpc_url,
-            "https://rpc-amoy.polygon.technology/",
             "https://polygon-amoy-bor-rpc.publicnode.com",
-            "https://rpc.ankr.com/polygon_amoy",
+            "https://polygon-amoy.drpc.org",
+            "https://80002.rpc.thirdweb.com",
         ]
 
         w3 = None
@@ -581,18 +579,13 @@ async def register_case_on_chain(
             abi=PROVENANCE_ABI,
         )
 
-        case_id_hash = Web3.keccak(text=case_id.upper())
-        clearance_level = 3 if case.classification_ceiling == "SECRET" else (2 if case.classification_ceiling == "CONFIDENTIAL" else 1)
-
         nonce = w3.eth.get_transaction_count(account.address, "pending")
         gas_price = w3.eth.gas_price
         max_priority = max(int(gas_price * 1.5), 30_000_000_000)  # min 30 Gwei
         max_fee = max_priority + gas_price
 
-        tx = contract.functions.registerCase(
-            case_id_hash,
-            case.title[:64],
-            clearance_level,
+        tx = contract.functions.logCase(
+            case_id.upper()
         ).build_transaction({
             "chainId": 80002,
             "from": account.address,

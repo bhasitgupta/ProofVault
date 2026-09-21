@@ -14,4 +14,4 @@
 
 - **Deployed Contract Addresses (Polygon Amoy Testnet)**:
   - `EvidenceRegistry`: `0xE5A9000fe858f49f4e0520b44dBCC138ba2ef05b`
-  - `ProvenanceRegistry`: `0x3eD98E9e810e232342429A69f4789b9C829c0Bd7`
+  - `ProvenanceRegistry`: `0x5D94C63ABfAEFf3758A51642A03912F73a064ADA`

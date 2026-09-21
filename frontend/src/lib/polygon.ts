@@ -4,7 +4,7 @@ export const POLYGON_AMOY_CHAIN_ID = 80002;
 export const POLYGON_AMOY_CHAIN_HEX = '0x13882';
 export const POLYGON_AMOY_RPC = ((import.meta as any).env?.VITE_POLYGON_RPC_URL as string) || 'https://polygon-amoy-bor-rpc.publicnode.com';
 export const EVIDENCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_EVIDENCE_REGISTRY as string) || '0xE5A9000fe858f49f4e0520b44dBCC138ba2ef05b';
-export const PROVENANCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_PROVENANCE_REGISTRY as string) || '0x3eD98E9e810e232342429A69f4789b9C829c0Bd7';
+export const PROVENANCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_PROVENANCE_REGISTRY as string) || '0x5D94C63ABfAEFf3758A51642A03912F73a064ADA';
 export const POLYGONSCAN_BASE = 'https://amoy.polygonscan.com';
 
 const SUPABASE_URL = ((import.meta as any).env?.VITE_SUPABASE_URL as string) || 'https://kraxwwwkhprczuiqkxuw.supabase.co';
@@ -18,6 +18,14 @@ const EVIDENCE_REGISTRY_ABI = [
   'function mintEvidence(bytes32 docIdHash, bytes32 contentHash, bytes32 merkleRoot, bytes32 blobHash, string calldata caseId, uint256 batchId) external',
   'event EvidenceRegistered(bytes32 indexed docIdHash, bytes32 indexed merkleRoot, bytes32 contentHash, string caseId, uint256 batchId, uint256 timestamp, address indexed registrar)',
   'event EvidenceMinted(bytes32 indexed docIdHash, bytes32 indexed merkleRoot, string caseId, uint256 timestamp, address indexed registrar)'
+];
+
+export const PROVENANCE_REGISTRY_ABI = [
+  'function logCase(string calldata caseId) external',
+  'function isCaseAnchored(string calldata caseId) external view returns (bool)',
+  'function getCaseAnchor(string calldata caseId) external view returns (tuple(bytes32 caseIdHash, string caseId, address anchoredBy, uint256 anchoredAt, bool exists))',
+  'function getTotalCasesAnchored() external view returns (uint256)',
+  'event CaseAnchored(bytes32 indexed caseIdHash, string caseId, address indexed anchoredBy, uint256 timestamp)'
 ];
 
 /**
@@ -260,9 +268,9 @@ export async function ensurePolygonAmoyNetwork(): Promise<boolean> {
   // Multiple Polygon Amoy RPC endpoints — MetaMask picks the fastest/available
   const AMOY_RPC_URLS = [
     POLYGON_AMOY_RPC,
-    'https://polygon-amoy.drpc.org',
-    'https://rpc-amoy.polygon.technology',
     'https://polygon-amoy-bor-rpc.publicnode.com',
+    'https://polygon-amoy.drpc.org',
+    'https://80002.rpc.thirdweb.com',
     'https://api.zan.top/node/v1/polygon/amoy/public',
   ];
 
@@ -576,7 +584,69 @@ export async function uploadToSupabaseStorageAndDB(params: {
     body: JSON.stringify(auditPayload),
   }).catch(err => console.warn('Audit log insert warning:', err));
 
-  // Note: active_document_count column does not exist in cases schema — skip PATCH
-
   return docPayload;
+}
+
+/**
+ * Permanently anchors a Case ID to Polygon Amoy using ProvenanceRegistry.logCase(caseId).
+ * Enforces Web3 wallet popup (MetaMask) and returns confirmed transaction hash and explorer URL.
+ */
+export async function anchorCaseOnChain(caseId: string): Promise<{ txHash: string; explorerUrl: string }> {
+  const eth = (window as any).ethereum;
+  if (!eth) {
+    throw new Error('MetaMask / Web3 wallet is required to anchor cases to Polygon blockchain. Please install MetaMask and try again.');
+  }
+
+  await ensurePolygonAmoyNetwork();
+
+  const accounts: string[] = await eth.request({ method: 'eth_requestAccounts' });
+  if (!accounts || accounts.length === 0) {
+    throw new Error('No wallet account selected. Please unlock MetaMask.');
+  }
+
+  const iface = new ethers.Interface(PROVENANCE_REGISTRY_ABI);
+  const calldata = iface.encodeFunctionData('logCase', [caseId]);
+
+  try {
+    const txHash: string = await eth.request({
+      method: 'eth_sendTransaction',
+      params: [{
+        from: accounts[0],
+        to: PROVENANCE_REGISTRY_ADDR,
+        data: calldata,
+        value: '0x0',
+        gas: '0x30D40', // 200,000 gas limit
+        maxPriorityFeePerGas: '0x6fc23ac00', // 30 Gwei (>= 25 Gwei Amoy minimum)
+        maxFeePerGas: '0xdf8475800', // 60 Gwei
+      }],
+    });
+
+    if (!txHash || typeof txHash !== 'string') {
+      throw new Error('Transaction was not broadcasted by wallet.');
+    }
+
+    return {
+      txHash,
+      explorerUrl: `${POLYGONSCAN_BASE}/tx/${txHash}`,
+    };
+  } catch (err: any) {
+    if (err?.code === 4001 || err?.message?.includes('User denied') || err?.message?.includes('rejected')) {
+      throw new Error('Transaction rejected by user in MetaMask.');
+    }
+    throw new Error(`Polygon Amoy transaction failed: ${err?.message || err}`);
+  }
+}
+
+/**
+ * Checks whether a case ID is already anchored on Polygon Amoy.
+ */
+export async function isCaseAnchoredOnChain(caseId: string): Promise<boolean> {
+  try {
+    const provider = new ethers.JsonRpcProvider(POLYGON_AMOY_RPC);
+    const contract = new ethers.Contract(PROVENANCE_REGISTRY_ADDR, PROVENANCE_REGISTRY_ABI, provider);
+    return await contract.isCaseAnchored(caseId);
+  } catch (err) {
+    console.warn('Failed to verify case anchor on-chain:', err);
+    return false;
+  }
 }

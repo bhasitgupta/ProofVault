@@ -32,7 +32,7 @@ import {
 import { apiFetch } from '../api/client';
 import { useAuth } from '../hooks/useAuth';
 import { getAIProviderConfigs } from '../api/query';
-import { ensurePolygonAmoyNetwork, POLYGONSCAN_BASE, PROVENANCE_REGISTRY_ADDR } from '../lib/polygon';
+import { ensurePolygonAmoyNetwork, POLYGONSCAN_BASE, PROVENANCE_REGISTRY_ADDR, anchorCaseOnChain } from '../lib/polygon';
 import { ethers } from 'ethers';
 
 const SUPABASE_URL = ((import.meta as any).env?.VITE_SUPABASE_URL as string) || 'https://kraxwwwkhprczuiqkxuw.supabase.co';
@@ -457,53 +457,12 @@ export const AdminPage: React.FC = () => {
     setCaseFormLoading(true);
     const savedCaseId = caseForm.case_id;
     try {
-      // Step 1: MetaMask — anchor case ID on Polygon Amoy
-      // Uses raw keccak256 hash as calldata (not a contract function call)
-      // so it CANNOT revert due to access control. Works with ANY wallet.
-      const eth = (window as any).ethereum;
-      let chainTxHash = '';
-      if (eth) {
-        try {
-          await ensurePolygonAmoyNetwork();
-          const accounts = await eth.request({ method: 'eth_requestAccounts' });
-          if (accounts && accounts.length > 0) {
-            // Build a unique proof hash: keccak256(caseId + classification + timestamp)
-            const anchorPayload = `SDMS:CASE:${caseForm.case_id}:${caseForm.classification_ceiling}:${caseForm.owning_msp}:${Date.now()}`;
-            const proofHash = ethers.keccak256(ethers.toUtf8Bytes(anchorPayload));
+      // Step 1: Enforce on-chain case anchoring on Polygon Amoy via MetaMask wallet popup
+      const normalizedCaseId = caseForm.case_id.trim().toUpperCase();
+      const { txHash } = await anchorCaseOnChain(normalizedCaseId);
+      console.info(`[Chain] logCase(${normalizedCaseId}) confirmed: ${txHash}`);
+      let chainTxHash = txHash;
 
-            const txParams = {
-              from: accounts[0],
-              to: accounts[0],            // Self-anchor: EOA-to-EOA NEVER reverts
-              data: proofHash,             // 32-byte case proof — permanent on Polygon Amoy
-              value: '0x0',
-              gas: '0x7A12',              // 31250 — base (21000) + data overhead
-              maxPriorityFeePerGas: ethers.toBeHex(ethers.parseUnits('30', 'gwei')),
-              maxFeePerGas: ethers.toBeHex(ethers.parseUnits('60', 'gwei')),
-            };
-
-            try {
-              // Try Evidence Registry first
-              chainTxHash = await eth.request({ method: 'eth_sendTransaction', params: [txParams] });
-            } catch (contractErr: any) {
-              if (contractErr?.code === 4001) throw contractErr; // user rejected — propagate
-              // Contract has no fallback — self-anchor (always succeeds)
-              console.warn('[Chain] Contract rejected raw data, using self-anchor:', contractErr?.message);
-              chainTxHash = await eth.request({
-                method: 'eth_sendTransaction',
-                params: [{ ...txParams, to: accounts[0] }], // send to own address — always works
-              });
-            }
-            console.info(`[Chain] Case ${caseForm.case_id} anchored on Polygon Amoy: ${chainTxHash}`);
-          }
-        } catch (metamaskErr: any) {
-          if (metamaskErr?.code === 4001) {
-            setCaseFormError('Case creation cancelled: MetaMask transaction rejected by user.');
-            setCaseFormLoading(false);
-            return;
-          }
-          console.warn('[Chain] MetaMask unavailable, proceeding off-chain:', metamaskErr?.message);
-        }
-      }
 
       // Step 2: Save to Supabase — source of truth
       const nowIso = new Date().toISOString();
