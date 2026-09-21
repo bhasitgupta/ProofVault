@@ -443,7 +443,9 @@ export const AdminPage: React.FC = () => {
                 to: PROVENANCE_REGISTRY_ADDR,
                 data: calldata,
                 value: '0x0',
-                gas: '0x30D40', // 200,000 gas
+                // EIP-1559: Polygon Amoy requires min 2.5 Gwei tip — use 30 Gwei
+                maxPriorityFeePerGas: ethers.toBeHex(ethers.parseUnits('30', 'gwei')),
+                maxFeePerGas: ethers.toBeHex(ethers.parseUnits('50', 'gwei')),
               }],
             });
           }
@@ -574,7 +576,9 @@ export const AdminPage: React.FC = () => {
                 to: PROVENANCE_REGISTRY_ADDR,
                 data: calldata,
                 value: '0x0',
-                gas: '0x30D40', // 200,000 gas
+                // EIP-1559: Polygon Amoy requires min 2.5 Gwei tip — use 30 Gwei
+                maxPriorityFeePerGas: ethers.toBeHex(ethers.parseUnits('30', 'gwei')),
+                maxFeePerGas: ethers.toBeHex(ethers.parseUnits('50', 'gwei')),
               }],
             });
           }
