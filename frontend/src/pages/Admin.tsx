@@ -444,51 +444,9 @@ export const AdminPage: React.FC = () => {
     e.preventDefault();
     setCaseFormError(null);
     setCaseFormLoading(true);
+    const savedCaseId = caseForm.case_id;
     try {
-      // Step 1: MetaMask on-chain case registration
-      const eth = (window as any).ethereum;
-      let chainTxHash = '';
-      if (eth) {
-        try {
-          await ensurePolygonAmoyNetwork();
-          const accounts = await eth.request({ method: 'eth_requestAccounts' });
-          if (accounts && accounts.length > 0) {
-            const iface = new ethers.Interface(PROVENANCE_ABI);
-            const caseIdHash = ethers.keccak256(ethers.toUtf8Bytes(caseForm.case_id));
-            const clearanceLevel = caseForm.classification_ceiling === 'SECRET' ? 3
-              : caseForm.classification_ceiling === 'CONFIDENTIAL' ? 2 : 1;
-            const calldata = iface.encodeFunctionData('registerCase', [
-              caseIdHash,
-              caseForm.title.slice(0, 64),
-              clearanceLevel,
-            ]);
-            chainTxHash = await eth.request({
-              method: 'eth_sendTransaction',
-              params: [{
-                from: accounts[0],
-                to: PROVENANCE_REGISTRY_ADDR,
-                data: calldata,
-                value: '0x0',
-                gas: '0x493E0',
-                maxPriorityFeePerGas: ethers.toBeHex(ethers.parseUnits('30', 'gwei')),
-                maxFeePerGas: ethers.toBeHex(ethers.parseUnits('50', 'gwei')),
-              }],
-            });
-          }
-        } catch (metamaskErr: any) {
-          if (metamaskErr?.code === 4001) {
-            // User rejected MetaMask
-            setCaseFormError('Case creation cancelled: MetaMask transaction rejected by user.');
-            setCaseFormLoading(false);
-            return;
-          }
-          console.warn('MetaMask case registration failed, proceeding off-chain:', metamaskErr);
-        }
-      } else {
-        console.warn('MetaMask not detected — case will be saved off-chain only.');
-      }
-
-      // Step 2: Save to Supabase (anon key)
+      // Step 1: Save to Supabase (anon key) — source of truth
       const nowIso = new Date().toISOString();
       const casePayload = {
         case_id: caseForm.case_id,
@@ -515,23 +473,30 @@ export const AdminPage: React.FC = () => {
         throw new Error(`Case Creation Error: ${errText}`);
       }
 
-      // Write audit log
+      // Step 2: Write audit log
       fetch(`${SUPABASE_URL}/rest/v1/audit_logs`, {
         method: 'POST',
         headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ event_type: 'CASE_CREATED', actor_id: 'ADMIN', case_id: caseForm.case_id, details: JSON.stringify({ title: caseForm.title, classification: caseForm.classification_ceiling, msp: caseForm.owning_msp }), timestamp: new Date().toISOString() }),
+        body: JSON.stringify({ event_type: 'CASE_CREATED', actor_id: 'ADMIN', case_id: caseForm.case_id, details: JSON.stringify({ title: caseForm.title, classification: caseForm.classification_ceiling, msp: caseForm.owning_msp }), timestamp: nowIso }),
       }).catch(() => {});
+
+      // Step 3: Trigger backend on-chain anchoring (uses server-side POLYGON_PRIVATE_KEY)
+      // Fire-and-forget — does not block UI
+      apiFetch<any>(`/admin/cases/${caseForm.case_id}/register-chain`, { method: 'POST' })
+        .then((r) => console.info(`[Chain] Case ${caseForm.case_id} anchored: ${r?.tx_hash || 'deterministic'}`))
+        .catch((e) => console.warn('[Chain] Backend anchor failed (non-fatal):', e));
 
       setShowCreateCase(false);
       setCaseForm({ case_id: '', title: '', description: '', classification_ceiling: 'CONFIDENTIAL', owning_msp: 'PoliceMSP' });
       await loadAdminData();
-      alert(`✓ Docket ${caseForm.case_id} initialized successfully${chainTxHash ? ` — TX: ${chainTxHash.slice(0, 16)}...` : ' (off-chain)'}`);
+      alert(`✓ Docket ${savedCaseId} created successfully. Blockchain anchoring triggered on backend.`);
     } catch (err: any) {
       setCaseFormError(err.message || 'Failed to create case');
     } finally {
       setCaseFormLoading(false);
     }
   };
+
 
   const toggleCasePanel = async (caseId: string) => {
     if (expandedCase === caseId) {

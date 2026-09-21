@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -496,3 +497,131 @@ async def admin_revoke_assignment(
     assign.is_active = False
     await session.commit()
     return {"user_id": user_id, "case_id": case_id, "revoked": True}
+
+
+# ── On-chain Registration (server-side private key, not MetaMask) ─────────────
+
+@router.post("/cases/{case_id}/register-chain")
+async def register_case_on_chain(
+    case_id: str,
+    current_user: dict = Depends(get_current_user),
+    session: AsyncSession = Depends(get_db),
+):
+    """
+    Anchor a case docket to Polygon Amoy ProvenanceRegistry using the server's
+    POLYGON_PRIVATE_KEY. This bypasses MetaMask wallet requirements and uses
+    the contract deployer key stored securely in backend env vars.
+    """
+    require_admin(current_user)
+
+    # Verify case exists
+    case_res = await session.execute(select(Case).where(Case.case_id == case_id))
+    case = case_res.scalar_one_or_none()
+    if not case:
+        raise HTTPException(status_code=404, detail="Case not found")
+
+    private_key = os.getenv("POLYGON_PRIVATE_KEY", "")
+    contract_addr = os.getenv("POLYGON_PROVENANCE_REGISTRY_ADDRESS", "0x3eD98E9e810e232342429A69f4789b9C829c0Bd7")
+    rpc_url = os.getenv("POLYGON_RPC_URL", "https://rpc-amoy.polygon.technology/")
+
+    if not private_key or private_key.strip() == "":
+        # No private key configured — return deterministic hash as proof-of-record
+        import hashlib
+        det_hash = "0x" + hashlib.sha256(f"case:{case_id}:{case.classification_ceiling}".encode()).hexdigest()
+        return {
+            "case_id": case_id,
+            "tx_hash": det_hash,
+            "anchored_on_chain": False,
+            "status": "DETERMINISTIC_HASH (no POLYGON_PRIVATE_KEY configured)",
+            "explorer_url": "",
+        }
+
+    try:
+        from web3 import Web3
+        from eth_account import Account
+
+        PROVENANCE_ABI = [
+            {
+                "inputs": [
+                    {"internalType": "bytes32", "name": "caseIdHash", "type": "bytes32"},
+                    {"internalType": "string", "name": "title", "type": "string"},
+                    {"internalType": "uint8", "name": "clearanceLevel", "type": "uint8"},
+                ],
+                "name": "registerCase",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function",
+            }
+        ]
+
+        # Try multiple RPC endpoints
+        rpc_urls = [
+            rpc_url,
+            "https://rpc-amoy.polygon.technology/",
+            "https://polygon-amoy-bor-rpc.publicnode.com",
+            "https://rpc.ankr.com/polygon_amoy",
+        ]
+
+        w3 = None
+        for url in rpc_urls:
+            try:
+                candidate = Web3(Web3.HTTPProvider(url, request_kwargs={"timeout": 8}))
+                if candidate.is_connected():
+                    w3 = candidate
+                    break
+            except Exception:
+                continue
+
+        if not w3:
+            raise RuntimeError("All Polygon Amoy RPC endpoints unreachable")
+
+        account = Account.from_key(private_key)
+        contract = w3.eth.contract(
+            address=Web3.to_checksum_address(contract_addr),
+            abi=PROVENANCE_ABI,
+        )
+
+        case_id_hash = Web3.keccak(text=case_id.upper())
+        clearance_level = 3 if case.classification_ceiling == "SECRET" else (2 if case.classification_ceiling == "CONFIDENTIAL" else 1)
+
+        nonce = w3.eth.get_transaction_count(account.address, "pending")
+        gas_price = w3.eth.gas_price
+        max_priority = max(int(gas_price * 1.5), 30_000_000_000)  # min 30 Gwei
+        max_fee = max_priority + gas_price
+
+        tx = contract.functions.registerCase(
+            case_id_hash,
+            case.title[:64],
+            clearance_level,
+        ).build_transaction({
+            "chainId": 80002,
+            "from": account.address,
+            "nonce": nonce,
+            "gas": 300_000,
+            "maxPriorityFeePerGas": max_priority,
+            "maxFeePerGas": max_fee,
+        })
+
+        signed = account.sign_transaction(tx)
+        tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction).hex()
+
+        return {
+            "case_id": case_id,
+            "tx_hash": tx_hash,
+            "anchored_on_chain": True,
+            "status": "MINTED & ANCHORED (Polygon Amoy)",
+            "explorer_url": f"https://amoy.polygonscan.com/tx/{tx_hash}",
+        }
+
+    except Exception as e:
+        import hashlib, logging
+        logging.getLogger("sdms.admin").warning(f"On-chain case registration failed: {e}")
+        det_hash = "0x" + hashlib.sha256(f"case:{case_id}:{case.classification_ceiling}".encode()).hexdigest()
+        return {
+            "case_id": case_id,
+            "tx_hash": det_hash,
+            "anchored_on_chain": False,
+            "status": f"OFF_CHAIN (blockchain error: {str(e)[:120]})",
+            "explorer_url": "",
+        }
+
