@@ -3,66 +3,20 @@ import { Case, AuditEvent } from '../lib/types';
 
 const SUPABASE_URL = ((import.meta as any).env?.VITE_SUPABASE_URL as string) || 'https://kraxwwwkhprczuiqkxuw.supabase.co';
 const SUPABASE_REST_URL = `${SUPABASE_URL}/rest/v1`;
-const SUPABASE_KEY =
-  ((import.meta as any).env?.VITE_SUPABASE_SERVICE_ROLE_KEY as string) ||
+const SUPABASE_ANON_KEY =
   ((import.meta as any).env?.VITE_SUPABASE_ANON_KEY as string) ||
-  'sb_secret_J56_I0CRFrA9Rn-T65_TWg_A8cgYWdb';
+  'sb_publishable_yBEvcnfdSVjN_5ZlxSw_5w_bDe53Czq';
 
-export const FALLBACK_CASES: Case[] = [
-  {
-    case_id: 'CASE-101',
-    title: 'State vs Cyber Syndicate - Hawala Breach & Crypto Theft',
-    description: 'Inter-state cybercrime and fraudulent cryptocurrency transfer involving international cold wallets.',
-    status: 'ACTIVE',
-    classification_ceiling: 'CONFIDENTIAL',
-    owning_msp: 'PoliceMSP',
-    active_document_count: 5,
-  },
-  {
-    case_id: 'CASE-102',
-    title: 'FIR 402/2026 - Central Bank Core Gateway Ransomware',
-    description: 'Critical banking infrastructure ransomware deployment impacting central clearing switch.',
-    status: 'ACTIVE',
-    classification_ceiling: 'SECRET',
-    owning_msp: 'PoliceMSP',
-    active_document_count: 4,
-  },
-  {
-    case_id: 'CASE-103',
-    title: 'Special Investigation - Ballistics & Arms Seizure',
-    description: 'Ballistic cross-matching and illegal firearm telemetry in trans-border arms smuggling.',
-    status: 'ACTIVE',
-    classification_ceiling: 'SECRET',
-    owning_msp: 'PoliceMSP',
-    active_document_count: 3,
-  },
-  {
-    case_id: 'CASE-104',
-    title: 'Judicial Review - Corporate Embezzlement & Balance Sheet Forgery',
-    description: 'Shell corporation money trails, forged auditor sign-offs, and siphoned infrastructure subsidies.',
-    status: 'ACTIVE',
-    classification_ceiling: 'CONFIDENTIAL',
-    owning_msp: 'JudiciaryMSP',
-    active_document_count: 3,
-  },
-  {
-    case_id: 'CASE-105',
-    title: 'Digital Narcotics Trafficking & Darknet Transit Network',
-    description: 'Encrypted communication extractions, cryptocurrency payments, and darknet postal drops.',
-    status: 'ACTIVE',
-    classification_ceiling: 'SECRET',
-    owning_msp: 'PoliceMSP',
-    active_document_count: 4,
-  },
-];
+// No fallback/dummy cases — always show real data or empty state
+export const FALLBACK_CASES: Case[] = [];
 
 export async function getCases(): Promise<Case[]> {
   // 1. Direct query to live Supabase PostgreSQL database
   try {
     const res = await fetch(`${SUPABASE_REST_URL}/cases?select=*&order=created_at.asc`, {
       headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
       },
     });
     if (res.ok) {
@@ -79,6 +33,9 @@ export async function getCases(): Promise<Case[]> {
           created_at: c.created_at,
         }));
       }
+      if (Array.isArray(data) && data.length === 0) {
+        return [];
+      }
     }
   } catch (supaErr) {
     console.warn('Supabase cloud DB query error:', supaErr);
@@ -94,8 +51,8 @@ export async function getCases(): Promise<Case[]> {
     console.warn('Backend cases endpoint returned error or offline:', backendErr);
   }
 
-  // 3. Fallback cases
-  return FALLBACK_CASES;
+  // 3. Return empty — no dummy data
+  return [];
 }
 
 export async function createCase(caseData: {
@@ -121,8 +78,8 @@ export async function createCase(caseData: {
   const res = await fetch(`${SUPABASE_REST_URL}/cases`, {
     method: 'POST',
     headers: {
-      apikey: SUPABASE_KEY,
-      Authorization: `Bearer ${SUPABASE_KEY}`,
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
       'Content-Type': 'application/json',
       Prefer: 'return=representation',
     },
@@ -157,8 +114,8 @@ export async function updateCaseStatus(
   const res = await fetch(`${SUPABASE_REST_URL}/cases?case_id=eq.${encodeURIComponent(caseId)}`, {
     method: 'PATCH',
     headers: {
-      apikey: SUPABASE_KEY,
-      Authorization: `Bearer ${SUPABASE_KEY}`,
+      apikey: SUPABASE_ANON_KEY,
+      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ status, updated_at: nowIso }),
@@ -185,8 +142,8 @@ export async function getCaseDetails(caseId: string): Promise<Case> {
   try {
     const res = await fetch(`${SUPABASE_REST_URL}/cases?case_id=eq.${encodeURIComponent(caseId)}&select=*`, {
       headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
       },
     });
     if (res.ok) {
@@ -206,9 +163,12 @@ export async function getCaseDetails(caseId: string): Promise<Case> {
     }
   } catch {}
 
-  const found = FALLBACK_CASES.find((c) => c.case_id === caseId);
-  if (found) return found;
-  throw new Error(`Case ${caseId} not found`);
+  // Try backend fallback
+  try {
+    return await apiFetch<Case>(`/cases/${caseId}`);
+  } catch {
+    throw new Error(`Case ${caseId} not found`);
+  }
 }
 
 export async function getCaseTimeline(caseId: string): Promise<{ case_id: string; events: AuditEvent[] }> {
@@ -217,8 +177,8 @@ export async function getCaseTimeline(caseId: string): Promise<{ case_id: string
       `${SUPABASE_REST_URL}/audit_logs?case_id=eq.${encodeURIComponent(caseId)}&select=*&order=created_at.asc`,
       {
         headers: {
-          apikey: SUPABASE_KEY,
-          Authorization: `Bearer ${SUPABASE_KEY}`,
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
         },
       }
     );
@@ -228,7 +188,7 @@ export async function getCaseTimeline(caseId: string): Promise<{ case_id: string
         eventId: r.event_id || r.id,
         actorId: r.actor_id || 'System',
         actorRole: r.actor_role || 'SYSTEM',
-        actorMSP: r.case_id?.includes('104') ? 'JudiciaryMSP' : 'PoliceMSP',
+        actorMSP: r.actor_msp || 'PoliceMSP',
         action: r.action || 'ACCESS',
         caseId: r.case_id || caseId,
         outcome: r.outcome || 'ALLOW',
@@ -264,8 +224,8 @@ export async function getAllAuditLogs(filter?: {
 
     const res = await fetch(query, {
       headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
       },
     });
 
@@ -275,7 +235,7 @@ export async function getAllAuditLogs(filter?: {
         eventId: r.event_id || r.id,
         actorId: r.actor_id || 'System',
         actorRole: r.actor_role || 'SYSTEM',
-        actorMSP: r.case_id?.includes('104') ? 'JudiciaryMSP' : 'PoliceMSP',
+        actorMSP: r.actor_msp || 'PoliceMSP',
         action: r.action || 'ACCESS',
         caseId: r.case_id,
         outcome: r.outcome || 'ALLOW',
@@ -310,8 +270,9 @@ export async function recordCustodyEvent(params: {
     event_id: `evt_${timeSuffix}_${randSuffix}`,
     actor_id: params.actorId || 'USR-001',
     actor_role: params.actorRole || 'INVESTIGATOR',
+    actor_msp: params.actorMSP || 'PoliceMSP',
     action: params.action || 'CUSTODY_TRANSFER',
-    case_id: params.caseId || 'CASE-101',
+    case_id: params.caseId || '',
     outcome: params.outcome || 'ALLOW',
     reason: params.reason || 'Evidentiary transfer between agencies',
     raw_query_encrypted: '',
@@ -324,8 +285,8 @@ export async function recordCustodyEvent(params: {
     const res = await fetch(`${SUPABASE_REST_URL}/audit_logs`, {
       method: 'POST',
       headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
@@ -344,8 +305,8 @@ export async function getIncidents(): Promise<{ total: number; incidents: any[] 
   try {
     const res = await fetch(`${SUPABASE_REST_URL}/audit_logs?outcome=eq.DENY&select=*&order=created_at.desc&limit=20`, {
       headers: {
-        apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
       },
     });
     if (res.ok) {

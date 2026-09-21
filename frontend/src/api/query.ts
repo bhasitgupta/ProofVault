@@ -164,13 +164,16 @@ export async function askEvidence(
     cascadeOrder = [providers.tier1, providers.tier2, providers.tier3, providers.tier4];
   }
 
-  // Retrieve relevant evidentiary records from Supabase REST
+  // Retrieve relevant evidentiary records AND chunk text from Supabase REST
   let evidenceContext = '';
   let citations: any[] = [];
   try {
+    // 1. Fetch document metadata
     let url = `${SUPABASE_REST_URL}/documents?select=*&limit=8`;
     if (caseIds.length === 1) {
       url += `&case_id=eq.${encodeURIComponent(caseIds[0])}`;
+    } else if (caseIds.length > 1) {
+      url += `&case_id=in.(${caseIds.map(id => encodeURIComponent(id)).join(',')})`;
     }
     const docRes = await fetch(url, {
       headers: {
@@ -181,19 +184,47 @@ export async function askEvidence(
     if (docRes.ok) {
       const docs = await docRes.json();
       if (Array.isArray(docs) && docs.length > 0) {
-        evidenceContext = docs
-          .map(
-            (d) =>
-              `[${d.id || d.doc_id}] (Case: ${d.case_id}, Type: ${d.doc_type}, Classification: ${d.classification})\nFilename: ${d.filename}\nHash: ${d.content_hash}\nMerkle Root: ${d.chunk_merkle_root}\nLedger TX: ${d.ledger_tx_id || '0x4a8b...verified'}`
-          )
-          .join('\n\n');
+        // 2. Fetch chunk text for each document to build real evidence context
+        const contextParts: string[] = [];
+        for (const d of docs) {
+          const docId = d.id || d.doc_id;
+          let chunkContext = '';
+          try {
+            const chunkRes = await fetch(
+              `${SUPABASE_REST_URL}/chunks?doc_id=eq.${encodeURIComponent(docId)}&select=chunk_text,chunk_index,page_number&order=chunk_index.asc&limit=6`,
+              {
+                headers: {
+                  apikey: SUPABASE_ANON_KEY,
+                  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+                },
+              }
+            );
+            if (chunkRes.ok) {
+              const chunks = await chunkRes.json();
+              if (Array.isArray(chunks) && chunks.length > 0) {
+                chunkContext = chunks
+                  .map((c: any) => (c.chunk_text || '').trim())
+                  .filter((t: string) => t.length > 0)
+                  .join(' ')
+                  .slice(0, 1200);
+              }
+            }
+          } catch {}
 
-        citations = docs.slice(0, 3).map((d) => ({
+          contextParts.push(
+            `[${docId}] Case: ${d.case_id} | Type: ${d.doc_type} | Classification: ${d.classification} | File: ${d.filename}\n` +
+            `Hash: ${(d.content_hash || '').slice(0, 16)}... | Ledger TX: ${d.ledger_tx_id || 'Off-chain'}\n` +
+            (chunkContext ? `Content:\n${chunkContext}` : '[No text content extracted]')
+          );
+        }
+        evidenceContext = contextParts.join('\n\n---\n\n');
+
+        citations = docs.slice(0, 3).map((d: any) => ({
           doc_id: d.id || d.doc_id,
           chunk_index: 0,
           page_number: 1,
           chunk_hash: d.content_hash,
-          ledger_tx_id: d.ledger_tx_id || '0x4a8b13c2f10d9821ef37bc9024a1e9c8',
+          ledger_tx_id: d.ledger_tx_id || '',
           filename: d.filename,
           verification_status: 'VERIFIED',
         }));
@@ -203,10 +234,17 @@ export async function askEvidence(
     console.warn('Could not fetch Supabase evidence context:', dbErr);
   }
 
-  const systemPrompt = `You are Proof Vault Sovereign Judicial AI — a strict evidence reasoning assistant adhering to Section 63 of Bharatiya Sakshya Adhiniyam (BSA §63) and IEA §65B.
-Answer the user query solely using the verified forensic evidence records provided. Include document IDs in brackets e.g. [DOC-101-01]. If unknown, state strictly what is in the record.`;
+  const caseScope = caseIds.length > 0 ? `Case(s): ${caseIds.join(', ')}` : 'All active cases';
 
-  const userPrompt = `Verified Judicial Evidence Dossiers:\n${evidenceContext || 'Case: CASE-101 (Hawala & Crypto Theft). Verified digital records sealed.'}\n\nQuery: ${query}`;
+  const systemPrompt = `You are Proof Vault — a sovereign judicial AI evidence assistant operating under Bharatiya Sakshya Adhiniyam §63 (BSA §63) and IEA §65B.
+Your role: Answer questions STRICTLY based on the evidentiary records provided below. Cite document IDs in brackets e.g. [DOC-101-01]. If information is not in the records, state explicitly: "No evidence record found for this query in the provided dossier."
+Do NOT fabricate evidence, case facts, or forensic findings.`;
+
+  const noEvidenceNote = evidenceContext
+    ? ''
+    : `\n\nNOTE: No evidence documents are currently in the database for ${caseScope}. Ingest evidence files first via the Ingest Evidence page.`;
+
+  const userPrompt = `Verified Judicial Evidence Dossiers (${caseScope}):\n${evidenceContext || '[No evidence records found in database]'}\n\nQuery: ${query}${noEvidenceNote}`;
 
   // Execute 3-Tier Cascade
   let generatedAnswer = '';
@@ -234,11 +272,36 @@ Answer the user query solely using the verified forensic evidence records provid
     }
   }
 
-  // Safety net synthesis if no external API key configured or all failed
+  // Safety net: if no external API key configured or all tiers failed
   if (!generatedAnswer) {
-    providerUsed = 'Verified Sovereign Synthesizer';
-    modelUsed = 'bsa63-merkle-engine';
-    generatedAnswer = `**[Verified Sovereign Judicial Analysis — BSA §63 Certified]**\n\nBased on the cryptographic forensic records registered on Polygon Amoy EVM for case docket **${caseIds.join(', ') || 'Active Jurisdictions'}**:\n\n• **Evidentiary Integrity:** All referenced records passed SHA-256 hash sealing and RFC 6962 Merkle tree verification.\n• **Statutory Admissibility:** Admissible under Bharatiya Sakshya Adhiniyam Section 63 and Section 65B without tampering.\n• **Query Analysis:** ${query}\n• **Status:** Active electronic evidence chain of custody intact.`;
+    // No API keys at all
+    const hasAnyKey = cascadeOrder.some(p => p.apiKey);
+    if (!hasAnyKey) {
+      generatedAnswer = `**[AI Gateway Not Configured]**
+
+No AI API keys are set up yet. To enable intelligent evidence querying:
+
+1. Go to **Admin > Cascading AI Gateway** section
+2. Enter your OpenRouter, NVIDIA, or direct API keys
+3. Click **Save AI Gateway Keys**
+4. Return here and ask your question
+
+Once configured, Proof Vault will query your ingested evidence and provide case-specific answers.
+
+Evidence scope: ${caseScope}`;
+    } else {
+      // Keys were configured but all tiers failed (network/quota issues)
+      generatedAnswer = `**[AI Query Failed — All Providers Unavailable]**
+
+All configured AI providers returned errors. Possible causes:
+- Invalid or expired API keys
+- Rate limit / quota exceeded
+- Network connectivity issue
+
+Evidence scope: ${caseScope}\n${evidenceContext ? `\nEvidence records found: ${citations.length} document(s)` : '\nNo evidence records in DB for this case.'}`;
+    }
+    providerUsed = 'None (No AI Provider Configured)';
+    modelUsed = 'none';
   }
 
   const elapsed = Date.now() - startTime;

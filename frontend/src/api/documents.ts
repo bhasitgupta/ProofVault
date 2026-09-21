@@ -13,10 +13,10 @@ import {
 } from '../lib/polygon';
 
 const SUPABASE_URL = ((import.meta as any).env?.VITE_SUPABASE_URL as string) || 'https://kraxwwwkhprczuiqkxuw.supabase.co';
+// Always use anon key — never use service role key in browser
 const SUPABASE_KEY =
-  ((import.meta as any).env?.VITE_SUPABASE_SERVICE_ROLE_KEY as string) ||
   ((import.meta as any).env?.VITE_SUPABASE_ANON_KEY as string) ||
-  'sb_secret_J56_I0CRFrA9Rn-T65_TWg_A8cgYWdb';
+  'sb_publishable_yBEvcnfdSVjN_5ZlxSw_5w_bDe53Czq';
 
 /**
  * Upload and ingest evidence document:
@@ -32,10 +32,12 @@ export async function uploadDocument(formData: FormData): Promise<any> {
   const file = formData.get('file') as File;
   if (!file) throw new Error('No evidentiary payload provided for ingestion');
 
-  const caseId = (formData.get('case_id') as string) || 'CASE-101';
+  const caseId = (formData.get('case_id') as string) || '';
   const docType = (formData.get('doc_type') as string) || 'WITNESS_STATEMENT';
   const classification = (formData.get('classification') as string) || 'CONFIDENTIAL';
   const uploaderId = localStorage.getItem('sdms_user_id') || 'USR-001';
+
+  if (!caseId) throw new Error('Case ID is required for evidence ingestion');
 
   // 1. Read binary array buffer
   const arrayBuffer = await file.arrayBuffer();
@@ -43,9 +45,9 @@ export async function uploadDocument(formData: FormData): Promise<any> {
 
   // 2. Compute canonical SHA-256 digest of entire evidence payload
   const contentHash = await computeSHA256(uint8Array);
-  const blobHash = contentHash; // Canonical bitstream hash
+  const blobHash = contentHash;
 
-  // 3. Extract OCR text
+  // 3. Extract OCR text (improved — clean readable text)
   const ocrFullText = await extractDocumentOcr(file, uint8Array);
 
   // 4. Slice payload into 256KB chunks (TRD §11 standard)
@@ -58,8 +60,7 @@ export async function uploadDocument(formData: FormData): Promise<any> {
     chunkBuffers.push(slice);
 
     const chunkHash = await computeSHA256(slice);
-    // Extract segment text for chunk preview
-    let chunkText = `[Chunk #${idx} - SHA256: ${chunkHash.slice(0, 16)}...]`;
+    let chunkText = `[Chunk #${idx} — SHA256: ${chunkHash.slice(0, 16)}...]`;
     if (idx === 0) {
       chunkText = ocrFullText.slice(0, 600);
     } else {
@@ -228,12 +229,12 @@ export async function verifyDocument(docId: string): Promise<any> {
       blob_hash: doc.blob_hash,
       chunk_merkle_root: doc.chunk_merkle_root,
       ledger_tx_id: doc.ledger_tx_id,
-      on_chain_status: 'CONFIRMED',
+      on_chain_status: doc.ledger_tx_id ? 'CONFIRMED' : 'OFF_CHAIN',
       blockchain_network: 'Polygon Amoy Testnet (Chain ID 80002)',
-      polygonscan_url: `${POLYGONSCAN_BASE}/tx/${doc.ledger_tx_id}`,
+      polygonscan_url: doc.ledger_tx_id ? `${POLYGONSCAN_BASE}/tx/${doc.ledger_tx_id}` : '',
       merkle_root_verified: true,
       bsa_63_compliant: true,
-      nft_minted: true,
+      nft_minted: !!doc.ledger_tx_id,
     };
   }
 }
@@ -357,8 +358,8 @@ export async function getDocumentPreview(docId: string): Promise<DocumentPreview
       }
 
       const previewText = chunks.length > 0
-        ? chunks.map((c) => c.text).join('\n\n').slice(0, 2000)
-        : `[Forensic Bitstream Verified on Polygon Amoy. Doc ID: ${doc.id}]`;
+        ? chunks.map((c) => c.text).filter(t => t.trim()).join('\n\n').slice(0, 2000)
+        : `[Document sealed on Polygon Amoy. Doc ID: ${doc.id}]`;
 
       const did = doc.wrapped_dek && doc.wrapped_dek.startsWith('did:')
         ? doc.wrapped_dek
@@ -396,12 +397,13 @@ export async function getDocumentPreview(docId: string): Promise<DocumentPreview
  * Downloads evidence file directly from Supabase Storage 'evidence' bucket
  */
 export async function downloadDocumentFile(docId: string, filename: string): Promise<void> {
+  // Step 1: Look up storage_path for this document
+  let objectPath = '';
   try {
-    const docRes = await fetch(`${SUPABASE_URL}/rest/v1/documents?id=eq.${encodeURIComponent(docId)}&select=storage_path`, {
+    const docRes = await fetch(`${SUPABASE_URL}/rest/v1/documents?id=eq.${encodeURIComponent(docId)}&select=storage_path,filename`, {
       headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
     });
 
-    let objectPath = '';
     if (docRes.ok) {
       const data = await docRes.json();
       if (data && data[0]?.storage_path) {
@@ -410,11 +412,18 @@ export async function downloadDocumentFile(docId: string, filename: string): Pro
           .replace(/^evidence\//, '');
       }
     }
+  } catch (err) {
+    console.warn('Storage path lookup failed:', err);
+  }
 
-    if (!objectPath) {
-      objectPath = `${docId}_${filename}`;
-    }
+  // Step 2: If no storage_path, construct default key
+  if (!objectPath) {
+    const sanitizedName = filename.replace(/[^a-zA-Z0-9._-]/g, '_');
+    objectPath = `${docId}_${sanitizedName}`;
+  }
 
+  // Step 3: Try direct Supabase storage download
+  try {
     const storageRes = await fetch(`${SUPABASE_URL}/storage/v1/object/evidence/${objectPath}`, {
       headers: {
         apikey: SUPABASE_KEY,
@@ -434,11 +443,43 @@ export async function downloadDocumentFile(docId: string, filename: string): Pro
       document.body.removeChild(a);
       return;
     }
+
+    // Step 4: Try signed URL for private buckets
+    const signedRes = await fetch(
+      `${SUPABASE_URL}/storage/v1/object/sign/evidence/${objectPath}`,
+      {
+        method: 'POST',
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ expiresIn: 60 }),
+      }
+    );
+
+    if (signedRes.ok) {
+      const { signedURL } = await signedRes.json();
+      const signedFull = signedURL.startsWith('http') ? signedURL : `${SUPABASE_URL}${signedURL}`;
+      const blobRes = await fetch(signedFull);
+      if (blobRes.ok) {
+        const blob = await blobRes.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        return;
+      }
+    }
   } catch (err) {
-    console.warn('Direct Supabase storage download failed, trying API route:', err);
+    console.warn('Supabase storage download failed, trying API route:', err);
   }
 
-  // Secondary fallback to backend download route
+  // Step 5: Backend API fallback
   const token = localStorage.getItem('sdms_token');
   const response = await fetch(`/api/v1/documents/${docId}/download`, {
     headers: {
@@ -447,7 +488,7 @@ export async function downloadDocumentFile(docId: string, filename: string): Pro
   });
 
   if (!response.ok) {
-    let err = 'Document download failed';
+    let err = 'Document download failed. Ensure the file was stored during upload.';
     try {
       const data = await response.json();
       err = data.detail || err;

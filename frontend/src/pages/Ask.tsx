@@ -41,12 +41,12 @@ interface ChatMessage {
 }
 
 const SUGGESTED_PROMPTS = [
-  { text: "Who all has access to this content and which roles can view it?", caseId: "CASE-101" },
+  { text: "What evidence documents are ingested in this case?", caseId: "" },
   { text: "What are the access and clearances granted to my current role?", caseId: "" },
-  { text: "What hardware server was seized in Case 101?", caseId: "CASE-101" },
-  { text: "What were the forensic ballistics findings in Case 103?", caseId: "CASE-103" },
-  { text: "Summarize the witness statement from Case 101.", caseId: "CASE-101" },
-  { text: "What was the chemical purity of seized narcotics in Case 105?", caseId: "CASE-105" },
+  { text: "Summarize all ingested witness statements for this case.", caseId: "" },
+  { text: "What forensic findings are documented in this case dossier?", caseId: "" },
+  { text: "Which documents have been anchored on-chain in this case?", caseId: "" },
+  { text: "Show the chain of custody events for this case.", caseId: "" },
 ];
 
 export const AskPage: React.FC = () => {

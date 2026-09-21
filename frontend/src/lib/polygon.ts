@@ -8,6 +8,7 @@ export const PROVENANCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_
 export const POLYGONSCAN_BASE = 'https://amoy.polygonscan.com';
 
 const SUPABASE_URL = ((import.meta as any).env?.VITE_SUPABASE_URL as string) || 'https://kraxwwwkhprczuiqkxuw.supabase.co';
+// Always use anon key — never use service role key in browser
 const SUPABASE_KEY =
   ((import.meta as any).env?.VITE_SUPABASE_ANON_KEY as string) ||
   'sb_publishable_yBEvcnfdSVjN_5ZlxSw_5w_bDe53Czq';
@@ -118,34 +119,89 @@ export function generateDocumentThumbnailSvg(params: {
 }
 
 /**
- * Extracts OCR plaintext representation from document array buffer
+ * Extracts readable OCR/text content from a document buffer.
+ * Handles plain text, markdown, and PDF files properly.
+ * Binary content is reported with clean forensic metadata — no garbage characters.
  */
 export async function extractDocumentOcr(file: File, buffer: Uint8Array): Promise<string> {
-  const isTextLike = file.type.includes('text') || file.name.endsWith('.txt') || file.name.endsWith('.md');
+  const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+  const isTextLike =
+    file.type.includes('text') ||
+    file.name.endsWith('.txt') ||
+    file.name.endsWith('.md') ||
+    file.name.endsWith('.csv') ||
+    file.name.endsWith('.json') ||
+    file.name.endsWith('.xml');
+
+  // Plain text / markdown / CSV — decode directly
   if (isTextLike) {
     try {
       const text = new TextDecoder('utf-8', { fatal: false }).decode(buffer);
       if (text && text.trim().length > 0) {
-        return text.trim();
+        return text.trim().slice(0, 8000);
       }
     } catch {}
   }
 
-  // For PDF or binary payloads, extract standard forensic bitstream header + ascii strings
-  try {
-    const rawChunk = buffer.subarray(0, Math.min(buffer.length, 16384));
-    const decoded = new TextDecoder('utf-8', { fatal: false }).decode(rawChunk);
-    const cleaned = decoded
-      .replace(/[\x00-\x08\x0E-\x1F\x7F-\x9F]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
+  // PDF — extract embedded text streams (BT...ET blocks) without full pdf.js
+  if (isPdf) {
+    try {
+      const rawText = new TextDecoder('latin1', { fatal: false }).decode(buffer);
+      // Extract text between BT (Begin Text) and ET (End Text) PDF operators
+      const textBlocks: string[] = [];
+      const btEtRegex = /BT[\s\S]*?ET/g;
+      let match: RegExpExecArray | null;
+      while ((match = btEtRegex.exec(rawText)) !== null && textBlocks.length < 200) {
+        const block = match[0];
+        // Extract parenthesized string literals: (text here)
+        const strRegex = /\(([^)\\]*(\\.[^)\\]*)*)\)/g;
+        let strMatch: RegExpExecArray | null;
+        while ((strMatch = strRegex.exec(block)) !== null) {
+          // Unescape PDF string escapes
+          const raw = strMatch[1]
+            .replace(/\\n/g, '\n')
+            .replace(/\\r/g, '\r')
+            .replace(/\\t/g, '\t')
+            .replace(/\\\\/g, '\\')
+            .replace(/\\\(/g, '(')
+            .replace(/\\\)/g, ')')
+            // Remove non-printable characters
+            .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+          if (raw.trim().length > 0) {
+            textBlocks.push(raw);
+          }
+        }
+        // Also extract hex strings: <hex bytes>
+        const hexRegex = /<([0-9A-Fa-f\s]+)>/g;
+        let hexMatch: RegExpExecArray | null;
+        while ((hexMatch = hexRegex.exec(block)) !== null) {
+          const hex = hexMatch[1].replace(/\s/g, '');
+          if (hex.length > 0 && hex.length % 2 === 0) {
+            try {
+              const bytes = new Uint8Array(hex.match(/.{2}/g)!.map(b => parseInt(b, 16)));
+              const decoded = new TextDecoder('latin1').decode(bytes)
+                .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+              if (decoded.trim().length > 0) {
+                textBlocks.push(decoded);
+              }
+            } catch {}
+          }
+        }
+      }
 
-    if (cleaned.length > 50) {
-      return `[FORENSIC OCR EXTRACT - ${file.name} (${(file.size / 1024).toFixed(1)} KB)]\n\n${cleaned.slice(0, 3000)}`;
+      const extracted = textBlocks.join(' ').replace(/\s+/g, ' ').trim();
+      if (extracted.length > 20) {
+        return `[PDF TEXT EXTRACTION — ${file.name} (${(file.size / 1024).toFixed(1)} KB)]\n\n${extracted.slice(0, 8000)}`;
+      }
+    } catch (pdfErr) {
+      console.warn('PDF text extraction failed:', pdfErr);
     }
-  } catch {}
+    // PDF with no extractable text (scanned image PDF)
+    return `[SCANNED PDF — ${file.name}]\nSize: ${(file.size / 1024).toFixed(1)} KB\nNote: This PDF appears to contain scanned images without embedded text. The file is cryptographically sealed on Polygon Amoy. For OCR on scanned PDFs, please use a server-side OCR processor.`;
+  }
 
-  return `[EVIDENTIARY BITSTREAM PAYLOAD]\nFilename: ${file.name}\nSize: ${file.size} bytes\nMIME Type: ${file.type || 'application/octet-stream'}\nForensic Status: Byte-for-byte SHA-256 anchored on Polygon Amoy.`;
+  // Binary files — return clean forensic metadata, no garbage chars
+  return `[BINARY EVIDENCE PAYLOAD]\nFilename: ${file.name}\nSize: ${file.size} bytes (${(file.size / 1024).toFixed(2)} KB)\nMIME Type: ${file.type || 'application/octet-stream'}\nForensic Status: SHA-256 hash sealed and Merkle root anchored on Polygon Amoy Testnet.\nNote: Binary content cannot be extracted as readable text. The cryptographic hash is the authoritative forensic identifier.`;
 }
 
 /**

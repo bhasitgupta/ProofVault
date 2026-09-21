@@ -32,11 +32,21 @@ import {
 import { apiFetch } from '../api/client';
 import { useAuth } from '../hooks/useAuth';
 import { getAIProviderConfigs } from '../api/query';
+import { ensurePolygonAmoyNetwork, POLYGONSCAN_BASE, PROVENANCE_REGISTRY_ADDR } from '../lib/polygon';
+import { ethers } from 'ethers';
 
 const SUPABASE_URL = ((import.meta as any).env?.VITE_SUPABASE_URL as string) || 'https://kraxwwwkhprczuiqkxuw.supabase.co';
+// Always use anon key — never use service role key in browser
 const SUPABASE_KEY =
   ((import.meta as any).env?.VITE_SUPABASE_ANON_KEY as string) ||
   'sb_publishable_yBEvcnfdSVjN_5ZlxSw_5w_bDe53Czq';
+
+// Provenance Registry ABI — role management functions
+const PROVENANCE_ABI = [
+  'function registerCase(bytes32 caseIdHash, string calldata title, uint8 clearanceLevel) external',
+  'function registerOfficer(address officerAddr, bytes32 roleHash, bytes32 mspHash) external',
+];
+
 
 // Role → max document classification clearance (mirrors backend opa_client.py)
 const ROLE_CLEARANCE: Record<string, { level: string; weight: number; color: string }> = {
@@ -193,7 +203,7 @@ export const AdminPage: React.FC = () => {
           apiFetch<any[]>('/admin/roles'),
         ]);
       } catch (backendErr) {
-        console.warn('Backend admin fetch fallback to Supabase Cloud:', backendErr);
+      // Backend offline — use Supabase with anon key
         const [uRes, cRes] = await Promise.all([
           fetch(`${SUPABASE_URL}/rest/v1/users?select=*&order=created_at.desc`, {
             headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
@@ -204,12 +214,28 @@ export const AdminPage: React.FC = () => {
         ]);
         u = Array.isArray(uRes) ? uRes : [];
         c = Array.isArray(cRes) ? cRes : [];
+        // Compute real counts from DB
         s = {
           total_users: u.length,
           total_cases: c.length,
-          total_documents: 24,
-          total_events: 108,
+          total_documents: 0,
+          total_events: 0,
         };
+        // Try to get real doc/event counts
+        try {
+          const [docCountRes, evtCountRes] = await Promise.all([
+            fetch(`${SUPABASE_URL}/rest/v1/documents?select=id`, {
+              headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, Prefer: 'count=exact', Range: '0-0' },
+            }),
+            fetch(`${SUPABASE_URL}/rest/v1/audit_logs?select=id`, {
+              headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, Prefer: 'count=exact', Range: '0-0' },
+            }),
+          ]);
+          const docCount = docCountRes.headers.get('Content-Range');
+          const evtCount = evtCountRes.headers.get('Content-Range');
+          if (docCount) s.total_documents = parseInt(docCount.split('/')[1] || '0', 10);
+          if (evtCount) s.total_events = parseInt(evtCount.split('/')[1] || '0', 10);
+        } catch {}
         r = [
           { role: 'ADMIN', clearance_ceiling: 'SECRET', description: 'System Administrator with full operational oversight', can_download: true, can_issue_cert: true, can_query_rag: true, can_ingest: true },
           { role: 'SUPERVISOR', clearance_ceiling: 'SECRET', description: 'Supervisory Officer managing multi-jurisdiction cases', can_download: true, can_issue_cert: true, can_query_rag: true, can_ingest: true },
@@ -218,6 +244,7 @@ export const AdminPage: React.FC = () => {
           { role: 'LEGAL_OFFICER', clearance_ceiling: 'CONFIDENTIAL', description: 'Public Prosecutor evaluating trial readiness and certifying evidence', can_download: true, can_issue_cert: true, can_query_rag: true, can_ingest: false },
           { role: 'LAWYER', clearance_ceiling: 'RESTRICTED', description: 'Defense or Legal Counsel with restricted dossier review rights', can_download: false, can_issue_cert: false, can_query_rag: true, can_ingest: false },
         ];
+
       }
       setStats(s);
       setUsers(u);
@@ -303,17 +330,64 @@ export const AdminPage: React.FC = () => {
 
     setSavingRoles((prev) => ({ ...prev, [roleName]: true }));
     try {
-      await apiFetch(`/admin/roles/${roleName}`, {
-        method: 'PUT',
-        body: JSON.stringify({
+      // Try backend first
+      let saved = false;
+      try {
+        await apiFetch(`/admin/roles/${roleName}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            clearance_ceiling: roleObj.clearance_ceiling,
+            description: roleObj.description,
+            can_download: roleObj.can_download,
+            can_issue_cert: roleObj.can_issue_cert,
+            can_query_rag: roleObj.can_query_rag,
+            can_ingest: roleObj.can_ingest,
+          }),
+        });
+        saved = true;
+      } catch {
+        // Backend offline — save to Supabase roles table directly
+      }
+
+      if (!saved) {
+        const rolePayload = {
+          role: roleName,
           clearance_ceiling: roleObj.clearance_ceiling,
           description: roleObj.description,
-          can_download: roleObj.can_download,
-          can_issue_cert: roleObj.can_issue_cert,
-          can_query_rag: roleObj.can_query_rag,
-          can_ingest: roleObj.can_ingest,
-        }),
-      });
+          can_download: roleObj.can_download ?? true,
+          can_issue_cert: roleObj.can_issue_cert ?? true,
+          can_query_rag: roleObj.can_query_rag ?? true,
+          can_ingest: roleObj.can_ingest ?? true,
+          updated_at: new Date().toISOString(),
+        };
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/roles?role=eq.${encodeURIComponent(roleName)}`, {
+          method: 'PATCH',
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': 'application/json',
+            Prefer: 'return=representation',
+          },
+          body: JSON.stringify(rolePayload),
+        });
+        // If no row to PATCH, INSERT instead
+        if (res.ok) {
+          const patched = await res.json();
+          if (!patched || patched.length === 0) {
+            await fetch(`${SUPABASE_URL}/rest/v1/roles`, {
+              method: 'POST',
+              headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json',
+                Prefer: 'resolution=merge-duplicates',
+              },
+              body: JSON.stringify(rolePayload),
+            });
+          }
+        }
+      }
+
       await loadAdminData();
     } catch (err: any) {
       alert(err.message || 'Failed to save role policy');
@@ -345,35 +419,76 @@ export const AdminPage: React.FC = () => {
     setCaseFormError(null);
     setCaseFormLoading(true);
     try {
-      try {
-        await apiFetch('/admin/cases', {
-          method: 'POST',
-          body: JSON.stringify(caseForm),
-        });
-      } catch (backendErr) {
-        console.warn('Backend create case failed, saving to Supabase Cloud directly:', backendErr);
-        const supaRes = await fetch(`${SUPABASE_URL}/rest/v1/cases`, {
-          method: 'POST',
-          headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: `Bearer ${SUPABASE_KEY}`,
-            'Content-Type': 'application/json',
-            Prefer: 'return=representation',
-          },
-          body: JSON.stringify({
-            case_id: caseForm.case_id,
-            title: caseForm.title,
-            description: caseForm.description,
-            classification_ceiling: caseForm.classification_ceiling,
-            status: 'ACTIVE',
-            owning_msp: caseForm.owning_msp,
-          }),
-        });
-        if (!supaRes.ok) {
-          const errText = await supaRes.text();
-          throw new Error(`Case Creation Error: ${errText}`);
+      // Step 1: MetaMask on-chain case registration
+      const eth = (window as any).ethereum;
+      let chainTxHash = '';
+      if (eth) {
+        try {
+          await ensurePolygonAmoyNetwork();
+          const accounts = await eth.request({ method: 'eth_requestAccounts' });
+          if (accounts && accounts.length > 0) {
+            const iface = new ethers.Interface(PROVENANCE_ABI);
+            const caseIdHash = ethers.keccak256(ethers.toUtf8Bytes(caseForm.case_id));
+            const clearanceLevel = caseForm.classification_ceiling === 'SECRET' ? 3
+              : caseForm.classification_ceiling === 'CONFIDENTIAL' ? 2 : 1;
+            const calldata = iface.encodeFunctionData('registerCase', [
+              caseIdHash,
+              caseForm.title.slice(0, 64),
+              clearanceLevel,
+            ]);
+            chainTxHash = await eth.request({
+              method: 'eth_sendTransaction',
+              params: [{
+                from: accounts[0],
+                to: PROVENANCE_REGISTRY_ADDR,
+                data: calldata,
+                value: '0x0',
+                gas: '0x30D40', // 200,000 gas
+              }],
+            });
+          }
+        } catch (metamaskErr: any) {
+          if (metamaskErr?.code === 4001) {
+            // User rejected MetaMask
+            setCaseFormError('Case creation cancelled: MetaMask transaction rejected by user.');
+            setCaseFormLoading(false);
+            return;
+          }
+          console.warn('MetaMask case registration failed, proceeding off-chain:', metamaskErr);
         }
+      } else {
+        console.warn('MetaMask not detected — case will be saved off-chain only.');
       }
+
+      // Step 2: Save to Supabase (anon key)
+      const nowIso = new Date().toISOString();
+      const casePayload = {
+        case_id: caseForm.case_id,
+        title: caseForm.title,
+        description: caseForm.description,
+        classification_ceiling: caseForm.classification_ceiling,
+        status: 'ACTIVE',
+        owning_msp: caseForm.owning_msp,
+        active_document_count: 0,
+        ledger_tx_id: chainTxHash || '',
+        created_at: nowIso,
+        updated_at: nowIso,
+      };
+      const supaRes = await fetch(`${SUPABASE_URL}/rest/v1/cases`, {
+        method: 'POST',
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+          Prefer: 'return=representation',
+        },
+        body: JSON.stringify(casePayload),
+      });
+      if (!supaRes.ok) {
+        const errText = await supaRes.text();
+        throw new Error(`Case Creation Error: ${errText}`);
+      }
+
       setShowCreateCase(false);
       setCaseForm({ case_id: '', title: '', description: '', classification_ceiling: 'CONFIDENTIAL', owning_msp: 'PoliceMSP' });
       await loadAdminData();
@@ -433,6 +548,48 @@ export const AdminPage: React.FC = () => {
     setUserFormError(null);
     setUserFormLoading(true);
     try {
+      // Step 1: MetaMask on-chain officer registration
+      const eth = (window as any).ethereum;
+      let chainTxHash = '';
+      if (eth) {
+        try {
+          await ensurePolygonAmoyNetwork();
+          const accounts = await eth.request({ method: 'eth_requestAccounts' });
+          if (accounts && accounts.length > 0) {
+            // We use the wallet address to identify the officer on-chain
+            // The officerAddr is the connected wallet — or a derived address from user_id
+            const iface = new ethers.Interface(PROVENANCE_ABI);
+            const roleHash = ethers.keccak256(ethers.toUtf8Bytes(userForm.role));
+            const mspHash = ethers.keccak256(ethers.toUtf8Bytes(userForm.msp_id || 'PoliceMSP'));
+            // Use the signing wallet address as the officer's on-chain identity
+            const officerAddr = accounts[0];
+            const calldata = iface.encodeFunctionData('registerOfficer', [
+              officerAddr,
+              roleHash,
+              mspHash,
+            ]);
+            chainTxHash = await eth.request({
+              method: 'eth_sendTransaction',
+              params: [{
+                from: accounts[0],
+                to: PROVENANCE_REGISTRY_ADDR,
+                data: calldata,
+                value: '0x0',
+                gas: '0x30D40', // 200,000 gas
+              }],
+            });
+          }
+        } catch (metamaskErr: any) {
+          if (metamaskErr?.code === 4001) {
+            setUserFormError('Officer registration cancelled: MetaMask transaction rejected by user.');
+            setUserFormLoading(false);
+            return;
+          }
+          console.warn('MetaMask officer registration failed, proceeding off-chain:', metamaskErr);
+        }
+      }
+
+      // Step 2: Try backend, then Supabase with anon key
       let created = false;
       try {
         await apiFetch('/admin/users', {
@@ -442,7 +599,7 @@ export const AdminPage: React.FC = () => {
         });
         created = true;
       } catch (backendErr: any) {
-        console.warn('Backend create user failed, enrolling via Supabase Cloud REST:', backendErr);
+        console.warn('Backend create user failed, enrolling via Supabase REST:', backendErr);
       }
 
       if (!created) {
@@ -464,6 +621,7 @@ export const AdminPage: React.FC = () => {
             totp_secret: '',
             mfa_enrolled: false,
             is_active: true,
+            ledger_tx_id: chainTxHash || '',
           }),
         });
 

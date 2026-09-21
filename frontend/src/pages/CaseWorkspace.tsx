@@ -23,9 +23,15 @@ import {
   RefreshCw,
   AlertTriangle
 } from 'lucide-react';
-import { getCases, createCase, updateCaseStatus, recordCustodyEvent, FALLBACK_CASES } from '../api/audit';
+import { getCases, createCase, updateCaseStatus, recordCustodyEvent } from '../api/audit';
 import { Case } from '../lib/types';
 import { formatClassificationBadge } from '../lib/format';
+import { ensurePolygonAmoyNetwork, PROVENANCE_REGISTRY_ADDR } from '../lib/polygon';
+import { ethers } from 'ethers';
+
+const PROVENANCE_ABI_CASE = [
+  'function registerCase(bytes32 caseIdHash, string calldata title, uint8 clearanceLevel) external',
+];
 
 export const CaseWorkspace: React.FC = () => {
   const [cases, setCases] = useState<Case[]>([]);
@@ -66,9 +72,9 @@ export const CaseWorkspace: React.FC = () => {
     try {
       setLoading(true);
       const data = await getCases();
-      setCases(data && data.length > 0 ? data : FALLBACK_CASES);
+      setCases(data);
     } catch {
-      setCases(FALLBACK_CASES);
+      setCases([]);
     } finally {
       setLoading(false);
     }
@@ -107,6 +113,45 @@ export const CaseWorkspace: React.FC = () => {
     setSavingCase(true);
     setFormError(null);
     try {
+      // Step 1: MetaMask on-chain case registration
+      const eth = (window as any).ethereum;
+      let chainTxHash = '';
+      if (eth) {
+        try {
+          await ensurePolygonAmoyNetwork();
+          const accounts = await eth.request({ method: 'eth_requestAccounts' });
+          if (accounts && accounts.length > 0) {
+            const iface = new ethers.Interface(PROVENANCE_ABI_CASE);
+            const caseIdHash = ethers.keccak256(ethers.toUtf8Bytes(newCaseId.trim().toUpperCase()));
+            const clearanceLevel = newCaseClearance === 'SECRET' ? 3
+              : newCaseClearance === 'CONFIDENTIAL' ? 2 : 1;
+            const calldata = iface.encodeFunctionData('registerCase', [
+              caseIdHash,
+              newCaseTitle.trim().slice(0, 64),
+              clearanceLevel,
+            ]);
+            chainTxHash = await eth.request({
+              method: 'eth_sendTransaction',
+              params: [{
+                from: accounts[0],
+                to: PROVENANCE_REGISTRY_ADDR,
+                data: calldata,
+                value: '0x0',
+                gas: '0x30D40',
+              }],
+            });
+          }
+        } catch (mmErr: any) {
+          if (mmErr?.code === 4001) {
+            setFormError('Case creation cancelled: MetaMask transaction rejected.');
+            setSavingCase(false);
+            return;
+          }
+          console.warn('MetaMask case registration skipped, proceeding off-chain:', mmErr);
+        }
+      }
+
+      // Step 2: Save to database
       const created = await createCase({
         case_id: newCaseId.trim().toUpperCase(),
         title: newCaseTitle.trim(),
