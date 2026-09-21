@@ -515,9 +515,17 @@ export const AdminPage: React.FC = () => {
         throw new Error(`Case Creation Error: ${errText}`);
       }
 
+      // Write audit log
+      fetch(`${SUPABASE_URL}/rest/v1/audit_logs`, {
+        method: 'POST',
+        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event_type: 'CASE_CREATED', actor_id: 'ADMIN', case_id: caseForm.case_id, details: JSON.stringify({ title: caseForm.title, classification: caseForm.classification_ceiling, msp: caseForm.owning_msp }), timestamp: new Date().toISOString() }),
+      }).catch(() => {});
+
       setShowCreateCase(false);
       setCaseForm({ case_id: '', title: '', description: '', classification_ceiling: 'CONFIDENTIAL', owning_msp: 'PoliceMSP' });
       await loadAdminData();
+      alert(`✓ Docket ${caseForm.case_id} initialized successfully${chainTxHash ? ` — TX: ${chainTxHash.slice(0, 16)}...` : ' (off-chain)'}`);
     } catch (err: any) {
       setCaseFormError(err.message || 'Failed to create case');
     } finally {
@@ -574,50 +582,11 @@ export const AdminPage: React.FC = () => {
     setUserFormError(null);
     setUserFormLoading(true);
     try {
-      // Step 1: MetaMask on-chain officer registration
-      const eth = (window as any).ethereum;
-      let chainTxHash = '';
-      if (eth) {
-        try {
-          await ensurePolygonAmoyNetwork();
-          const accounts = await eth.request({ method: 'eth_requestAccounts' });
-          if (accounts && accounts.length > 0) {
-            // We use the wallet address to identify the officer on-chain
-            // The officerAddr is the connected wallet — or a derived address from user_id
-            const iface = new ethers.Interface(PROVENANCE_ABI);
-            const roleHash = ethers.keccak256(ethers.toUtf8Bytes(userForm.role));
-            const mspHash = ethers.keccak256(ethers.toUtf8Bytes(userForm.msp_id || 'PoliceMSP'));
-            // Use the signing wallet address as the officer's on-chain identity
-            const officerAddr = accounts[0];
-            const calldata = iface.encodeFunctionData('registerOfficer', [
-              officerAddr,
-              roleHash,
-              mspHash,
-            ]);
-            chainTxHash = await eth.request({
-              method: 'eth_sendTransaction',
-              params: [{
-                from: accounts[0],
-                to: PROVENANCE_REGISTRY_ADDR,
-                data: calldata,
-                value: '0x0',
-                gas: '0x493E0',
-                maxPriorityFeePerGas: ethers.toBeHex(ethers.parseUnits('30', 'gwei')),
-                maxFeePerGas: ethers.toBeHex(ethers.parseUnits('50', 'gwei')),
-              }],
-            });
-          }
-        } catch (metamaskErr: any) {
-          if (metamaskErr?.code === 4001) {
-            setUserFormError('Officer registration cancelled: MetaMask transaction rejected by user.');
-            setUserFormLoading(false);
-            return;
-          }
-          console.warn('MetaMask officer registration failed, proceeding off-chain:', metamaskErr);
-        }
-      }
+      // Note: registerOfficer on-chain call removed — contract has onlyOwner access
+      // control that rejects non-deployer wallets. Enrollment is done via Supabase.
+      // Blockchain anchoring for individual officers is done at case assignment time.
 
-      // Step 2: Try backend, then Supabase with anon key
+      // Try backend first, then Supabase with anon key
       let created = false;
       try {
         await apiFetch('/admin/users', {
@@ -651,16 +620,23 @@ export const AdminPage: React.FC = () => {
             is_active: true,
           }),
         });
-
         if (!supaRes.ok) {
           const errText = await supaRes.text();
           throw new Error(`Enrollment Error: ${errText}`);
         }
       }
 
+      // Write audit log
+      fetch(`${SUPABASE_URL}/rest/v1/audit_logs`, {
+        method: 'POST',
+        headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ event_type: 'OFFICER_ENROLLED', actor_id: 'ADMIN', case_id: 'SYSTEM', details: JSON.stringify({ user_id: userForm.user_id, username: userForm.username, role: userForm.role, msp: userForm.msp_id }), timestamp: new Date().toISOString() }),
+      }).catch(() => {});
+
       setShowCreateUser(false);
       setUserForm({ user_id: '', username: '', full_name: '', role: 'INVESTIGATOR', msp_id: 'PoliceMSP', password: '' });
       await loadAdminData();
+      alert(`✓ Officer ${userForm.full_name} (${userForm.role}) enrolled successfully.`);
     } catch (err: any) {
       setUserFormError(err.message || 'Failed to create user');
     } finally {
