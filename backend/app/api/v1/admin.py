@@ -32,6 +32,7 @@ class CreateUserRequest(BaseModel):
     role: str
     msp_id: Optional[str] = None
     password: str = Field(..., min_length=8)
+    blockchain_tx: Optional[str] = None
 
 
 @router.get("/stats")
@@ -106,7 +107,12 @@ async def create_user(
     )
     session.add(user)
     await session.commit()
-    return {"user_id": user.id, "username": user.username, "role": user.role}
+    return {
+        "user_id": user.id,
+        "username": user.username,
+        "role": user.role,
+        "blockchain_tx": req.blockchain_tx,
+    }
 
 
 @router.patch("/users/{user_id}/deactivate")
