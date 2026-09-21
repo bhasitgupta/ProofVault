@@ -3,8 +3,8 @@ import { ethers } from 'ethers';
 export const POLYGON_AMOY_CHAIN_ID = 80002;
 export const POLYGON_AMOY_CHAIN_HEX = '0x13882';
 export const POLYGON_AMOY_RPC = ((import.meta as any).env?.VITE_POLYGON_RPC_URL as string) || 'https://polygon-amoy-bor-rpc.publicnode.com';
-export const EVIDENCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_EVIDENCE_REGISTRY as string) || '0xE5A9000fe858f49f4e0520b44dBCC138ba2ef05b';
-export const PROVENANCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_PROVENANCE_REGISTRY as string) || '0x5D94C63ABfAEFf3758A51642A03912F73a064ADA';
+export const EVIDENCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_EVIDENCE_REGISTRY as string) || '0xC15D29c23C72c7E6301AeD190F2FD186372b7DBe';
+export const PROVENANCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_PROVENANCE_REGISTRY as string) || '0x11A0a778303196d735B9cCdE62eB5bC5B29a855a';
 export const POLYGONSCAN_BASE = 'https://amoy.polygonscan.com';
 
 const SUPABASE_URL = ((import.meta as any).env?.VITE_SUPABASE_URL as string) || 'https://kraxwwwkhprczuiqkxuw.supabase.co';

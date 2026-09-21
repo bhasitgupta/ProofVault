@@ -13,5 +13,5 @@
 - **Contract ABI Caching**: In-memory ABI caching with automatic contract binding via Web3.py.
 
 - **Deployed Contract Addresses (Polygon Amoy Testnet)**:
-  - `EvidenceRegistry`: `0xE5A9000fe858f49f4e0520b44dBCC138ba2ef05b`
-  - `ProvenanceRegistry`: `0x5D94C63ABfAEFf3758A51642A03912F73a064ADA`
+  - `EvidenceRegistry`: `0xC15D29c23C72c7E6301AeD190F2FD186372b7DBe`
+  - `ProvenanceRegistry`: `0x11A0a778303196d735B9cCdE62eB5bC5B29a855a`

@@ -2,7 +2,7 @@ const hre = require("hardhat");
 
 async function main() {
   const [signer] = await hre.ethers.getSigners();
-  const contractAddress = "0x5D94C63ABfAEFf3758A51642A03912F73a064ADA";
+  const contractAddress = "0x11A0a778303196d735B9cCdE62eB5bC5B29a855a";
   console.log("--> Testing ProvenanceRegistry at:", contractAddress);
   console.log("Caller:", signer.address);
 

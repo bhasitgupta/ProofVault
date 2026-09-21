@@ -41,7 +41,7 @@ const SUPABASE_KEY =
   ((import.meta as any).env?.VITE_SUPABASE_ANON_KEY as string) ||
   'sb_publishable_yBEvcnfdSVjN_5ZlxSw_5w_bDe53Czq';
 // Evidence Registry — used as anchor target for raw hash calldata
-const EVIDENCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_EVIDENCE_REGISTRY as string) || '0xE5A9000fe858f49f4e0520b44dBCC138ba2ef05b';
+const EVIDENCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_EVIDENCE_REGISTRY as string) || '0xC15D29c23C72c7E6301AeD190F2FD186372b7DBe';
 
 
 // Provenance Registry ABI — role management functions
