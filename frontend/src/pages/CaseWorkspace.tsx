@@ -24,10 +24,12 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import { getCases, createCase, updateCaseStatus, recordCustodyEvent } from '../api/audit';
-import { apiFetch } from '../api/client';
 import { Case } from '../lib/types';
 import { formatClassificationBadge } from '../lib/format';
+import { ensurePolygonAmoyNetwork } from '../lib/polygon';
+import { ethers } from 'ethers';
 
+const EVIDENCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_EVIDENCE_REGISTRY as string) || '0xE5A9000fe858f49f4e0520b44dBCC138ba2ef05b';
 
 export const CaseWorkspace: React.FC = () => {
   const [cases, setCases] = useState<Case[]>([]);
@@ -110,7 +112,45 @@ export const CaseWorkspace: React.FC = () => {
     setFormError(null);
     const caseIdNorm = newCaseId.trim().toUpperCase();
     try {
-      // Step 1: Save to database (Supabase via audit.ts createCase)
+      // Step 1: MetaMask — anchor case ID on Polygon Amoy
+      const eth = (window as any).ethereum;
+      let chainTxHash = '';
+      if (eth) {
+        try {
+          await ensurePolygonAmoyNetwork();
+          const accounts = await eth.request({ method: 'eth_requestAccounts' });
+          if (accounts && accounts.length > 0) {
+            const anchorPayload = `SDMS:CASE:${caseIdNorm}:${newCaseClearance}:${newCaseMsp}:${Date.now()}`;
+            const proofHash = ethers.keccak256(ethers.toUtf8Bytes(anchorPayload));
+            const txParams = {
+              from: accounts[0],
+              to: EVIDENCE_REGISTRY_ADDR,
+              data: proofHash,
+              value: '0x0',
+              gas: '0x7A12',
+              maxPriorityFeePerGas: ethers.toBeHex(ethers.parseUnits('30', 'gwei')),
+              maxFeePerGas: ethers.toBeHex(ethers.parseUnits('60', 'gwei')),
+            };
+            try {
+              chainTxHash = await eth.request({ method: 'eth_sendTransaction', params: [txParams] });
+            } catch (contractErr: any) {
+              if (contractErr?.code === 4001) throw contractErr;
+              // Contract rejected — self-anchor fallback
+              chainTxHash = await eth.request({ method: 'eth_sendTransaction', params: [{ ...txParams, to: accounts[0] }] });
+            }
+            console.info(`[Chain] Case ${caseIdNorm} anchored: ${chainTxHash}`);
+          }
+        } catch (mmErr: any) {
+          if (mmErr?.code === 4001) {
+            setFormError('Case creation cancelled: MetaMask transaction rejected.');
+            setSavingCase(false);
+            return;
+          }
+          console.warn('[Chain] MetaMask unavailable, proceeding off-chain:', mmErr?.message);
+        }
+      }
+
+      // Step 2: Save to database
       const created = await createCase({
         case_id: caseIdNorm,
         title: newCaseTitle.trim(),
@@ -119,22 +159,19 @@ export const CaseWorkspace: React.FC = () => {
         owning_msp: newCaseMsp,
       });
 
-      // Step 2: Backend on-chain anchoring (uses POLYGON_PRIVATE_KEY, fire-and-forget)
-      apiFetch<any>(`/admin/cases/${caseIdNorm}/register-chain`, { method: 'POST' })
-        .then((r) => console.info(`[Chain] CaseWorkspace docket ${caseIdNorm} anchored: ${r?.tx_hash || 'deterministic'}`))
-        .catch((e) => console.warn('[Chain] Backend case anchor failed (non-fatal):', e));
-
       setCases(prev => [created, ...prev]);
       setIsCreateModalOpen(false);
       setNewCaseId('');
       setNewCaseTitle('');
       setNewCaseDesc('');
+      if (chainTxHash) alert(`✓ Case ${caseIdNorm} created & anchored on Polygon Amoy\nTX: ${chainTxHash}`);
     } catch (err: any) {
       setFormError(err.message || 'Failed to initialize case');
     } finally {
       setSavingCase(false);
     }
   };
+
 
 
   const handleTransferSubmit = async (e: React.FormEvent) => {
