@@ -26,7 +26,7 @@ import {
 import { getCases, createCase, updateCaseStatus, recordCustodyEvent } from '../api/audit';
 import { Case } from '../lib/types';
 import { formatClassificationBadge } from '../lib/format';
-import { ensurePolygonAmoyNetwork } from '../lib/polygon';
+import { ensurePolygonAmoyNetwork, POLYGONSCAN_BASE } from '../lib/polygon';
 import { ethers } from 'ethers';
 
 const EVIDENCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_EVIDENCE_REGISTRY as string) || '0xE5A9000fe858f49f4e0520b44dBCC138ba2ef05b';
@@ -59,6 +59,14 @@ export const CaseWorkspace: React.FC = () => {
   const [transferOfficerId, setTransferOfficerId] = useState('');
   const [transferReason, setTransferReason] = useState('');
   const [transferring, setTransferring] = useState(false);
+
+  // Chain anchor toast
+  const [chainToast, setChainToast] = useState<{ caseId: string; txHash: string; url: string } | null>(null);
+  const showChainToast = (caseId: string, txHash: string) => {
+    const url = `${POLYGONSCAN_BASE}/tx/${txHash}`;
+    setChainToast({ caseId, txHash, url });
+    setTimeout(() => setChainToast(null), 12000);
+  };
 
   const navigate = useNavigate();
 
@@ -158,7 +166,7 @@ export const CaseWorkspace: React.FC = () => {
       setNewCaseId('');
       setNewCaseTitle('');
       setNewCaseDesc('');
-      if (chainTxHash) alert(`✓ Case ${caseIdNorm} created & anchored on Polygon Amoy\nTX: ${chainTxHash}`);
+      if (chainTxHash) showChainToast(caseIdNorm, chainTxHash);
     } catch (err: any) {
       setFormError(err.message || 'Failed to initialize case');
     } finally {
@@ -220,6 +228,29 @@ export const CaseWorkspace: React.FC = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
+      {/* Chain Anchor Toast */}
+      {chainToast && (
+        <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999, maxWidth: '420px' }}>
+          <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a2f 100%)', border: '1px solid #22c55e', borderRadius: '14px', padding: '16px 20px', boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 30px rgba(34,197,94,0.15)', color: '#fff' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(34,197,94,0.15)', border: '1px solid #22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: '#22c55e', marginBottom: '2px' }}>Anchored on Polygon Amoy ✓</div>
+                <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '8px' }}>Docket <strong style={{ color: '#e2e8f0' }}>{chainToast.caseId}</strong> is permanently on-chain</div>
+                <div style={{ fontSize: '10px', color: '#64748b', fontFamily: 'monospace', marginBottom: '10px', wordBreak: 'break-all' }}>TX: {chainToast.txHash}</div>
+                <a href={chainToast.url} target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(130,71,229,0.15)', border: '1px solid rgba(130,71,229,0.4)', borderRadius: '8px', padding: '6px 12px', fontSize: '11px', fontWeight: 600, color: '#a78bfa', textDecoration: 'none' }}>
+                  <svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                  View on Polygonscan
+                </a>
+              </div>
+              <button onClick={() => setChainToast(null)} style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer', padding: '2px', lineHeight: 1 }}>✕</button>
+            </div>
+          </div>
+        </div>
+      )}
       {/* ─────────────────────────────────────────────────────────────
           1. SOVEREIGN JUDICIAL COMMAND DECK (HEADER)
          ───────────────────────────────────────────────────────────── */}

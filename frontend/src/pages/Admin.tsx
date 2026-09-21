@@ -173,6 +173,14 @@ export const AdminPage: React.FC = () => {
   const [caseFormError, setCaseFormError] = useState<string | null>(null);
   const [caseFormLoading, setCaseFormLoading] = useState(false);
 
+  // Chain anchor toast — shown after successful on-chain tx, no alert() popup
+  const [chainToast, setChainToast] = useState<{ caseId: string; txHash: string; url: string } | null>(null);
+  const showChainToast = (caseId: string, txHash: string) => {
+    const url = `${POLYGONSCAN_BASE}/tx/${txHash}`;
+    setChainToast({ caseId, txHash, url });
+    setTimeout(() => setChainToast(null), 12000); // auto-dismiss after 12s
+  };
+
   // Assign user state — expandedCase holds the case_id whose assignment panel is open
   const [expandedCase, setExpandedCase] = useState<string | null>(null);
   const [caseAssignments, setCaseAssignments] = useState<Record<string, any[]>>({});
@@ -534,7 +542,8 @@ export const AdminPage: React.FC = () => {
       setShowCreateCase(false);
       setCaseForm({ case_id: '', title: '', description: '', classification_ceiling: 'CONFIDENTIAL', owning_msp: 'PoliceMSP' });
       await loadAdminData();
-      alert(`✓ Docket ${savedCaseId} created & anchored on Polygon Amoy${chainTxHash ? `\nTX: ${chainTxHash}` : ' (off-chain fallback)'}`);
+      if (chainTxHash) showChainToast(savedCaseId, chainTxHash);
+
     } catch (err: any) {
       setCaseFormError(err.message || 'Failed to create case');
     } finally {
@@ -691,6 +700,31 @@ export const AdminPage: React.FC = () => {
 
   return (
     <div className="space-y-8">
+
+      {/* Chain Anchor Toast — shown after successful Polygon Amoy TX */}
+      {chainToast && (
+        <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999, maxWidth: '420px', animation: 'slideInRight 0.3s ease' }}>
+          <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a2f 100%)', border: '1px solid #22c55e', borderRadius: '14px', padding: '16px 20px', boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 30px rgba(34,197,94,0.15)', color: '#fff' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+              <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(34,197,94,0.15)', border: '1px solid #22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: '#22c55e', marginBottom: '2px' }}>Anchored on Polygon Amoy ✓</div>
+                <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '8px' }}>Docket <strong style={{ color: '#e2e8f0' }}>{chainToast.caseId}</strong> is permanently on-chain</div>
+                <div style={{ fontSize: '10px', color: '#64748b', fontFamily: 'monospace', marginBottom: '10px', wordBreak: 'break-all' }}>TX: {chainToast.txHash}</div>
+                <a href={chainToast.url} target="_blank" rel="noopener noreferrer"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(130,71,229,0.15)', border: '1px solid rgba(130,71,229,0.4)', borderRadius: '8px', padding: '6px 12px', fontSize: '11px', fontWeight: 600, color: '#a78bfa', textDecoration: 'none', transition: 'all 0.2s' }}>
+                  <svg width="12" height="12" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                  View on Polygonscan
+                </a>
+              </div>
+              <button onClick={() => setChainToast(null)} style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer', padding: '2px', lineHeight: 1 }}>✕</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="glass-ivory border-crimson-gold rounded-2xl p-5 sm:p-6 shadow-sm">
         <div className="flex items-center gap-3">
