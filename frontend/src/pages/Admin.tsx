@@ -469,7 +469,6 @@ export const AdminPage: React.FC = () => {
         classification_ceiling: caseForm.classification_ceiling,
         status: 'ACTIVE',
         owning_msp: caseForm.owning_msp,
-        active_document_count: 0,
         ledger_tx_id: chainTxHash || '',
         created_at: nowIso,
         updated_at: nowIso,

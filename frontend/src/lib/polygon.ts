@@ -257,6 +257,15 @@ export async function ensurePolygonAmoyNetwork(): Promise<boolean> {
   const eth = (window as any).ethereum;
   if (!eth) return false;
 
+  // Multiple Polygon Amoy RPC endpoints — MetaMask picks the fastest/available
+  const AMOY_RPC_URLS = [
+    POLYGON_AMOY_RPC,
+    'https://polygon-amoy.drpc.org',
+    'https://rpc-amoy.polygon.technology',
+    'https://polygon-amoy-bor-rpc.publicnode.com',
+    'https://api.zan.top/node/v1/polygon/amoy/public',
+  ];
+
   try {
     const currentChainId = await eth.request({ method: 'eth_chainId' });
     if (currentChainId === POLYGON_AMOY_CHAIN_HEX || parseInt(currentChainId, 16) === POLYGON_AMOY_CHAIN_ID) {
@@ -277,7 +286,7 @@ export async function ensurePolygonAmoyNetwork(): Promise<boolean> {
             chainId: POLYGON_AMOY_CHAIN_HEX,
             chainName: 'Polygon Amoy Testnet',
             nativeCurrency: { name: 'POL', symbol: 'POL', decimals: 18 },
-            rpcUrls: [POLYGON_AMOY_RPC, 'https://polygon-amoy.drpc.org'],
+            rpcUrls: AMOY_RPC_URLS,
             blockExplorerUrls: [POLYGONSCAN_BASE],
           }],
         });
@@ -567,22 +576,7 @@ export async function uploadToSupabaseStorageAndDB(params: {
     body: JSON.stringify(auditPayload),
   }).catch(err => console.warn('Audit log insert warning:', err));
 
-  // Increment active_document_count on case if possible
-  fetch(`${SUPABASE_URL}/rest/v1/cases?case_id=eq.${encodeURIComponent(caseId)}`, {
-    headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` },
-  })
-    .then(r => r.json())
-    .then(cases => {
-      if (cases && cases[0]) {
-        const curCount = (cases[0].active_document_count || 0) + 1;
-        fetch(`${SUPABASE_URL}/rest/v1/cases?case_id=eq.${encodeURIComponent(caseId)}`, {
-          method: 'PATCH',
-          headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ active_document_count: curCount, updated_at: nowIso }),
-        }).catch(() => {});
-      }
-    })
-    .catch(() => {});
+  // Note: active_document_count column does not exist in cases schema — skip PATCH
 
   return docPayload;
 }

@@ -29,7 +29,6 @@ export async function getCases(): Promise<Case[]> {
           status: c.status || 'ACTIVE',
           classification_ceiling: c.classification_ceiling || 'CONFIDENTIAL',
           owning_msp: c.owning_msp || 'PoliceMSP',
-          active_document_count: c.active_document_count ?? 0,
           created_at: c.created_at,
         }));
       }
@@ -70,7 +69,6 @@ export async function createCase(caseData: {
     classification_ceiling: caseData.classification_ceiling,
     owning_msp: caseData.owning_msp || 'PoliceMSP',
     status: 'ACTIVE',
-    active_document_count: 0,
     created_at: nowIso,
     updated_at: nowIso,
   };
@@ -157,7 +155,6 @@ export async function getCaseDetails(caseId: string): Promise<Case> {
           status: c.status || 'ACTIVE',
           classification_ceiling: c.classification_ceiling || 'CONFIDENTIAL',
           owning_msp: c.owning_msp || 'PoliceMSP',
-          active_document_count: c.active_document_count ?? 0,
         };
       }
     }
