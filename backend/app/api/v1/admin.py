@@ -521,7 +521,7 @@ async def register_case_on_chain(
         raise HTTPException(status_code=404, detail="Case not found")
 
     private_key = os.getenv("POLYGON_PRIVATE_KEY", "")
-    contract_addr = os.getenv("POLYGON_PROVENANCE_REGISTRY_ADDRESS", "0x5D94C63ABfAEFf3758A51642A03912F73a064ADA")
+    contract_addr = os.getenv("POLYGON_PROVENANCE_REGISTRY_ADDRESS", "0x11A0a778303196d735B9cCdE62eB5bC5B29a855a")
     rpc_url = os.getenv("POLYGON_RPC_URL", "https://polygon-amoy-bor-rpc.publicnode.com")
 
     if not private_key or private_key.strip() == "":

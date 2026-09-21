@@ -29,7 +29,7 @@ import { formatClassificationBadge } from '../lib/format';
 import { ensurePolygonAmoyNetwork, POLYGONSCAN_BASE, PROVENANCE_REGISTRY_ADDR, anchorCaseOnChain } from '../lib/polygon';
 import { ethers } from 'ethers';
 
-const EVIDENCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_EVIDENCE_REGISTRY as string) || '0xE5A9000fe858f49f4e0520b44dBCC138ba2ef05b';
+const EVIDENCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_EVIDENCE_REGISTRY as string) || '0xC15D29c23C72c7E6301AeD190F2FD186372b7DBe';
 
 export const CaseWorkspace: React.FC = () => {
   const [cases, setCases] = useState<Case[]>([]);

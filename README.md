@@ -81,8 +81,8 @@ Proof Vault anchors digital evidence to the **Polygon Amoy Testnet** (EVM Chain 
 
 | Contract Name | Network | Contract Address |
 | :--- | :--- | :--- |
-| **EvidenceRegistry** | Polygon Amoy (80002) | `0xE5A9000fe858f49f4e0520b44dBCC138ba2ef05b` |
-| **ProvenanceRegistry** | Polygon Amoy (80002) | `0x5D94C63ABfAEFf3758A51642A03912F73a064ADA` |
+| **EvidenceRegistry** | Polygon Amoy (80002) | `0xC15D29c23C72c7E6301AeD190F2FD186372b7DBe` |
+| **ProvenanceRegistry** | Polygon Amoy (80002) | `0x11A0a778303196d735B9cCdE62eB5bC5B29a855a` |
 
 ### Web3 Wallet Integration
 - **Direct Wallet Auth**: Connect with MetaMask, Phantom, or Coinbase Wallet with automatic institutional profile binding.

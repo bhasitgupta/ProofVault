@@ -20,5 +20,7 @@ contracts/artifacts/
 contracts/cache/
 *.egg-info/
 backend/*.egg-info/
+.env.local
+
 
 
