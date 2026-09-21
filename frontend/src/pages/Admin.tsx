@@ -330,65 +330,91 @@ export const AdminPage: React.FC = () => {
 
     setSavingRoles((prev) => ({ ...prev, [roleName]: true }));
     try {
+      const nowIso = new Date().toISOString();
+      const rolePayload = {
+        role: roleName,
+        clearance_ceiling: roleObj.clearance_ceiling,
+        description: roleObj.description,
+        can_download: roleObj.can_download ?? true,
+        can_issue_cert: roleObj.can_issue_cert ?? true,
+        can_query_rag: roleObj.can_query_rag ?? true,
+        can_ingest: roleObj.can_ingest ?? true,
+        updated_at: nowIso,
+      };
+
       // Try backend first
       let saved = false;
       try {
         await apiFetch(`/admin/roles/${roleName}`, {
           method: 'PUT',
-          body: JSON.stringify({
+          body: JSON.stringify(rolePayload),
+        });
+        saved = true;
+      } catch {
+        // Backend offline — save directly to Supabase
+      }
+
+      if (!saved) {
+        // PATCH existing row; if empty result, INSERT new row
+        const patchRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/roles?role=eq.${encodeURIComponent(roleName)}`,
+          {
+            method: 'PATCH',
+            headers: {
+              apikey: SUPABASE_KEY,
+              Authorization: `Bearer ${SUPABASE_KEY}`,
+              'Content-Type': 'application/json',
+              Prefer: 'return=representation',
+            },
+            body: JSON.stringify(rolePayload),
+          }
+        );
+        const patched = patchRes.ok ? await patchRes.json() : [];
+        if (!patched || patched.length === 0) {
+          await fetch(`${SUPABASE_URL}/rest/v1/roles`, {
+            method: 'POST',
+            headers: {
+              apikey: SUPABASE_KEY,
+              Authorization: `Bearer ${SUPABASE_KEY}`,
+              'Content-Type': 'application/json',
+              Prefer: 'resolution=merge-duplicates',
+            },
+            body: JSON.stringify(rolePayload),
+          });
+        }
+      }
+
+      // Write audit log entry
+      fetch(`${SUPABASE_URL}/rest/v1/audit_logs`, {
+        method: 'POST',
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          event_type: 'ROLE_POLICY_UPDATED',
+          actor_id: 'ADMIN',
+          case_id: 'SYSTEM',
+          details: JSON.stringify({
+            role: roleName,
             clearance_ceiling: roleObj.clearance_ceiling,
-            description: roleObj.description,
             can_download: roleObj.can_download,
             can_issue_cert: roleObj.can_issue_cert,
             can_query_rag: roleObj.can_query_rag,
             can_ingest: roleObj.can_ingest,
           }),
-        });
-        saved = true;
-      } catch {
-        // Backend offline — save to Supabase roles table directly
-      }
+          timestamp: nowIso,
+        }),
+      }).catch(() => {});
 
-      if (!saved) {
-        const rolePayload = {
-          role: roleName,
-          clearance_ceiling: roleObj.clearance_ceiling,
-          description: roleObj.description,
-          can_download: roleObj.can_download ?? true,
-          can_issue_cert: roleObj.can_issue_cert ?? true,
-          can_query_rag: roleObj.can_query_rag ?? true,
-          can_ingest: roleObj.can_ingest ?? true,
-          updated_at: new Date().toISOString(),
-        };
-        const res = await fetch(`${SUPABASE_URL}/rest/v1/roles?role=eq.${encodeURIComponent(roleName)}`, {
-          method: 'PATCH',
-          headers: {
-            apikey: SUPABASE_KEY,
-            Authorization: `Bearer ${SUPABASE_KEY}`,
-            'Content-Type': 'application/json',
-            Prefer: 'return=representation',
-          },
-          body: JSON.stringify(rolePayload),
-        });
-        // If no row to PATCH, INSERT instead
-        if (res.ok) {
-          const patched = await res.json();
-          if (!patched || patched.length === 0) {
-            await fetch(`${SUPABASE_URL}/rest/v1/roles`, {
-              method: 'POST',
-              headers: {
-                apikey: SUPABASE_KEY,
-                Authorization: `Bearer ${SUPABASE_KEY}`,
-                'Content-Type': 'application/json',
-                Prefer: 'resolution=merge-duplicates',
-              },
-              body: JSON.stringify(rolePayload),
-            });
-          }
-        }
-      }
+      // Update local roles state directly — do NOT call loadAdminData()
+      // because fallback always resets to hardcoded list
+      setRoles((prev) =>
+        prev.map((r) => (r.role === roleName ? { ...r, ...rolePayload } : r))
+      );
 
-      await loadAdminData();
+      alert(`✓ ${roleName} policy saved — Clearance: ${roleObj.clearance_ceiling}`);
     } catch (err: any) {
       alert(err.message || 'Failed to save role policy');
     } finally {
@@ -621,10 +647,7 @@ export const AdminPage: React.FC = () => {
             role: userForm.role,
             msp_id: userForm.msp_id || 'PoliceMSP',
             password_hash: `hash_${btoa(userForm.password || 'temporary123').slice(0, 32)}`,
-            totp_secret: '',
-            mfa_enrolled: false,
             is_active: true,
-            ledger_tx_id: chainTxHash || '',
           }),
         });
 
