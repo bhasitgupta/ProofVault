@@ -469,7 +469,7 @@ export const AdminPage: React.FC = () => {
                 to: PROVENANCE_REGISTRY_ADDR,
                 data: calldata,
                 value: '0x0',
-                // EIP-1559: Polygon Amoy requires min 2.5 Gwei tip — use 30 Gwei
+                gas: '0x493E0',
                 maxPriorityFeePerGas: ethers.toBeHex(ethers.parseUnits('30', 'gwei')),
                 maxFeePerGas: ethers.toBeHex(ethers.parseUnits('50', 'gwei')),
               }],
@@ -497,7 +497,6 @@ export const AdminPage: React.FC = () => {
         classification_ceiling: caseForm.classification_ceiling,
         status: 'ACTIVE',
         owning_msp: caseForm.owning_msp,
-        ledger_tx_id: chainTxHash || '',
         created_at: nowIso,
         updated_at: nowIso,
       };
@@ -602,7 +601,7 @@ export const AdminPage: React.FC = () => {
                 to: PROVENANCE_REGISTRY_ADDR,
                 data: calldata,
                 value: '0x0',
-                // EIP-1559: Polygon Amoy requires min 2.5 Gwei tip — use 30 Gwei
+                gas: '0x493E0',
                 maxPriorityFeePerGas: ethers.toBeHex(ethers.parseUnits('30', 'gwei')),
                 maxFeePerGas: ethers.toBeHex(ethers.parseUnits('50', 'gwei')),
               }],

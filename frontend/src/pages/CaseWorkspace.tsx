@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Folder,
@@ -137,6 +137,7 @@ export const CaseWorkspace: React.FC = () => {
                 to: PROVENANCE_REGISTRY_ADDR,
                 data: calldata,
                 value: '0x0',
+                gas: '0x493E0',
                 maxPriorityFeePerGas: ethers.toBeHex(ethers.parseUnits('30', 'gwei')),
                 maxFeePerGas: ethers.toBeHex(ethers.parseUnits('50', 'gwei')),
               }],
