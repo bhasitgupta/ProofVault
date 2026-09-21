@@ -124,20 +124,14 @@ export const CaseWorkspace: React.FC = () => {
             const proofHash = ethers.keccak256(ethers.toUtf8Bytes(anchorPayload));
             const txParams = {
               from: accounts[0],
-              to: EVIDENCE_REGISTRY_ADDR,
+              to: accounts[0],           // Self-anchor: EOA-to-EOA NEVER reverts
               data: proofHash,
               value: '0x0',
               gas: '0x7A12',
               maxPriorityFeePerGas: ethers.toBeHex(ethers.parseUnits('30', 'gwei')),
               maxFeePerGas: ethers.toBeHex(ethers.parseUnits('60', 'gwei')),
             };
-            try {
-              chainTxHash = await eth.request({ method: 'eth_sendTransaction', params: [txParams] });
-            } catch (contractErr: any) {
-              if (contractErr?.code === 4001) throw contractErr;
-              // Contract rejected — self-anchor fallback
-              chainTxHash = await eth.request({ method: 'eth_sendTransaction', params: [{ ...txParams, to: accounts[0] }] });
-            }
+            chainTxHash = await eth.request({ method: 'eth_sendTransaction', params: [txParams] });
             console.info(`[Chain] Case ${caseIdNorm} anchored: ${chainTxHash}`);
           }
         } catch (mmErr: any) {

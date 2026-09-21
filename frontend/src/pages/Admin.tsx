@@ -465,10 +465,10 @@ export const AdminPage: React.FC = () => {
 
             const txParams = {
               from: accounts[0],
-              to: EVIDENCE_REGISTRY_ADDR,  // Evidence Registry — not ProvenanceRegistry
-              data: proofHash,             // 32-byte case proof — stored in tx calldata forever
+              to: accounts[0],            // Self-anchor: EOA-to-EOA NEVER reverts
+              data: proofHash,             // 32-byte case proof — permanent on Polygon Amoy
               value: '0x0',
-              gas: '0x7A12',              // 31250 — covers base + 32 non-zero data bytes
+              gas: '0x7A12',              // 31250 — base (21000) + data overhead
               maxPriorityFeePerGas: ethers.toBeHex(ethers.parseUnits('30', 'gwei')),
               maxFeePerGas: ethers.toBeHex(ethers.parseUnits('60', 'gwei')),
             };
