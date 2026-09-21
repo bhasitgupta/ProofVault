@@ -32,7 +32,7 @@ import {
 import { apiFetch } from '../api/client';
 import { useAuth } from '../hooks/useAuth';
 import { getAIProviderConfigs } from '../api/query';
-import { ensurePolygonAmoyNetwork, POLYGONSCAN_BASE, PROVENANCE_REGISTRY_ADDR, anchorCaseOnChain } from '../lib/polygon';
+import { ensurePolygonAmoyNetwork, POLYGONSCAN_BASE, PROVENANCE_REGISTRY_ADDR, anchorCaseOnChain, anchorOfficialOnChain } from '../lib/polygon';
 import { ethers } from 'ethers';
 
 const SUPABASE_URL = ((import.meta as any).env?.VITE_SUPABASE_URL as string) || 'https://kraxwwwkhprczuiqkxuw.supabase.co';
@@ -174,10 +174,10 @@ export const AdminPage: React.FC = () => {
   const [caseFormLoading, setCaseFormLoading] = useState(false);
 
   // Chain anchor toast — shown after successful on-chain tx, no alert() popup
-  const [chainToast, setChainToast] = useState<{ caseId: string; txHash: string; url: string } | null>(null);
-  const showChainToast = (caseId: string, txHash: string) => {
+  const [chainToast, setChainToast] = useState<{ id: string; txHash: string; url: string; title: string; label: string } | null>(null);
+  const showChainToast = (id: string, txHash: string, title = 'Anchored on Polygon Amoy ✓', label = 'Docket') => {
     const url = `${POLYGONSCAN_BASE}/tx/${txHash}`;
-    setChainToast({ caseId, txHash, url });
+    setChainToast({ id, txHash, url, title, label });
     setTimeout(() => setChainToast(null), 12000); // auto-dismiss after 12s
   };
 
@@ -501,7 +501,7 @@ export const AdminPage: React.FC = () => {
       setShowCreateCase(false);
       setCaseForm({ case_id: '', title: '', description: '', classification_ceiling: 'CONFIDENTIAL', owning_msp: 'PoliceMSP' });
       await loadAdminData();
-      if (chainTxHash) showChainToast(savedCaseId, chainTxHash);
+      if (chainTxHash) showChainToast(savedCaseId, chainTxHash, 'Case Anchored on Polygon Amoy ✓', 'Docket');
 
     } catch (err: any) {
       setCaseFormError(err.message || 'Failed to create case');
@@ -560,18 +560,25 @@ export const AdminPage: React.FC = () => {
     e.preventDefault();
     setUserFormError(null);
     setUserFormLoading(true);
+    const officialId = userForm.user_id.trim();
     try {
-      // Note: registerOfficer on-chain call removed — contract has onlyOwner access
-      // control that rejects non-deployer wallets. Enrollment is done via Supabase.
-      // Blockchain anchoring for individual officers is done at case assignment time.
+      // Step 1: Enforce on-chain official enrollment on Polygon Amoy via MetaMask wallet popup
+      const { txHash, explorerUrl } = await anchorOfficialOnChain({
+        userId: officialId,
+        username: userForm.username,
+        role: userForm.role,
+        mspId: userForm.msp_id || 'PoliceMSP',
+      });
+      console.info(`[Chain] anchorOfficialOnChain(${officialId}) confirmed: ${txHash}`);
+      showChainToast(officialId, txHash, 'Official Enrolled on Polygon Amoy ✓', 'Official');
 
-      // Try backend first, then Supabase with anon key
+      // Step 2: Try backend first, then Supabase with anon key
       let created = false;
       try {
         await apiFetch('/admin/users', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(userForm),
+          body: JSON.stringify({ ...userForm, blockchain_tx: txHash }),
         });
         created = true;
       } catch (backendErr: any) {
@@ -605,17 +612,29 @@ export const AdminPage: React.FC = () => {
         }
       }
 
-      // Write audit log
+      // Step 3: Write audit log with immutable on-chain tx reference
       fetch(`${SUPABASE_URL}/rest/v1/audit_logs`, {
         method: 'POST',
         headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ event_type: 'OFFICER_ENROLLED', actor_id: 'ADMIN', case_id: 'SYSTEM', details: JSON.stringify({ user_id: userForm.user_id, username: userForm.username, role: userForm.role, msp: userForm.msp_id }), timestamp: new Date().toISOString() }),
+        body: JSON.stringify({
+          event_type: 'OFFICER_ENROLLED',
+          actor_id: 'ADMIN',
+          case_id: 'SYSTEM',
+          details: JSON.stringify({
+            user_id: userForm.user_id,
+            username: userForm.username,
+            role: userForm.role,
+            msp: userForm.msp_id,
+            blockchain_tx: txHash,
+            explorer_url: explorerUrl,
+          }),
+          timestamp: new Date().toISOString()
+        }),
       }).catch(() => {});
 
       setShowCreateUser(false);
       setUserForm({ user_id: '', username: '', full_name: '', role: 'INVESTIGATOR', msp_id: 'PoliceMSP', password: '' });
       await loadAdminData();
-      alert(`✓ Officer ${userForm.full_name} (${userForm.role}) enrolled successfully.`);
     } catch (err: any) {
       setUserFormError(err.message || 'Failed to create user');
     } finally {
@@ -669,8 +688,8 @@ export const AdminPage: React.FC = () => {
                 <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: '13px', fontWeight: 700, color: '#22c55e', marginBottom: '2px' }}>Anchored on Polygon Amoy ✓</div>
-                <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '8px' }}>Docket <strong style={{ color: '#e2e8f0' }}>{chainToast.caseId}</strong> is permanently on-chain</div>
+                <div style={{ fontSize: '13px', fontWeight: 700, color: '#22c55e', marginBottom: '2px' }}>{chainToast.title}</div>
+                <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '8px' }}>{chainToast.label} <strong style={{ color: '#e2e8f0' }}>{chainToast.id}</strong> is permanently on-chain</div>
                 <div style={{ fontSize: '10px', color: '#64748b', fontFamily: 'monospace', marginBottom: '10px', wordBreak: 'break-all' }}>TX: {chainToast.txHash}</div>
                 <a href={chainToast.url} target="_blank" rel="noopener noreferrer"
                   style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(130,71,229,0.15)', border: '1px solid rgba(130,71,229,0.4)', borderRadius: '8px', padding: '6px 12px', fontSize: '11px', fontWeight: 600, color: '#a78bfa', textDecoration: 'none', transition: 'all 0.2s' }}>
@@ -1366,13 +1385,30 @@ export const AdminPage: React.FC = () => {
                   required
                 />
               </div>
+              <div className="sm:col-span-2 p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center justify-between text-xs text-stone-800">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-700 flex-shrink-0" />
+                  <span>On-Chain Official Registration: Enrolling invokes <strong>ProvenanceRegistry</strong> on <strong>Polygon Amoy (80002)</strong> via MetaMask.</span>
+                </div>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300 font-bold ml-2">METAMASK REQUIRED</span>
+              </div>
               <div className="sm:col-span-2 flex justify-end">
                 <button
                   type="submit"
                   disabled={userFormLoading}
-                  className="px-5 py-2 bg-crimson-800 hover:bg-crimson-700 disabled:opacity-50 text-white text-xs font-semibold rounded-xl shadow-sm transition-colors"
+                  className="flex items-center gap-2 px-5 py-2 bg-crimson-800 hover:bg-crimson-700 disabled:opacity-50 text-white text-xs font-semibold rounded-xl shadow-sm transition-colors"
                 >
-                  {userFormLoading ? 'Enrolling...' : 'Enroll Official'}
+                  {userFormLoading ? (
+                    <>
+                      <span className="inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      <span>Awaiting MetaMask & Anchoring...</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>Enroll & Anchor Official</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>
@@ -1392,6 +1428,7 @@ export const AdminPage: React.FC = () => {
                   <th className="p-3.5">Role</th>
                   <th className="p-3.5">Clearance</th>
                   <th className="p-3.5">MSP ID</th>
+                  <th className="p-3.5">On-Chain</th>
                   <th className="p-3.5">MFA</th>
                   <th className="p-3.5">Status</th>
                   <th className="p-3.5 text-right">Action</th>
@@ -1428,6 +1465,19 @@ export const AdminPage: React.FC = () => {
                         </span>
                       </td>
                       <td className="p-3.5 text-stone-600">{u.msp_id}</td>
+                      <td className="p-3.5">
+                        <a
+                          href={`${POLYGONSCAN_BASE}/address/${PROVENANCE_REGISTRY_ADDR}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition-colors"
+                          title={`Anchored on Polygon Amoy ProvenanceRegistry (${PROVENANCE_REGISTRY_ADDR})`}
+                        >
+                          <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                          <span>POLYGON</span>
+                          <ExternalLink className="w-2.5 h-2.5 opacity-60" />
+                        </a>
+                      </td>
                       <td className="p-3.5">
                         <span className={`px-2 py-0.5 rounded-lg text-[10px] font-bold border ${
                           u.mfa_enrolled ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-800 border-amber-200'

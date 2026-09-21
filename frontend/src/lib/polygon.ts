@@ -650,3 +650,75 @@ export async function isCaseAnchoredOnChain(caseId: string): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * Permanently anchors an Official Personnel enrollment to Polygon Amoy using ProvenanceRegistry.logCase(officialTag).
+ * Enforces Web3 wallet popup (MetaMask) and returns confirmed transaction hash and explorer URL.
+ */
+export async function anchorOfficialOnChain(params: {
+  userId: string;
+  username: string;
+  role: string;
+  mspId: string;
+}): Promise<{ txHash: string; explorerUrl: string }> {
+  const eth = (window as any).ethereum;
+  if (!eth) {
+    throw new Error('MetaMask / Web3 wallet is required to anchor official personnel on Polygon blockchain. Please install MetaMask and try again.');
+  }
+
+  await ensurePolygonAmoyNetwork();
+
+  const accounts: string[] = await eth.request({ method: 'eth_requestAccounts' });
+  if (!accounts || accounts.length === 0) {
+    throw new Error('No wallet account selected. Please unlock MetaMask.');
+  }
+
+  const officialTag = `OFFICIAL:${params.userId.trim().toUpperCase()}:${params.username.trim()}:${params.role.trim().toUpperCase()}:${(params.mspId || 'PoliceMSP').trim()}`;
+  const iface = new ethers.Interface(PROVENANCE_REGISTRY_ABI);
+  const calldata = iface.encodeFunctionData('logCase', [officialTag]);
+
+  try {
+    const txHash: string = await eth.request({
+      method: 'eth_sendTransaction',
+      params: [{
+        from: accounts[0],
+        to: PROVENANCE_REGISTRY_ADDR,
+        data: calldata,
+        value: '0x0',
+        gas: '0x30D40', // 200,000 gas limit
+        maxPriorityFeePerGas: '0x6fc23ac00', // 30 Gwei (>= 25 Gwei Amoy minimum)
+        maxFeePerGas: '0xdf8475800', // 60 Gwei
+      }],
+    });
+
+    if (!txHash || typeof txHash !== 'string') {
+      throw new Error('Transaction was not broadcasted by wallet.');
+    }
+
+    return {
+      txHash,
+      explorerUrl: `${POLYGONSCAN_BASE}/tx/${txHash}`,
+    };
+  } catch (err: any) {
+    if (err?.code === 4001 || err?.message?.includes('User denied') || err?.message?.includes('rejected')) {
+      throw new Error('MetaMask transaction rejected by user.');
+    }
+    throw new Error(`Polygon Amoy transaction failed: ${err?.message || err}`);
+  }
+}
+
+/**
+ * Checks whether an official tag is already anchored on Polygon Amoy.
+ */
+export async function isOfficialAnchoredOnChain(userId: string): Promise<boolean> {
+  try {
+    const provider = new ethers.JsonRpcProvider(POLYGON_AMOY_RPC);
+    const contract = new ethers.Contract(PROVENANCE_REGISTRY_ADDR, PROVENANCE_REGISTRY_ABI, provider);
+    const filter = `OFFICIAL:${userId.trim().toUpperCase()}`;
+    return await contract.isCaseAnchored(filter);
+  } catch (err) {
+    console.warn('Failed to verify official anchor on-chain:', err);
+    return false;
+  }
+}
+
