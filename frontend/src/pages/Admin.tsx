@@ -646,6 +646,8 @@ export const AdminPage: React.FC = () => {
             role: userForm.role,
             msp_id: userForm.msp_id || 'PoliceMSP',
             password_hash: `hash_${btoa(userForm.password || 'temporary123').slice(0, 32)}`,
+            totp_secret: '',
+            mfa_enrolled: false,
             is_active: true,
           }),
         });
