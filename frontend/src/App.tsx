@@ -186,3 +186,5 @@ export const App: React.FC = () => {
 };
 
 export default App;
+
+// Root application router defining protected routes and layout shell
