@@ -10,3 +10,5 @@ router.include_router(cases.router)
 router.include_router(certificate.router)
 router.include_router(audit.router)
 router.include_router(admin.router)
+
+"""V1 API Router: Consolidated routing aggregator for all judicial endpoints."""
