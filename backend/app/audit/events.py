@@ -31,3 +31,5 @@ def create_audit_event(
         outcome=outcome.value if hasattr(outcome, 'value') else outcome,
         reason=reason or ""
     )
+
+"""Audit Events: Structured dataclasses for standardized judicial event logging."""
