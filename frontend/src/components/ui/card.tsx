@@ -90,3 +90,5 @@ export {
   CardDescription,
   CardContent,
 }
+
+// Glass-ivory judicial card container with header, content, and footer sub-components
