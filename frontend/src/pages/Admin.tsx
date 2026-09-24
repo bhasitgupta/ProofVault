@@ -32,7 +32,8 @@ import {
 import { apiFetch } from '../api/client';
 import { useAuth } from '../hooks/useAuth';
 import { getAIProviderConfigs } from '../api/query';
-import { ensurePolygonAmoyNetwork, POLYGONSCAN_BASE, PROVENANCE_REGISTRY_ADDR, anchorCaseOnChain, anchorOfficialOnChain } from '../lib/polygon';
+import { recordCustodyEvent } from '../api/audit';
+import { ensurePolygonAmoyNetwork, POLYGONSCAN_BASE, PROVENANCE_REGISTRY_ADDR, anchorCaseOnChain, anchorOfficialOnChain, anchorRoleChangeOnChain } from '../lib/polygon';
 import { ethers } from 'ethers';
 
 const SUPABASE_URL = ((import.meta as any).env?.VITE_SUPABASE_URL as string) || 'https://kraxwwwkhprczuiqkxuw.supabase.co';
@@ -41,7 +42,7 @@ const SUPABASE_KEY =
   ((import.meta as any).env?.VITE_SUPABASE_ANON_KEY as string) ||
   'sb_publishable_yBEvcnfdSVjN_5ZlxSw_5w_bDe53Czq';
 // Evidence Registry — used as anchor target for raw hash calldata
-const EVIDENCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_EVIDENCE_REGISTRY as string) || '0xC15D29c23C72c7E6301AeD190F2FD186372b7DBe';
+const EVIDENCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_EVIDENCE_REGISTRY as string) || '0xF022e8E8E7FD5d565fAb24dC74B6fAc1c8760a01';
 
 
 // Provenance Registry ABI — role management functions
@@ -173,6 +174,13 @@ export const AdminPage: React.FC = () => {
   const [caseFormError, setCaseFormError] = useState<string | null>(null);
   const [caseFormLoading, setCaseFormLoading] = useState(false);
 
+  // App notification toast — replaces browser alert()
+  const [appToast, setAppToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const showAppToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setAppToast({ message, type });
+    setTimeout(() => setAppToast(null), 6000);
+  };
+
   // Chain anchor toast — shown after successful on-chain tx, no alert() popup
   const [chainToast, setChainToast] = useState<{ id: string; txHash: string; url: string; title: string; label: string } | null>(null);
   const showChainToast = (id: string, txHash: string, title = 'Anchored on Polygon Amoy ✓', label = 'Docket') => {
@@ -197,6 +205,15 @@ export const AdminPage: React.FC = () => {
 
   const [bulkCaseSelections, setBulkCaseSelections] = useState<Record<string, string>>({});
   const [savingRoles, setSavingRoles] = useState<Record<string, boolean>>({});
+
+  // Role change on-chain confirmation modal state
+  const [roleChangeTarget, setRoleChangeTarget] = useState<{
+    user: any;
+    newRole: string;
+  } | null>(null);
+  const [roleChangeReason, setRoleChangeReason] = useState('Statutory Clearance Adjustment & Role Reassignment');
+  const [roleChangeSubmitting, setRoleChangeSubmitting] = useState(false);
+  const [roleChangeError, setRoleChangeError] = useState<string | null>(null);
 
   useEffect(() => {
     loadAdminData();
@@ -300,32 +317,73 @@ export const AdminPage: React.FC = () => {
         });
       }
       await loadAdminData();
+      showAppToast(`Officer status updated successfully`, 'success');
     } catch (err: any) {
-      alert(err.message || 'Action failed');
+      showAppToast(err.message || 'Action failed', 'error');
     }
   };
 
-  const handleChangeOfficerRole = async (userId: string, newRole: string) => {
+  const handleInitiateRoleChange = (targetUser: any, newRole: string) => {
+    if (targetUser.role === newRole) return;
+    setRoleChangeTarget({ user: targetUser, newRole });
+    setRoleChangeReason(`Statutory Judicial Reassignment: ${targetUser.role} -> ${newRole}`);
+    setRoleChangeError(null);
+  };
+
+  const handleConfirmRoleChange = async () => {
+    if (!roleChangeTarget) return;
+    const { user: targetUser, newRole } = roleChangeTarget;
+    const oldRole = targetUser.role || 'OFFICER';
+    setRoleChangeSubmitting(true);
+    setRoleChangeError(null);
+
     try {
+      // Step 1: Enforce on-chain role update anchoring on Polygon Amoy via MetaMask wallet popup
+      const { txHash, explorerUrl } = await anchorRoleChangeOnChain({
+        userId: targetUser.id,
+        newRole,
+        adminId: localStorage.getItem('sdms_user_id') || user?.id || 'ADMIN',
+      });
+      console.info(`[Chain] anchorRoleChangeOnChain(${targetUser.id}: ${oldRole} -> ${newRole}) confirmed: ${txHash}`);
+
+      // Step 2: Save to backend / Supabase
       try {
-        await apiFetch(`/admin/users/${userId}/role`, {
+        await apiFetch(`/admin/users/${targetUser.id}/role`, {
           method: 'PATCH',
-          body: JSON.stringify({ role: newRole }),
+          body: JSON.stringify({ role: newRole, blockchain_tx: txHash }),
         });
       } catch {
-        await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${encodeURIComponent(userId)}`, {
+        await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${encodeURIComponent(targetUser.id)}`, {
           method: 'PATCH',
           headers: {
             apikey: SUPABASE_KEY,
             Authorization: `Bearer ${SUPABASE_KEY}`,
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ role: newRole }),
+          body: JSON.stringify({ role: newRole, updated_at: new Date().toISOString() }),
         });
       }
+
+      // Step 3: Write audit log with immutable on-chain tx reference
+      await recordCustodyEvent({
+        actorId: localStorage.getItem('sdms_user_id') || user?.id || 'ADMIN',
+        actorRole: user?.role || 'ADMIN',
+        actorMSP: user?.msp_id || 'JudicialMSP',
+        action: 'OFFICER_ROLE_UPDATED',
+        caseId: 'SYSTEM',
+        outcome: 'ALLOW',
+        reason: `Officer ${targetUser.id} (${targetUser.username}) role reassigned from ${oldRole} to ${newRole}. Justification: ${roleChangeReason.trim()}`,
+        ledgerTxId: txHash,
+      });
+
+      // Step 4: Show on-chain toast banner (NO browser alert())
+      showChainToast(targetUser.id, txHash, 'Officer Role Updated on Polygon Amoy ✓', 'Officer');
+      setRoleChangeTarget(null);
       await loadAdminData();
     } catch (err: any) {
-      alert(err.message || 'Failed to update officer role');
+      setRoleChangeError(err.message || 'Failed to update officer role on Polygon blockchain');
+    } finally {
+      setRoleChangeSubmitting(false);
     }
   };
 
@@ -425,9 +483,9 @@ export const AdminPage: React.FC = () => {
         prev.map((r) => (r.role === roleName ? { ...r, ...rolePayload } : r))
       );
 
-      alert(`✓ ${roleName} policy saved — Clearance: ${roleObj.clearance_ceiling}`);
+      showAppToast(`✓ ${roleName} policy saved — Clearance: ${roleObj.clearance_ceiling}`, 'success');
     } catch (err: any) {
-      alert(err.message || 'Failed to save role policy');
+      showAppToast(err.message || 'Failed to save role policy', 'error');
     } finally {
       setSavingRoles((prev) => ({ ...prev, [roleName]: false }));
     }
@@ -436,7 +494,7 @@ export const AdminPage: React.FC = () => {
   const handleBulkRoleCaseAccess = async (roleName: string, action: 'ASSIGN' | 'REVOKE') => {
     const caseId = bulkCaseSelections[roleName];
     if (!caseId) {
-      alert('Please select a case first.');
+      showAppToast('Please select a case first.', 'error');
       return;
     }
     try {
@@ -445,9 +503,9 @@ export const AdminPage: React.FC = () => {
         body: JSON.stringify({ case_id: caseId, action }),
       });
       await loadAdminData();
-      alert(`Success: ${action === 'ASSIGN' ? 'Assigned' : 'Revoked'} ${res.affected_officers} officer(s) with role ${roleName} to/from case ${caseId}.`);
+      showAppToast(`Success: ${action === 'ASSIGN' ? 'Assigned' : 'Revoked'} ${res.affected_officers} officer(s) with role ${roleName} to/from case ${caseId}.`, 'success');
     } catch (err: any) {
-      alert(err.message || 'Bulk case action failed');
+      showAppToast(err.message || 'Bulk case action failed', 'error');
     }
   };
 
@@ -512,6 +570,34 @@ export const AdminPage: React.FC = () => {
 
 
 
+  const fetchCaseAssignmentsFromSupabase = async (caseId: string) => {
+    try {
+      const res = await fetch(
+        `${SUPABASE_URL}/rest/v1/assignments?case_id=eq.${encodeURIComponent(caseId)}&select=user_id,is_active,users(id,username,role)`,
+        {
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+          },
+        }
+      );
+      if (res.ok) {
+        const rows = await res.json();
+        return (rows || [])
+          .filter((r: any) => r.is_active)
+          .map((r: any) => ({
+            user_id: r.user_id,
+            username: r.users?.username || r.user_id,
+            role: r.users?.role || 'INVESTIGATOR',
+            is_active: r.is_active,
+          }));
+      }
+    } catch (err) {
+      console.warn('Supabase fetch assignments failed:', err);
+    }
+    return [];
+  };
+
   const toggleCasePanel = async (caseId: string) => {
     if (expandedCase === caseId) {
       setExpandedCase(null);
@@ -524,35 +610,132 @@ export const AdminPage: React.FC = () => {
       const assignments = await apiFetch<any[]>(`/admin/cases/${caseId}/assignments`);
       setCaseAssignments((prev) => ({ ...prev, [caseId]: assignments }));
     } catch {
-      setCaseAssignments((prev) => ({ ...prev, [caseId]: [] }));
+      const supaAssignments = await fetchCaseAssignmentsFromSupabase(caseId);
+      setCaseAssignments((prev) => ({ ...prev, [caseId]: supaAssignments }));
     }
   };
 
   const handleAssign = async (caseId: string) => {
     if (!assignUserId.trim()) return;
     setAssignError(null);
+    const targetUserId = assignUserId.trim();
+    let assigned = false;
+
+    // 1. Try FastAPI backend
     try {
       await apiFetch(`/admin/cases/${caseId}/assign`, {
         method: 'POST',
-        body: JSON.stringify({ user_id: assignUserId.trim() }),
+        body: JSON.stringify({ user_id: targetUserId }),
       });
-      const assignments = await apiFetch<any[]>(`/admin/cases/${caseId}/assignments`);
+      assigned = true;
+    } catch (backendErr) {
+      console.warn('Backend assign failed, attempting Supabase direct fallback:', backendErr);
+    }
+
+    // 2. Direct Supabase fallback
+    if (!assigned) {
+      try {
+        const checkRes = await fetch(
+          `${SUPABASE_URL}/rest/v1/assignments?case_id=eq.${encodeURIComponent(caseId)}&user_id=eq.${encodeURIComponent(targetUserId)}`,
+          {
+            headers: {
+              apikey: SUPABASE_KEY,
+              Authorization: `Bearer ${SUPABASE_KEY}`,
+            },
+          }
+        );
+        const existing = checkRes.ok ? await checkRes.json() : [];
+        if (existing && existing.length > 0) {
+          await fetch(
+            `${SUPABASE_URL}/rest/v1/assignments?case_id=eq.${encodeURIComponent(caseId)}&user_id=eq.${encodeURIComponent(targetUserId)}`,
+            {
+              method: 'PATCH',
+              headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ is_active: true }),
+            }
+          );
+        } else {
+          await fetch(`${SUPABASE_URL}/rest/v1/assignments`, {
+            method: 'POST',
+            headers: {
+              apikey: SUPABASE_KEY,
+              Authorization: `Bearer ${SUPABASE_KEY}`,
+              'Content-Type': 'application/json',
+              Prefer: 'return=representation',
+            },
+            body: JSON.stringify({
+              id: `asgn_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+              user_id: targetUserId,
+              case_id: caseId,
+              is_active: true,
+            }),
+          });
+        }
+        assigned = true;
+      } catch (supaErr: any) {
+        setAssignError(supaErr.message || 'Failed to assign official');
+        return;
+      }
+    }
+
+    // 3. Reload assignments
+    try {
+      let assignments: any[] = [];
+      try {
+        assignments = await apiFetch<any[]>(`/admin/cases/${caseId}/assignments`);
+      } catch {
+        assignments = await fetchCaseAssignmentsFromSupabase(caseId);
+      }
       setCaseAssignments((prev) => ({ ...prev, [caseId]: assignments }));
       setAssignUserId('');
       await loadAdminData();
     } catch (err: any) {
-      setAssignError(err.message || 'Failed to assign user');
+      setAssignError(err.message || 'Failed to refresh assignments');
     }
   };
 
   const handleRevoke = async (caseId: string, userId: string) => {
+    let revoked = false;
     try {
       await apiFetch(`/admin/cases/${caseId}/assign/${userId}`, { method: 'DELETE' });
-      const assignments = await apiFetch<any[]>(`/admin/cases/${caseId}/assignments`);
+      revoked = true;
+    } catch {
+      try {
+        await fetch(
+          `${SUPABASE_URL}/rest/v1/assignments?case_id=eq.${encodeURIComponent(caseId)}&user_id=eq.${encodeURIComponent(userId)}`,
+          {
+            method: 'PATCH',
+            headers: {
+              apikey: SUPABASE_KEY,
+              Authorization: `Bearer ${SUPABASE_KEY}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ is_active: false }),
+          }
+        );
+        revoked = true;
+      } catch (supaErr: any) {
+        showAppToast(supaErr.message || 'Failed to revoke assignment', 'error');
+        return;
+      }
+    }
+
+    try {
+      let assignments: any[] = [];
+      try {
+        assignments = await apiFetch<any[]>(`/admin/cases/${caseId}/assignments`);
+      } catch {
+        assignments = await fetchCaseAssignmentsFromSupabase(caseId);
+      }
       setCaseAssignments((prev) => ({ ...prev, [caseId]: assignments }));
       await loadAdminData();
+      showAppToast('Official assignment revoked successfully', 'success');
     } catch (err: any) {
-      alert(err.message || 'Failed to revoke assignment');
+      showAppToast(err.message || 'Failed to revoke assignment', 'error');
     }
   };
 
@@ -699,6 +882,33 @@ export const AdminPage: React.FC = () => {
               </div>
               <button onClick={() => setChainToast(null)} style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer', padding: '2px', lineHeight: 1 }}>✕</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* App Notification Toast — clean modern banner replacing browser alert() */}
+      {appToast && (
+        <div style={{ position: 'fixed', top: chainToast ? '160px' : '20px', right: '20px', zIndex: 9998, maxWidth: '420px', animation: 'slideInRight 0.3s ease' }}>
+          <div style={{
+            background: appToast.type === 'success' ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' : 'linear-gradient(135deg, #450a0a 0%, #1e1b1b 100%)',
+            border: `1px solid ${appToast.type === 'success' ? '#22c55e' : '#f43f5e'}`,
+            borderRadius: '14px',
+            padding: '14px 18px',
+            boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+            color: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '12px',
+            fontSize: '12px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ color: appToast.type === 'success' ? '#22c55e' : '#f43f5e', fontWeight: 'bold' }}>
+                {appToast.type === 'success' ? '✓' : '⚠'}
+              </span>
+              <span>{appToast.message}</span>
+            </div>
+            <button onClick={() => setAppToast(null)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '2px', lineHeight: 1 }}>✕</button>
           </div>
         </div>
       )}
@@ -1305,6 +1515,110 @@ export const AdminPage: React.FC = () => {
           </button>
         </div>
 
+        {/* Role Change Confirmation Modal */}
+        {roleChangeTarget && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+            <div className="glass-ivory border border-stone-300 rounded-3xl p-6 sm:p-7 max-w-lg w-full shadow-2xl space-y-5">
+              <div className="flex items-center justify-between pb-3 border-b border-stone-200">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-9 h-9 rounded-xl bg-crimson-50 border border-crimson-200 text-crimson-800 flex items-center justify-center">
+                    <ShieldCheck className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-serif-judicial font-bold text-stone-900">Authorize On-Chain Role Change</h3>
+                    <p className="text-[11px] text-stone-500 font-mono">Polygon Amoy Testnet (Chain ID 80002)</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => { if (!roleChangeSubmitting) setRoleChangeTarget(null); }}
+                  className="text-stone-400 hover:text-stone-700"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {roleChangeError && (
+                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800">
+                  {roleChangeError}
+                </div>
+              )}
+
+              <div className="p-4 bg-parchment-100/80 rounded-2xl border border-stone-200 space-y-3">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-stone-500 font-mono">Official ID:</span>
+                  <span className="font-bold font-mono text-stone-900">{roleChangeTarget.user.id} ({roleChangeTarget.user.username})</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-stone-500">Current Role:</span>
+                  <span className="font-bold text-stone-700 px-2 py-0.5 bg-white border border-stone-200 rounded-lg text-[11px]">{roleChangeTarget.user.role}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-stone-500">Proposed New Role:</span>
+                  <span className="font-bold text-crimson-800 px-2 py-0.5 bg-crimson-50 border border-crimson-200 rounded-lg text-[11px]">{roleChangeTarget.newRole}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-stone-500">New Clearance Ceiling:</span>
+                  <span className="font-bold text-emerald-800 px-2 py-0.5 bg-emerald-50 border border-emerald-200 rounded-lg text-[11px]">
+                    {ROLE_CLEARANCE[roleChangeTarget.newRole]?.level || 'STANDARD'}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-stone-700 mb-1">
+                  Statutory Justification / Reassignment Order *
+                </label>
+                <textarea
+                  value={roleChangeReason}
+                  onChange={(e) => setRoleChangeReason(e.target.value)}
+                  rows={2}
+                  disabled={roleChangeSubmitting}
+                  className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-900 focus:outline-none focus:border-crimson-700 shadow-sm"
+                  placeholder="Enter statutory justification for audit trail..."
+                />
+              </div>
+
+              <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center justify-between text-xs text-stone-800">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-700 flex-shrink-0" />
+                  <span>Enforces Web3 wallet signature & records immutable audit record on Polygon Amoy.</span>
+                </div>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300 font-bold ml-2">METAMASK</span>
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setRoleChangeTarget(null)}
+                  disabled={roleChangeSubmitting}
+                  className="px-4 py-2 border border-stone-300 hover:bg-parchment-100 text-stone-700 rounded-xl text-xs font-semibold transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmRoleChange}
+                  disabled={roleChangeSubmitting}
+                  className="flex items-center gap-2 px-5 py-2 bg-crimson-800 hover:bg-crimson-700 disabled:opacity-50 text-white rounded-xl text-xs font-semibold shadow-sm transition-colors cursor-pointer"
+                >
+                  {roleChangeSubmitting ? (
+                    <>
+                      <span className="inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      <span>Awaiting MetaMask & Anchoring...</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>Sign & Anchor Role on Polygon Amoy</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Create User Form */}
         {showCreateUser && (
           <div className="glass-ivory border border-stone-300 rounded-2xl p-6 space-y-4 shadow-md">
@@ -1447,7 +1761,7 @@ export const AdminPage: React.FC = () => {
                       <td className="p-3.5">
                         <select
                           value={u.role}
-                          onChange={(e) => handleChangeOfficerRole(u.id, e.target.value)}
+                          onChange={(e) => handleInitiateRoleChange(u, e.target.value)}
                           disabled={u.username === 'admin_sys'}
                           className="bg-white border border-stone-200 rounded-lg px-2 py-1 text-xs text-crimson-800 font-semibold focus:outline-none cursor-pointer disabled:opacity-50 shadow-sm"
                         >
