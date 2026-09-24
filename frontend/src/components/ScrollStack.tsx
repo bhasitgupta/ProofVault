@@ -359,3 +359,5 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
 };
 
 export default ScrollStack;
+
+// Smooth parallax card stacking container for forensic dossier examination
