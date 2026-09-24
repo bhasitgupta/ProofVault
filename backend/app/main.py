@@ -77,3 +77,5 @@ app.include_router(v1_router, prefix="/api/v1")
 def health_check():
     return {"status": "ok", "service": "sdms-backend", "version": "1.0.0"}
 
+
+"""ProofVault Sovereign Digital Evidence Management System - FastAPI Application."""
