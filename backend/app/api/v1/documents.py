@@ -313,3 +313,5 @@ async def preview_document(
         ],
     }
 
+
+"""Documents Router: Evidence exhibit intake, chunking, and metadata retrieval."""
