@@ -277,10 +277,10 @@ export const AskPage: React.FC = () => {
           <div className="flex items-center justify-between pb-3 border-b border-stone-200">
             <div className="flex items-center gap-2.5">
               <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center p-1.5 shadow-sm"
-                style={{ background: '#11120D' }}
+                className="h-10 px-2 rounded-xl flex items-center justify-center shadow-xs border bg-white shrink-0"
+                style={{ borderColor: '#D8CFBC' }}
               >
-                <img src="/proofvault-logo.png" alt="Proof Vault" className="w-full h-full object-contain" />
+                <img src="/proofvault-logo.png" alt="Proof Vault" className="h-7 w-auto object-contain" />
               </div>
               <div>
                 <h2 className="font-serif-judicial font-bold text-sm" style={{ color: '#11120D' }}>
@@ -493,10 +493,10 @@ export const AskPage: React.FC = () => {
           {messages.length === 0 ? (
             <div className="h-full flex flex-col justify-center items-center text-center max-w-xl mx-auto py-10 space-y-6">
               <div
-                className="w-16 h-16 rounded-3xl flex items-center justify-center p-3 shadow-md"
-                style={{ background: '#11120D' }}
+                className="h-16 px-4 rounded-3xl flex items-center justify-center shadow-xs border bg-white"
+                style={{ borderColor: '#D8CFBC' }}
               >
-                <img src="/proofvault-logo.png" alt="Proof Vault" className="w-full h-full object-contain" />
+                <img src="/proofvault-logo.png" alt="Proof Vault" className="h-11 w-auto object-contain" />
               </div>
 
               <div className="space-y-2">

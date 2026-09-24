@@ -55,12 +55,12 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
           <div className="flex items-center gap-3 lg:gap-5 min-w-0 flex-1">
             <Link to="/dossiers" className="flex items-center gap-2.5 group shrink-0">
               <div
-                className="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm shrink-0 transition-transform group-hover:scale-105 overflow-hidden p-1"
-                style={{ background: '#11120D' }}
+                className="h-10 px-2 rounded-xl flex items-center justify-center shadow-xs shrink-0 transition-transform group-hover:scale-105 border bg-white"
+                style={{ borderColor: '#D8CFBC' }}
               >
-                <img src="/proofvault-logo.png" alt="Proof Vault" className="w-full h-full object-contain" />
+                <img src="/proofvault-logo.png" alt="Proof Vault" className="h-7 w-auto object-contain" />
               </div>
-              <div className="hidden sm:block shrink-0">
+              <div className="hidden xl:block shrink-0">
                 <div className="font-serif-judicial font-black tracking-wide text-sm leading-none" style={{ color: '#11120D' }}>
                   Proof Vault
                 </div>
@@ -75,22 +75,36 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
             </div>
           </div>
 
-          {/* Right side */}
+          {/* Right side: Wallet Address (short form) + Role + Logout */}
           <div className="flex items-center gap-2 shrink-0">
             {user && (
               <div
-                className="hidden sm:flex flex-col items-end px-2.5 py-1 rounded-lg border"
-                style={{ background: 'rgba(216,207,188,0.15)', borderColor: '#D8CFBC' }}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl border bg-white shadow-xs"
+                style={{ borderColor: '#D8CFBC' }}
               >
-                <span className="text-xs font-bold font-mono leading-none" style={{ color: '#11120D' }}>{user.username}</span>
-                <span className="text-[9px] font-bold uppercase tracking-wider font-mono" style={{ color: '#565449' }}>{user.role}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-xs font-bold font-mono text-stone-900 tracking-tight">
+                    {user.address
+                      ? `${user.address.slice(0, 6)}...${user.address.slice(-4)}`
+                      : user.username?.startsWith('0x') && user.username.length > 10
+                      ? `${user.username.slice(0, 6)}...${user.username.slice(-4)}`
+                      : user.username}
+                  </span>
+                </div>
+                <span
+                  className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded"
+                  style={{ background: '#11120D', color: '#FFFBF4' }}
+                >
+                  {user.role}
+                </span>
               </div>
             )}
 
             <button
               onClick={handleLogout}
-              className="p-2 rounded-xl transition-all cursor-pointer shrink-0 hover:bg-bone-200"
-              style={{ color: '#565449' }}
+              className="p-2 rounded-xl border transition-all cursor-pointer shrink-0 bg-white hover:bg-stone-100 shadow-xs"
+              style={{ borderColor: '#D8CFBC', color: '#565449' }}
               title="Sign Out"
             >
               <LogOut className="w-4 h-4" />

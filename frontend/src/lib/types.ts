@@ -11,6 +11,7 @@ export type ClassificationLevel = 'RESTRICTED' | 'CONFIDENTIAL' | 'SECRET';
 export interface User {
   id: string;
   username: string;
+  address?: string;
   role: UserRole;
   msp_id: string;
   mfa_verified: boolean;

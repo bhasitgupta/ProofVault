@@ -15,30 +15,13 @@ export const ChooseCryptoWalletLoginPage: React.FC = () => {
       className="h-screen max-h-screen w-full overflow-hidden flex flex-col justify-center items-center p-3 sm:p-4 relative"
       style={{ background: '#FFFBF4' }}
     >
-      {/* Background orbs */}
+      {/* Subtle ambient lighting */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div
-          className="absolute rounded-full"
+          className="absolute -top-[15%] left-1/2 -translate-x-1/2 w-[700px] h-[400px] rounded-full pointer-events-none"
           style={{
-            width: 500,
-            height: 500,
-            top: '-15%',
-            right: '-8%',
-            background: 'rgba(216,207,188,0.4)',
-            filter: 'blur(80px)',
-            animation: 'drift-1 22s ease-in-out infinite',
-          }}
-        />
-        <div
-          className="absolute rounded-full"
-          style={{
-            width: 350,
-            height: 350,
-            bottom: '5%',
-            left: '-5%',
-            background: 'rgba(86,84,73,0.08)',
-            filter: 'blur(70px)',
-            animation: 'drift-2 28s ease-in-out infinite',
+            background: 'radial-gradient(ellipse at center, rgba(216,207,188,0.35) 0%, rgba(255,251,244,0) 70%)',
+            filter: 'blur(50px)',
           }}
         />
       </div>
@@ -70,10 +53,10 @@ export const ChooseCryptoWalletLoginPage: React.FC = () => {
 
             <div className="flex items-center gap-2.5">
               <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 p-1"
-                style={{ background: '#11120D' }}
+                className="h-11 px-2.5 rounded-xl flex items-center justify-center shrink-0 border bg-white shadow-xs"
+                style={{ borderColor: '#D8CFBC' }}
               >
-                <img src="/proofvault-logo.png" alt="Proof Vault" className="w-full h-full object-contain" />
+                <img src="/proofvault-logo.png" alt="Proof Vault" className="h-8 w-auto object-contain" />
               </div>
               <div>
                 <div className="font-serif-judicial font-black text-lg leading-tight" style={{ color: '#11120D' }}>Proof Vault</div>

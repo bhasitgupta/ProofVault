@@ -15,9 +15,15 @@ export function useAuth() {
           setUser(null);
           return;
         }
+        const addr = payload.address || (payload.sub?.startsWith('0x') && payload.sub.length > 10 ? payload.sub : undefined);
+        const displayName = addr
+          ? `${addr.slice(0, 6)}...${addr.slice(-4)}`
+          : payload.username || payload.sub;
+
         setUser({
           id: payload.sub,
-          username: payload.sub,
+          username: displayName,
+          address: addr,
           role: payload.role,
           msp_id: payload.msp_id || 'PoliceMSP',
           mfa_verified: payload.mfa_verified,

@@ -79,17 +79,22 @@ export const LandingPage: React.FC = () => {
       className="min-h-screen flex flex-col relative overflow-hidden"
       style={{ background: '#FFFBF4', color: '#11120D' }}
     >
-      {/* ── Animated Mesh Background ──────────────────────────────── */}
+      {/* ── Sovereign Architectural Background ─────────────────────── */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <Orb size={700} top="-15%" right="-10%" color="rgba(216,207,188,0.5)" duration="22s" />
-        <Orb size={500} bottom="10%" left="-8%" color="rgba(86,84,73,0.12)" duration="28s" delay="4s" />
-        <Orb size={350} top="40%" left="40%" color="rgba(216,207,188,0.3)" duration="18s" delay="2s" />
+        {/* Subtle radial ambient glow */}
+        <div
+          className="absolute -top-[20%] left-1/2 -translate-x-1/2 w-[900px] h-[500px] rounded-full pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse at center, rgba(216,207,188,0.35) 0%, rgba(255,251,244,0) 70%)',
+            filter: 'blur(50px)',
+          }}
+        />
         {/* Fine grid overlay */}
         <div
-          className="absolute inset-0 opacity-[0.025]"
+          className="absolute inset-0 opacity-[0.035]"
           style={{
             backgroundImage: `linear-gradient(#11120D 1px, transparent 1px), linear-gradient(90deg, #11120D 1px, transparent 1px)`,
-            backgroundSize: '60px 60px',
+            backgroundSize: '48px 48px',
           }}
         />
       </div>
@@ -104,10 +109,10 @@ export const LandingPage: React.FC = () => {
         >
           <div className="flex items-center gap-3 shrink-0">
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm shrink-0 overflow-hidden p-1"
-              style={{ background: '#11120D', border: '1px solid rgba(216,207,188,0.2)' }}
+              className="h-10 px-2 rounded-xl flex items-center justify-center shadow-xs shrink-0 border bg-white"
+              style={{ borderColor: '#D8CFBC' }}
             >
-              <img src="/proofvault-logo.png" alt="Proof Vault" className="w-full h-full object-contain" />
+              <img src="/proofvault-logo.png" alt="Proof Vault" className="h-7 w-auto object-contain" />
             </div>
             <div className="shrink-0">
               <div className="font-serif-judicial font-black tracking-wider text-base block" style={{ color: '#11120D' }}>
