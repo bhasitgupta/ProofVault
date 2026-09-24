@@ -13,3 +13,5 @@ async def health_check():
         "vault_dev_mode": settings.VAULT_DEV_MODE,
         "demo_mode": settings.DEMO_MODE,
     }
+
+"""Health Router: System diagnostic probes and database connectivity verification."""
