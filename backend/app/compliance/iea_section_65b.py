@@ -19,3 +19,5 @@ class IEASection65BEngine:
         }
         data["statutory_seal"] = hashlib.sha256(f"{doc_id}:{sha256_hash}:{data['timestamp']}".encode()).hexdigest()
         return data
+
+"""IEA Section 65B: Backward-compatible certificate validation for legacy archives."""
