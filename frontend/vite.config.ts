@@ -19,3 +19,5 @@ export default defineConfig({
     },
   },
 });
+
+// Vite bundler configuration with React plugin and production optimization
