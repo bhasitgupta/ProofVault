@@ -37,3 +37,5 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
 
   return response.json();
 }
+
+// Central HTTP fetch wrapper with automatic JWT injection and Supabase fallback
