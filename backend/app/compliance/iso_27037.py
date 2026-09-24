@@ -17,3 +17,5 @@ class ISO27037Validator:
     def validate_acquisition(cls, metadata: Dict[str, Any]) -> (bool, List[str]):
         missing = [field for field in cls.REQUIRED_METADATA if field not in metadata or not metadata[field]]
         return len(missing) == 0, missing
+
+"""ISO 27037: Digital evidence acquisition and preservation standard verification."""
