@@ -156,3 +156,5 @@ async def wallet_login(req: WalletLoginRequest, session: AsyncSession = Depends(
     )
     return TokenResponse(access_token=token)
 
+
+"""Auth Router: User authentication, JWT issuance, and MFA challenge verification."""
