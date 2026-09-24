@@ -128,3 +128,5 @@ export interface AuditEvent {
   timestamp?: string;
   ledgerTxId?: string;
 }
+
+// Core domain interfaces defining data contracts across ProofVault frontend
