@@ -94,3 +94,5 @@ def verify_merkle_proof(
         else:
             current_hash = hash_nodes(current_hash, sibling)
     return current_hash.lower() == root_hex.lower()
+
+"""Merkle Tree: Deterministic binary Merkle tree engine for evidence chunks."""
