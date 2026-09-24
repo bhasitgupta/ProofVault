@@ -24,6 +24,7 @@ import {
 import { getAllAuditLogs, getCases, recordCustodyEvent, getIncidents } from '../api/audit';
 import { AuditEvent, Case } from '../lib/types';
 import { LedgerTxLink } from '../components/LedgerTxLink';
+import { anchorCustodyTransferOnChain } from '../lib/polygon';
 
 export const AuditLogPage: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -46,6 +47,7 @@ export const AuditLogPage: React.FC = () => {
   const [transferOfficer, setTransferOfficer] = useState('');
   const [transferPurpose, setTransferPurpose] = useState('');
   const [transferring, setTransferring] = useState(false);
+  const [transferError, setTransferError] = useState<string | null>(null);
 
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
@@ -81,11 +83,22 @@ export const AuditLogPage: React.FC = () => {
   const handleCreateTransfer = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!transferCaseId || !transferOfficer.trim()) {
-      alert('Case ID and Officer ID are required');
+      setTransferError('Case ID and Officer ID are required');
       return;
     }
     setTransferring(true);
+    setTransferError(null);
     try {
+      // Step 1: Enforce on-chain custody transfer on Polygon Amoy via MetaMask wallet popup
+      const { txHash } = await anchorCustodyTransferOnChain({
+        caseId: transferCaseId,
+        fromMsp: 'PoliceMSP',
+        toMsp: transferToMsp,
+        recipientOfficerId: transferOfficer.trim(),
+        reason: transferPurpose.trim(),
+      });
+
+      // Step 2: Record custody event in database
       await recordCustodyEvent({
         actorId: localStorage.getItem('sdms_user_id') || 'USR-001',
         actorRole: 'INVESTIGATOR',
@@ -93,14 +106,16 @@ export const AuditLogPage: React.FC = () => {
         action: 'CUSTODY_TRANSFER',
         caseId: transferCaseId,
         outcome: 'ALLOW',
-        reason: `Formal evidentiary transfer to ${transferToMsp} (Custodian: ${transferOfficer}). Purpose: ${transferPurpose || 'Forensic Examination'}`,
+        reason: `Formal evidentiary transfer to ${transferToMsp} (Custodian: ${transferOfficer.trim()}). Purpose: ${transferPurpose.trim() || 'Forensic Examination'}`,
+        ledgerTxId: txHash,
       });
+
       setIsTransferOpen(false);
       setTransferOfficer('');
       setTransferPurpose('');
       await loadData();
     } catch (err: any) {
-      alert(`Transfer recording failed: ${err.message}`);
+      setTransferError(`Transfer failed: ${err.message}`);
     } finally {
       setTransferring(false);
     }
