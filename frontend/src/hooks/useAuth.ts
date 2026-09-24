@@ -52,3 +52,5 @@ export function useAuth() {
 
   return { token, user, saveToken, logout };
 }
+
+// Authentication context hook providing user profile, role, and logout methods
