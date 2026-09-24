@@ -55,10 +55,10 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
           <div className="flex items-center gap-3 lg:gap-5 min-w-0 flex-1">
             <Link to="/dossiers" className="flex items-center gap-2.5 group shrink-0">
               <div
-                className="w-8 h-8 rounded-xl flex items-center justify-center shadow-sm shrink-0 transition-transform group-hover:scale-105 overflow-hidden"
+                className="w-9 h-9 rounded-xl flex items-center justify-center shadow-sm shrink-0 transition-transform group-hover:scale-105 overflow-hidden p-1"
                 style={{ background: '#11120D' }}
               >
-                <img src="/proofvault.svg" alt="Proof Vault" className="w-5 h-5" />
+                <img src="/proofvault-logo.png" alt="Proof Vault" className="w-full h-full object-contain" />
               </div>
               <div className="hidden sm:block shrink-0">
                 <div className="font-serif-judicial font-black tracking-wide text-sm leading-none" style={{ color: '#11120D' }}>

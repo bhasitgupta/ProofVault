@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   Scale,
   ShieldCheck,
@@ -104,10 +104,10 @@ export const LandingPage: React.FC = () => {
         >
           <div className="flex items-center gap-3 shrink-0">
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm shrink-0"
+              className="w-10 h-10 rounded-xl flex items-center justify-center shadow-sm shrink-0 overflow-hidden p-1"
               style={{ background: '#11120D', border: '1px solid rgba(216,207,188,0.2)' }}
             >
-              <Scale className="w-5 h-5" style={{ color: '#D8CFBC' }} />
+              <img src="/proofvault-logo.png" alt="Proof Vault" className="w-full h-full object-contain" />
             </div>
             <div className="shrink-0">
               <div className="font-serif-judicial font-black tracking-wider text-base block" style={{ color: '#11120D' }}>
@@ -133,7 +133,7 @@ export const LandingPage: React.FC = () => {
               </button>
             ) : (
               <button
-                onClick={() => navigate('/choose-crypto-wallet-login')}
+                onClick={() => setIsLoginOpen(true)}
                 className="px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer"
                 style={{ background: '#11120D', color: '#FFFBF4' }}
                 onMouseEnter={e => {
@@ -200,7 +200,7 @@ export const LandingPage: React.FC = () => {
 
           <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
             <button
-              onClick={() => navigate('/choose-crypto-wallet-login')}
+              onClick={() => setIsLoginOpen(true)}
               className="px-7 py-3.5 font-bold text-sm rounded-xl transition-all flex items-center gap-2.5 cursor-pointer"
               style={{ background: '#11120D', color: '#FFFBF4' }}
               onMouseEnter={e => {
@@ -514,31 +514,49 @@ export const LandingPage: React.FC = () => {
           style={{ background: 'rgba(17,18,13,0.4)' }}
         >
           <div
-            className="glass-modal max-w-lg w-full rounded-3xl p-8 sm:p-10 relative space-y-6 animate-scale-in"
+            className="max-w-lg w-full rounded-3xl p-6 sm:p-8 relative space-y-5 animate-scale-in"
+            style={{
+              background: '#FFFFFF',
+              border: '1.5px solid #D8CFBC',
+              boxShadow: '0 24px 60px rgba(17,18,13,0.18)',
+            }}
           >
             <button
               onClick={() => setIsLoginOpen(false)}
-              className="absolute top-6 right-6 p-2 rounded-xl transition-all cursor-pointer"
-              style={{ color: '#a09d8f' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = '#f2ede4'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+              className="absolute top-5 right-5 p-2 rounded-xl transition-all cursor-pointer hover:bg-stone-100"
+              style={{ color: '#565449' }}
             >
               <X className="w-5 h-5" />
             </button>
 
-            <div className="space-y-1.5 pr-8">
-              <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider" style={{ color: '#565449' }}>
-                <Shield className="w-4 h-4" /> Web3 Institutional Gateway
+            <div className="flex items-center gap-3.5 pr-8">
+              <div
+                className="w-12 h-12 rounded-2xl flex items-center justify-center p-1.5 shrink-0"
+                style={{ background: '#11120D' }}
+              >
+                <img src="/proofvault-logo.png" alt="Proof Vault" className="w-full h-full object-contain" />
               </div>
-              <h2 className="font-serif-judicial text-2xl font-black tracking-tight" style={{ color: '#11120D' }}>
-                Connect Sovereign Wallet
-              </h2>
-              <p className="text-xs" style={{ color: '#565449' }}>
-                Authenticate with verified institutional Web3 wallet (MetaMask, Phantom, or Coinbase Wallet).
-              </p>
+              <div>
+                <div className="inline-flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider" style={{ color: '#565449' }}>
+                  <Shield className="w-3 h-3" /> Web3 Sovereign Auth · Polygon Amoy
+                </div>
+                <h2 className="font-serif-judicial text-xl font-bold tracking-tight" style={{ color: '#11120D' }}>
+                  Connect Sovereign Wallet
+                </h2>
+              </div>
             </div>
 
             <ConnectWallet onSuccess={() => { setIsLoginOpen(false); navigate('/dossiers'); }} />
+
+            <div className="text-center pt-2 border-t border-stone-200">
+              <Link
+                to="/choose-crypto-wallet-login"
+                onClick={() => setIsLoginOpen(false)}
+                className="text-xs font-mono font-semibold text-stone-600 hover:text-stone-900 transition-colors"
+              >
+                Open dedicated multi-wallet selector page →
+              </Link>
+            </div>
           </div>
         </div>
       )}

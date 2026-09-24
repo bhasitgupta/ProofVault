@@ -70,10 +70,10 @@ export const ChooseCryptoWalletLoginPage: React.FC = () => {
 
             <div className="flex items-center gap-2.5">
               <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 p-1"
                 style={{ background: '#11120D' }}
               >
-                <img src="/proofvault.svg" alt="Proof Vault" className="w-6 h-6" />
+                <img src="/proofvault-logo.png" alt="Proof Vault" className="w-full h-full object-contain" />
               </div>
               <div>
                 <div className="font-serif-judicial font-black text-lg leading-tight" style={{ color: '#11120D' }}>Proof Vault</div>
