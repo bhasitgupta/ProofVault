@@ -38,3 +38,5 @@ class BSACertificateEngine:
         cert_hash = hashlib.sha256(str(cert_payload).encode()).hexdigest()
         cert_payload["digital_seal_sha256"] = cert_hash
         return cert_payload
+
+"""BSA Section 63: Verification criteria for Bharatiya Sakshya Adhiniyam 2023."""
