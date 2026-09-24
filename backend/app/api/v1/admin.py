@@ -624,3 +624,5 @@ async def register_case_on_chain(
             "explorer_url": "",
         }
 
+
+"""Admin Router: Root administrative management endpoints and role governance."""
