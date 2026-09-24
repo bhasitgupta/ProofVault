@@ -56,3 +56,5 @@ function Button({
 }
 
 export { Button, buttonVariants }
+
+// Radix-based sovereign button component with primary, judicial, and ghost variants
