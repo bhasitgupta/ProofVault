@@ -121,3 +121,5 @@ async def download_certificate(
         media_type=media_type,
         filename=f"BSA_Certificate_{cert_id}.pdf",
     )
+
+"""Certificate Router: Court-admissible BSA Section 63 certificate issuance."""
