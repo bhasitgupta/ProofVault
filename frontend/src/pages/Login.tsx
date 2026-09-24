@@ -159,3 +159,5 @@ export const Login: React.FC = () => {
 };
 
 export default Login;
+
+// Login authentication portal supporting officer credentials and Web3 wallet sign-in
