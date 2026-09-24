@@ -19,3 +19,5 @@ function Input({ className, type, ...props }: React.ComponentProps<"input">) {
 }
 
 export { Input }
+
+// Accessible form text input with crimson focus border and monospace support
