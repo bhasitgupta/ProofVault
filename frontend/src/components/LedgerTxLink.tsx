@@ -35,3 +35,5 @@ export const PolygonTxLink: React.FC<TxLinkProps> = ({
 // Backward-compatibility export
 export const LedgerTxLink = PolygonTxLink;
 export default PolygonTxLink;
+
+// PolygonScan Amoy explorer hyperlink with truncated transaction hash badge
