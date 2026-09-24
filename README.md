@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="frontend/public/proofvault-logo.png" alt="Proof Vault Logo" width="180" />
+<img src="frontend/public/proofvault-logo.png" alt="Proof Vault Logo" width="260" />
 
 # Proof Vault
 ### Sovereign Electronic Evidence Provenance & Cryptographic Chain-of-Custody Platform
