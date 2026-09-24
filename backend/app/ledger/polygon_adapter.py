@@ -26,7 +26,7 @@ class PolygonProvenanceAdapter:
         self.chain_id = 80002
         self.rpc_url = rpc_url or os.getenv("POLYGON_RPC_URL", "https://polygon-amoy-bor-rpc.publicnode.com")
         self.private_key = private_key or os.getenv("POLYGON_PRIVATE_KEY")
-        self.evidence_contract_addr = evidence_registry_address or os.getenv("POLYGON_EVIDENCE_REGISTRY_ADDRESS", "0xC15D29c23C72c7E6301AeD190F2FD186372b7DBe")
+        self.evidence_contract_addr = evidence_registry_address or os.getenv("POLYGON_EVIDENCE_REGISTRY_ADDRESS", "0xF022e8E8E7FD5d565fAb24dC74B6fAc1c8760a01")
         self.provenance_contract_addr = provenance_registry_address or os.getenv("POLYGON_PROVENANCE_REGISTRY_ADDRESS", "0x11A0a778303196d735B9cCdE62eB5bC5B29a855a")
         
         # In-memory document & event cache (avoids separate dev ledger SQLite DB)
@@ -49,7 +49,7 @@ class PolygonProvenanceAdapter:
 
     @property
     def evidence_contract_address(self) -> str:
-        return self.evidence_contract_addr or "0xC15D29c23C72c7E6301AeD190F2FD186372b7DBe"
+        return self.evidence_contract_addr or "0xF022e8E8E7FD5d565fAb24dC74B6fAc1c8760a01"
 
     @property
     def provenance_contract_address(self) -> str:
