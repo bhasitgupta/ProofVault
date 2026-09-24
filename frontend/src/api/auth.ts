@@ -26,3 +26,5 @@ export async function verifyMfa(partial_token: string, totp_code: string): Promi
     body: JSON.stringify({ partial_token, totp_code }),
   });
 }
+
+// Authentication API methods for login, TOTP verification, and session refreshes
