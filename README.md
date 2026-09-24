@@ -81,7 +81,7 @@ Proof Vault anchors digital evidence to the **Polygon Amoy Testnet** (EVM Chain 
 
 | Contract Name | Network | Contract Address |
 | :--- | :--- | :--- |
-| **EvidenceRegistry** | Polygon Amoy (80002) | `0xC15D29c23C72c7E6301AeD190F2FD186372b7DBe` |
+| **EvidenceRegistry** | Polygon Amoy (80002) | `0xF022e8E8E7FD5d565fAb24dC74B6fAc1c8760a01` |
 | **ProvenanceRegistry** | Polygon Amoy (80002) | `0x11A0a778303196d735B9cCdE62eB5bC5B29a855a` |
 
 ### Web3 Wallet Integration
