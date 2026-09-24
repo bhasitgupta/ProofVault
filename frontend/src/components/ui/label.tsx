@@ -22,3 +22,5 @@ function Label({
 }
 
 export { Label }
+
+// Accessible form label associated with input fields via htmlFor attribute
