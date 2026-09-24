@@ -88,3 +88,5 @@ class HybridRetriever:
             }
             for _, c, d in scored[:limit]
         ]
+
+"""Retriever: Extracts top-k relevant forensic evidence snippets with citations."""
