@@ -71,3 +71,5 @@ async def query_evidence(
         preferred_tier=req.preferred_tier,
     )
     return result
+
+"""Query Router: RAG-augmented judicial assistance queries with citations."""
