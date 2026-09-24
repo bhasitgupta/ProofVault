@@ -44,6 +44,7 @@ import { formatClassificationBadge, formatBytes, truncateHash } from '../lib/for
 import { VerificationBadge } from '../components/VerificationBadge';
 import { LedgerTxLink } from '../components/LedgerTxLink';
 import { CertificateDialog } from '../components/CertificateDialog';
+import { anchorCustodyTransferOnChain } from '../lib/polygon';
 
 export const DocumentsPage: React.FC = () => {
   const { user } = useAuth();
@@ -88,6 +89,13 @@ export const DocumentsPage: React.FC = () => {
   const [transferReason, setTransferReason] = useState('Forensic analysis & ballistic examination');
   const [transferSubmitting, setTransferSubmitting] = useState(false);
   const [transferSuccessMsg, setTransferSuccessMsg] = useState<string | null>(null);
+
+  // In-app banner toast — replaces browser alert()
+  const [docToast, setDocToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const showDocToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setDocToast({ message, type });
+    setTimeout(() => setDocToast(null), 6000);
+  };
 
   // Clearance label map
   const roleClearance: Record<string, string> = {
@@ -186,7 +194,7 @@ export const DocumentsPage: React.FC = () => {
     try {
       await downloadDocumentFile(docId, filename);
     } catch (err: any) {
-      alert(err.message || 'Failed to download encrypted evidence payload.');
+      showDocToast(err.message || 'Failed to download encrypted evidence payload.', 'error');
     } finally {
       setDownloadingId(null);
     }
@@ -198,7 +206,7 @@ export const DocumentsPage: React.FC = () => {
       const result = await verifyDocument(docId);
       setVerifyResult(result);
     } catch (err: any) {
-      alert(err.response?.data?.detail || 'Cryptographic verification request failed.');
+      showDocToast(err.response?.data?.detail || 'Cryptographic verification request failed.', 'error');
     } finally {
       setVerifying(false);
     }
@@ -218,7 +226,7 @@ export const DocumentsPage: React.FC = () => {
       });
       setIsCertOpen(true);
     } catch (err: any) {
-      alert(err.response?.data?.detail || 'Failed to generate court-admissible BSA §63 certificate.');
+      showDocToast(err.response?.data?.detail || 'Failed to generate court-admissible BSA §63 certificate.', 'error');
     }
   };
 
@@ -242,6 +250,16 @@ export const DocumentsPage: React.FC = () => {
     if (!transferModalDoc) return;
     setTransferSubmitting(true);
     try {
+      // Step 1: Enforce on-chain custody transfer on Polygon Amoy via MetaMask wallet popup
+      const { txHash } = await anchorCustodyTransferOnChain({
+        caseId: transferModalDoc.case_id,
+        fromMsp: user?.msp_id || 'PoliceMSP',
+        toMsp: transferTargetMsp,
+        recipientOfficerId: transferActorId,
+        reason: transferReason,
+      });
+
+      // Step 2: Record custody event in database
       await recordCustodyEvent({
         actorId: transferActorId,
         actorRole: user?.role || 'INVESTIGATOR',
@@ -250,14 +268,16 @@ export const DocumentsPage: React.FC = () => {
         caseId: transferModalDoc.case_id,
         outcome: 'ALLOW',
         reason: `Evidence ${transferModalDoc.doc_id} transferred to ${transferTargetMsp}: ${transferReason}`,
+        ledgerTxId: txHash,
       });
-      setTransferSuccessMsg(`Custody of ${transferModalDoc.doc_id} transferred to ${transferTargetMsp}! Recorded in ledger.`);
+
+      setTransferSuccessMsg(`Custody of ${transferModalDoc.doc_id} anchored on Polygon Amoy! TX: ${txHash.slice(0, 16)}...`);
       setTimeout(() => {
         setTransferModalDoc(null);
         setTransferSuccessMsg(null);
-      }, 1600);
+      }, 2500);
     } catch (err: any) {
-      alert(err.message || 'Custody transfer failed to commit to audit ledger.');
+      setTransferSuccessMsg(`Custody transfer failed: ${err.message}`);
     } finally {
       setTransferSubmitting(false);
     }
@@ -280,6 +300,27 @@ export const DocumentsPage: React.FC = () => {
 
   return (
     <div className="space-y-8 max-w-[1600px] mx-auto pb-16">
+      {/* In-app notification toast */}
+      {docToast && (
+        <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999, maxWidth: '420px' }}>
+          <div style={{
+            background: docToast.type === 'error' ? 'linear-gradient(135deg, #1c1917 0%, #3f1717 100%)' : 'linear-gradient(135deg, #0f172a 0%, #1e3a2f 100%)',
+            border: docToast.type === 'error' ? '1px solid #ef4444' : '1px solid #22c55e',
+            borderRadius: '14px',
+            padding: '14px 18px',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+            color: '#fff',
+            fontSize: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px'
+          }}>
+            <span style={{ flex: 1 }}>{docToast.message}</span>
+            <button onClick={() => setDocToast(null)} style={{ background: 'none', border: 'none', color: '#999', cursor: 'pointer', fontSize: '14px' }}>✕</button>
+          </div>
+        </div>
+      )}
+
       {/* ── 1. Bespoke Sovereign Studio Hero Header ────────────────────────── */}
       <div className="bg-white border-2 border-stone-200/90 rounded-3xl p-7 lg:p-9 shadow-sm relative overflow-hidden">
         {/* Subtle Decorative Judicial Watermark */}
