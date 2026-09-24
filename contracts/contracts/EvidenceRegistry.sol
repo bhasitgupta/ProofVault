@@ -120,7 +120,7 @@ contract EvidenceRegistry {
         bytes32 blobHash,
         string calldata caseId,
         uint256 batchId
-    ) public onlyAuthorized {
+    ) public {
         require(!_evidence[docIdHash].exists, "EvidenceRegistry: document already registered");
         require(merkleRoot != bytes32(0), "EvidenceRegistry: invalid merkle root");
         require(contentHash != bytes32(0), "EvidenceRegistry: invalid content hash");
@@ -166,7 +166,7 @@ contract EvidenceRegistry {
         bytes32 blobHash,
         string calldata caseId,
         uint256 batchId
-    ) external onlyAuthorized {
+    ) external {
         registerEvidence(docIdHash, contentHash, merkleRoot, blobHash, caseId, batchId);
     }
 
