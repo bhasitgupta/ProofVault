@@ -19,3 +19,5 @@ class AuditTimeline:
 
     async def get_document_chain_of_custody(self, doc_id: str) -> List[Dict[str, Any]]:
         return await self.ledger.get_document_history(doc_id)
+
+"""Audit Timeline: Chronological event aggregator constructing custody sequences."""
