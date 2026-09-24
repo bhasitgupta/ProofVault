@@ -122,3 +122,5 @@ export const MfaChallenge: React.FC = () => {
   );
 };
 export default MfaChallenge;
+
+// Second-factor TOTP challenge page enforcing time-based one-time password entry
