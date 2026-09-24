@@ -68,3 +68,5 @@ class AuditRecorder:
         await session.commit()
 
         return tx_id
+
+"""Audit Recorder: Thread-safe audit event writer persisting to ledger and DB."""
