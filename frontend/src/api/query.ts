@@ -322,3 +322,5 @@ Evidence scope: ${caseScope}\n${evidenceContext ? `\nEvidence records found: ${c
     model_used: modelUsed,
   } as any;
 }
+
+// AI query engine API client routing requests to configured LLM providers
