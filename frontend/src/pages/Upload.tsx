@@ -73,7 +73,7 @@ export const UploadPage: React.FC = () => {
   const connectWeb3Wallet = async () => {
     const eth = (window as any).ethereum;
     if (!eth) {
-      alert('No Web3 wallet (MetaMask / Phantom) detected in browser. You can still anchor via sovereign Polygon block state.');
+      setError('No Web3 wallet (MetaMask / Phantom) detected in browser. You can still anchor via sovereign Polygon block state.');
       return;
     }
 
