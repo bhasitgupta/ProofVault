@@ -7,3 +7,5 @@ class NISTSP80086ForensicFramework:
     def evaluate_pipeline_phase(phase: str) -> bool:
         valid_phases = {"COLLECTION", "EXAMINATION", "ANALYSIS", "REPORTING"}
         return phase.upper() in valid_phases
+
+"""NIST SP 800-86: Forensic data handling and integrity verification checks."""
