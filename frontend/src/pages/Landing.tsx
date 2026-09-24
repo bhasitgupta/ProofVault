@@ -24,34 +24,6 @@ import { ConnectWallet } from '../components/ConnectWallet';
 import { StrokeText } from '../components/StrokeText';
 import ScrollStack, { ScrollStackItem } from '../components/ScrollStack';
 
-/* ── Animated background orb component ─────────────────────── */
-const Orb: React.FC<{
-  size: number;
-  top?: string;
-  left?: string;
-  right?: string;
-  bottom?: string;
-  color: string;
-  delay?: string;
-  duration?: string;
-}> = ({ size, top, left, right, bottom, color, delay = '0s', duration = '18s' }) => (
-  <div
-    className="absolute rounded-full pointer-events-none"
-    style={{
-      width: size,
-      height: size,
-      top,
-      left,
-      right,
-      bottom,
-      background: color,
-      filter: 'blur(80px)',
-      opacity: 0.45,
-      animation: `drift-1 ${duration} ease-in-out infinite`,
-      animationDelay: delay,
-    }}
-  />
-);
 
 const METRICS = [
   { label: 'CRYPTOGRAPHIC CIPHER', value: 'AES-256-GCM', sub: 'Per-document DEK Envelope' },

@@ -4,7 +4,6 @@ import { useAuth } from '../hooks/useAuth';
 import {
   Bot,
   User as UserIcon,
-  Send,
   Sparkles,
   RotateCcw,
   ShieldCheck,
@@ -26,14 +25,18 @@ import {
   Copy,
   Printer,
   FileText,
-  CornerDownLeft,
-  ChevronDown
+  Paperclip,
+  ArrowUpIcon,
+  ChevronDown,
 } from 'lucide-react';
 import { askEvidence, getAIProviderConfigs } from '../api/query';
 import { getCases } from '../api/audit';
 import { QueryResponse, Citation, AccessInfo } from '../lib/types';
 import { CitationChip } from '../components/CitationChip';
 import { TamperAlert } from '../components/TamperAlert';
+import { Textarea } from '@/components/ui/textarea';
+import { useAutoResizeTextarea } from '@/components/ui/v0-ai-chat';
+import { cn } from '@/lib/utils';
 
 interface ChatMessage {
   id: string;
@@ -46,42 +49,30 @@ interface ChatMessage {
 
 const STATUTORY_QUICK_ACTIONS = [
   {
-    category: 'STATUTORY AUDIT',
-    title: 'BSA §63 Admissibility Brief',
-    query: 'Analyze the admissibility of electronic evidence in this case under Section 63 of Bharatiya Sakshya Adhiniyam (BSA 2023).',
-    icon: Scale,
+    icon: <Scale className="w-3.5 h-3.5 text-[#565449]" />,
+    label: "BSA §63 Admissibility",
+    query: "Analyze the admissibility of electronic evidence in this case under Section 63 of Bharatiya Sakshya Adhiniyam (BSA 2023)."
   },
   {
-    category: 'CHAIN OF CUSTODY',
-    title: 'Verify Custody Chronology',
-    query: 'Audit the chronological chain of custody transitions for all seized exhibits in this case docket.',
-    icon: ShieldCheck,
+    icon: <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />,
+    label: "Custody Chronology",
+    query: "Audit the chronological chain of custody transitions for all seized exhibits in this case docket."
   },
   {
-    category: 'TAMPER DETECTION',
-    title: 'Check Hash & Merkle Discrepancy',
-    query: 'Verify all document SHA-256 hashes against on-chain Polygon Amoy Merkle tree roots to identify any tampering.',
-    icon: AlertTriangle,
+    icon: <AlertTriangle className="w-3.5 h-3.5 text-amber-700" />,
+    label: "Hash & Merkle Audit",
+    query: "Verify all document SHA-256 hashes against on-chain Polygon Amoy Merkle tree roots to identify any tampering."
   },
   {
-    category: 'FORENSIC SUMMARY',
-    title: 'Summarize Seized Evidence',
-    query: 'Provide an exhaustive forensic summary of all electronic exhibits, phone extractions, and FIR records ingested.',
-    icon: FileText,
+    icon: <FileText className="w-3.5 h-3.5 text-[#565449]" />,
+    label: "Forensic Summary",
+    query: "Provide an exhaustive forensic summary of all electronic exhibits, phone extractions, and FIR records ingested."
   },
   {
-    category: 'WITNESS CROSS-CHECK',
-    title: 'Cross-Examine Statements',
-    query: 'Extract witness statements and identify any factual contradictions or inconsistencies across testimonies.',
-    icon: MessageSquare,
-  },
-];
-
-const SUGGESTED_PILLS = [
-  'What exhibits are anchored on-chain?',
-  'Draft Section 65B Certificate brief',
-  'Summarize forensic ballistic findings',
-  'Audit access logs and clearance levels',
+    icon: <MessageSquare className="w-3.5 h-3.5 text-[#565449]" />,
+    label: "Witness Cross-Check",
+    query: "Extract witness statements and identify any factual contradictions or inconsistencies across testimonies."
+  }
 ];
 
 export const AskPage: React.FC = () => {
@@ -100,7 +91,12 @@ export const AskPage: React.FC = () => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // V0-style Auto-resizing textarea
+  const { textareaRef, adjustHeight } = useAutoResizeTextarea({
+    minHeight: 56,
+    maxHeight: 180,
+  });
 
   // AI Configuration Keys State
   const [tier1Key, setTier1Key] = useState(localStorage.getItem('pv_tier1_key') || '');
@@ -145,11 +141,11 @@ export const AskPage: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleSendMessage = async (queryToSubmit?: string, overrideCase?: string) => {
+  const handleSendMessage = async (queryToSubmit?: string) => {
     const text = (queryToSubmit || inputText).trim();
     if (!text || loading) return;
 
-    const activeCase = overrideCase !== undefined ? overrideCase : selectedCase;
+    const activeCase = selectedCase;
 
     const userMessage: ChatMessage = {
       id: `usr-${Date.now()}`,
@@ -161,6 +157,7 @@ export const AskPage: React.FC = () => {
 
     setMessages((prev) => [...prev, userMessage]);
     setInputText('');
+    adjustHeight(true);
     setLoading(true);
     setElapsedSeconds(0);
     setLoadingStep('1/3 Scoring vector similarity across encrypted exhibits...');
@@ -196,7 +193,7 @@ export const AskPage: React.FC = () => {
       const errorMessage: ChatMessage = {
         id: `err-${Date.now()}`,
         sender: 'assistant',
-        text: `Error processing judicial query: ${err.response?.data?.detail || err.message || 'Unknown network error. Please ensure backend is running.'}`,
+        text: `Error processing judicial query: ${err.response?.data?.detail || err.message || 'Unknown network error. Ensure backend server is active.'}`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -232,7 +229,7 @@ export const AskPage: React.FC = () => {
           <title>Proof Vault — Statutory Evidence Brief</title>
           <style>
             body { font-family: 'Times New Roman', serif; padding: 40px; color: #111; line-height: 1.6; }
-            h1 { font-size: 22px; border-bottom: 2px solid #111; padding-bottom: 8px; }
+            h1 { font-size: 20px; border-bottom: 2px solid #111; padding-bottom: 8px; }
             .meta { font-family: monospace; font-size: 12px; margin-bottom: 20px; color: #555; }
             .content { white-space: pre-wrap; font-size: 14px; }
             .footer { margin-top: 40px; font-size: 11px; border-top: 1px solid #ccc; padding-top: 10px; }
@@ -241,7 +238,7 @@ export const AskPage: React.FC = () => {
         <body>
           <h1>Proof Vault — Judicial Intelligence Analysis Brief</h1>
           <div class="meta">
-            DOCKET / CASE: ${caseScope || 'Global Evidence Scope'}<br/>
+            DOCKET: ${caseScope || 'Global Evidence Scope'}<br/>
             TIMESTAMP: ${new Date().toISOString()}<br/>
             TRUST ANCHOR: Polygon Amoy Testnet (Chain ID 80002)<br/>
             GOVERNING LAW: Bharatiya Sakshya Adhiniyam §63 / IEA §65B
@@ -259,522 +256,361 @@ export const AskPage: React.FC = () => {
   };
 
   return (
-    <div
-      className="max-w-7xl mx-auto w-full px-3 sm:px-6 py-4 flex flex-col lg:flex-row gap-5"
-      style={{ minHeight: 'calc(100vh - 5.5rem)' }}
-    >
-      {/* ── Left Sidebar (Dossier & Legal Actions) ──────────────────── */}
-      <aside
-        className="w-full lg:w-80 shrink-0 rounded-3xl p-5 flex flex-col justify-between space-y-5 border"
-        style={{
-          background: '#FFFFFF',
-          borderColor: '#D8CFBC',
-          boxShadow: '0 4px 20px rgba(17,18,13,0.04)',
-        }}
+    <div className="w-full max-w-4xl mx-auto px-3 sm:px-6 py-4 flex flex-col justify-between" style={{ minHeight: 'calc(100vh - 6rem)' }}>
+
+      {/* ── Top Header Bar ────────────────────────────────────────── */}
+      <div
+        className="w-full rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 mb-4 flex flex-wrap items-center justify-between gap-3 border shadow-xs"
+        style={{ background: '#FFFFFF', borderColor: '#D8CFBC' }}
       >
-        <div className="space-y-5">
-          {/* Header */}
-          <div className="flex items-center justify-between pb-3 border-b border-stone-200">
-            <div className="flex items-center gap-2.5">
-              <div
-                className="h-10 px-2 rounded-xl flex items-center justify-center shadow-xs border bg-white shrink-0"
-                style={{ borderColor: '#D8CFBC' }}
-              >
-                <img src="/proofvault-logo.png" alt="Proof Vault" className="h-7 w-auto object-contain" />
-              </div>
-              <div>
-                <h2 className="font-serif-judicial font-bold text-sm" style={{ color: '#11120D' }}>
-                  Judicial AI Console
-                </h2>
-                <div className="text-[10px] font-mono flex items-center gap-1" style={{ color: '#565449' }}>
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span>Polygon Amoy (80002)</span>
-                </div>
-              </div>
-            </div>
-
-            <button
-              onClick={handleClearChat}
-              title="Reset Conversation"
-              className="p-1.5 rounded-lg text-stone-500 hover:text-stone-900 hover:bg-stone-100 transition-colors"
-            >
-              <RotateCcw className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Scope Selector */}
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-mono font-bold uppercase tracking-wider flex items-center justify-between" style={{ color: '#565449' }}>
-              <span>Dossier Scope</span>
-              <span className="text-[10px] lowercase font-normal opacity-70">{cases.length} active</span>
-            </label>
-            <div className="relative">
-              <select
-                value={selectedCase}
-                onChange={(e) => setSelectedCase(e.target.value)}
-                className="w-full pl-3 pr-8 py-2.5 rounded-xl text-xs font-semibold border outline-none cursor-pointer appearance-none"
-                style={{
-                  background: '#FFFBF4',
-                  borderColor: '#D8CFBC',
-                  color: '#11120D',
-                }}
-              >
-                <option value="">🌐 All Case Dossiers (Global)</option>
-                {cases.map((c) => (
-                  <option key={c} value={c}>
-                    📁 {c}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 pointer-events-none text-stone-500" />
-            </div>
-          </div>
-
-          {/* Model Cascading Tier Selector */}
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-mono font-bold uppercase tracking-wider flex items-center justify-between" style={{ color: '#565449' }}>
-              <span className="flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5" /> AI Engine
-              </span>
-              {isAdmin && (
-                <button
-                  onClick={() => setShowConfigModal(true)}
-                  className="text-[10px] font-bold text-stone-600 hover:text-stone-900 underline cursor-pointer"
-                >
-                  Configure Keys
-                </button>
-              )}
-            </label>
-            <select
-              value={selectedTier}
-              onChange={(e) => setSelectedTier(e.target.value as any)}
-              className="w-full px-3 py-2 rounded-xl text-xs font-mono font-semibold border outline-none cursor-pointer"
-              style={{
-                background: '#FFFBF4',
-                borderColor: '#D8CFBC',
-                color: '#11120D',
-              }}
-            >
-              <option value="auto">⚡ Auto Sovereign Cascade</option>
-              <option value="tier1">Tier 1: GPT-6 Astra (Forensic)</option>
-              <option value="tier2">Tier 2: Grok 4.6 (Judicial)</option>
-              <option value="tier3">Tier 3: Nemotron 3 (Statutory)</option>
-              <option value="tier4">Tier 4: Gemini 3.8 (Evidence RAG)</option>
-            </select>
-          </div>
-
-          {/* Statutory Quick Action Buttons */}
-          <div className="space-y-2 pt-1">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-wider" style={{ color: '#565449' }}>
-              Statutory Quick Audits
-            </div>
-            <div className="space-y-1.5">
-              {STATUTORY_QUICK_ACTIONS.map((action, idx) => {
-                const IconComponent = action.icon;
-                return (
-                  <button
-                    key={idx}
-                    onClick={() => handleSendMessage(action.query)}
-                    disabled={loading}
-                    className="w-full text-left p-2.5 rounded-xl border transition-all flex items-start gap-2.5 group cursor-pointer disabled:opacity-50"
-                    style={{
-                      background: '#FFFBF4',
-                      borderColor: '#D8CFBC',
-                    }}
-                    onMouseEnter={(e) => {
-                      (e.currentTarget as HTMLElement).style.borderColor = '#11120D';
-                      (e.currentTarget as HTMLElement).style.background = '#FFFFFF';
-                    }}
-                    onMouseLeave={(e) => {
-                      (e.currentTarget as HTMLElement).style.borderColor = '#D8CFBC';
-                      (e.currentTarget as HTMLElement).style.background = '#FFFBF4';
-                    }}
-                  >
-                    <div className="p-1.5 rounded-lg bg-stone-100 text-stone-700 group-hover:bg-stone-900 group-hover:text-amber-100 transition-colors shrink-0 mt-0.5">
-                      <IconComponent className="w-3.5 h-3.5" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[10px] font-mono font-semibold text-stone-500 uppercase tracking-tight">
-                        {action.category}
-                      </div>
-                      <div className="text-xs font-bold text-stone-900 truncate">
-                        {action.title}
-                      </div>
-                    </div>
-                    <ChevronRight className="w-3.5 h-3.5 text-stone-400 group-hover:text-stone-900 group-hover:translate-x-0.5 transition-all mt-1" />
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* User Role Card */}
-        <div
-          className="p-3.5 rounded-2xl border space-y-1"
-          style={{ background: 'rgba(216,207,188,0.2)', borderColor: '#D8CFBC' }}
-        >
-          <div className="flex items-center justify-between text-xs">
-            <span className="font-mono text-[10px] font-bold text-stone-500 uppercase">Clearance Holder</span>
-            <span className="font-mono font-bold text-[10px] px-2 py-0.5 rounded bg-stone-900 text-amber-50">
-              {user?.role || 'ADMIN'}
-            </span>
-          </div>
-          <div className="text-xs font-bold text-stone-900 truncate">
-            {user?.username || 'Sovereign Officer'}
-          </div>
-          <div className="text-[10px] font-mono text-stone-600">
-            MSP: {user?.msp_id || 'PoliceMSP'} · §63 Clearance Granted
-          </div>
-        </div>
-      </aside>
-
-      {/* ── Main Chat Area ────────────────────────────────────────── */}
-      <section
-        className="flex-1 rounded-3xl flex flex-col justify-between overflow-hidden border"
-        style={{
-          background: '#FFFFFF',
-          borderColor: '#D8CFBC',
-          boxShadow: '0 4px 24px rgba(17,18,13,0.06)',
-          height: 'calc(100vh - 6rem)',
-        }}
-      >
-        {/* Top Chat Bar */}
-        <header
-          className="px-6 py-4 flex items-center justify-between border-b shrink-0"
-          style={{
-            background: '#FFFFFF',
-            borderColor: '#E8E0D1',
-          }}
-        >
-          <div className="flex items-center gap-3">
-            <div
-              className="w-10 h-10 rounded-2xl flex items-center justify-center p-2 shrink-0 shadow-sm"
-              style={{ background: '#11120D' }}
-            >
-              <Gavel className="w-5 h-5" style={{ color: '#D8CFBC' }} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="font-serif-judicial text-base font-bold text-stone-900">
-                  Judicial Evidence Legal Assistant
-                </h1>
-                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-emerald-50 text-emerald-800 border border-emerald-300 flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3" /> Merkle-Gated
-                </span>
-              </div>
-              <p className="text-xs text-stone-500">
-                Scope: <strong className="text-stone-800 font-mono">{selectedCase || 'Global Evidence Vault'}</strong> · Governed by BSA §63 / IEA §65B
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => handleSendMessage('Generate complete §63 court admissibility certificate report for this docket.')}
-              disabled={loading}
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold border border-stone-300 hover:border-stone-900 bg-white text-stone-800 transition-colors cursor-pointer"
-            >
-              <Printer className="w-3.5 h-3.5" />
-              <span>Court Certificate</span>
-            </button>
-            <button
-              onClick={handleClearChat}
-              className="p-2 rounded-xl border border-stone-200 hover:bg-stone-100 text-stone-600 transition-colors"
-              title="Clear Thread"
-            >
-              <RotateCcw className="w-4 h-4" />
-            </button>
-          </div>
-        </header>
-
-        {/* Message Stream */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
-          {messages.length === 0 ? (
-            <div className="h-full flex flex-col justify-center items-center text-center max-w-xl mx-auto py-10 space-y-6">
-              <div
-                className="h-16 px-4 rounded-3xl flex items-center justify-center shadow-xs border bg-white"
-                style={{ borderColor: '#D8CFBC' }}
-              >
-                <img src="/proofvault-logo.png" alt="Proof Vault" className="h-11 w-auto object-contain" />
-              </div>
-
-              <div className="space-y-2">
-                <h2 className="font-serif-judicial text-2xl sm:text-3xl font-bold text-stone-900">
-                  Sovereign Judicial Intelligence
-                </h2>
-                <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
-                  Ask questions about ingested forensic exhibits, phone extractions, FIRs, and witness statements. Every response is verified against on-chain Merkle tree roots with zero hallucination.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full text-left">
-                {STATUTORY_QUICK_ACTIONS.slice(0, 4).map((item, i) => (
-                  <button
-                    key={i}
-                    onClick={() => handleSendMessage(item.query)}
-                    className="p-3.5 rounded-2xl border text-left transition-all hover:-translate-y-0.5 cursor-pointer"
-                    style={{ background: '#FFFBF4', borderColor: '#D8CFBC' }}
-                    onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = '#11120D'; }}
-                    onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = '#D8CFBC'; }}
-                  >
-                    <div className="text-[10px] font-mono font-bold text-stone-500 uppercase">{item.category}</div>
-                    <div className="text-xs font-bold text-stone-900 mt-0.5">{item.title}</div>
-                    <div className="text-[11px] text-stone-600 line-clamp-2 mt-1">{item.query}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex gap-3.5 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                {/* Assistant Emblem */}
-                {msg.sender === 'assistant' && (
-                  <div
-                    className="w-9 h-9 rounded-2xl flex items-center justify-center p-1.5 shrink-0 shadow-sm"
-                    style={{ background: '#11120D' }}
-                  >
-                    <Gavel className="w-5 h-5 text-amber-100" />
-                  </div>
-                )}
-
-                {/* Message Body */}
-                <div
-                  className={`max-w-[85%] sm:max-w-[78%] rounded-3xl p-4 sm:p-5 space-y-3 shadow-sm border ${
-                    msg.sender === 'user'
-                      ? 'bg-stone-900 text-amber-50 border-stone-800'
-                      : 'bg-white text-stone-900 border-stone-300'
-                  }`}
-                  style={msg.sender === 'assistant' ? { background: '#FFFFFF', borderColor: '#D8CFBC' } : undefined}
-                >
-                  {/* Message Meta Header */}
-                  <div className="flex items-center justify-between gap-3 text-[11px] font-mono pb-2 border-b border-stone-200/50">
-                    <span className="font-bold flex items-center gap-1.5">
-                      {msg.sender === 'user' ? (
-                        <>
-                          <UserIcon className="w-3.5 h-3.5" />
-                          <span>{user?.role || 'INVESTIGATOR'}</span>
-                        </>
-                      ) : (
-                        <>
-                          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                          <span className="text-stone-900 font-serif-judicial font-bold">Judicial Intelligence Output</span>
-                        </>
-                      )}
-                    </span>
-                    <span className="opacity-70">{msg.timestamp}</span>
-                  </div>
-
-                  {/* Quarantine Alert */}
-                  {msg.responseMeta?.tamper_quarantined && (
-                    <div className="p-3 rounded-xl text-xs flex items-center gap-2 bg-amber-50 border border-amber-300 text-amber-900 font-mono">
-                      <AlertTriangle className="w-4 h-4 shrink-0 text-amber-700" />
-                      <span>Zero-Trust Intercept: Unverified chunks quarantined. Only verified on-chain evidence synthesized.</span>
-                    </div>
-                  )}
-
-                  {/* Tamper Alert */}
-                  {msg.responseMeta?.tamper_detected ? (
-                    <TamperAlert
-                      message={msg.responseMeta?.message || msg.text}
-                      txId={msg.responseMeta?.tamper_alert_tx}
-                    />
-                  ) : (
-                    <div className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap font-sans">
-                      {msg.text}
-                    </div>
-                  )}
-
-                  {/* Verified Citations */}
-                  {msg.responseMeta?.citations && msg.responseMeta.citations.length > 0 && (
-                    <div className="pt-2.5 space-y-2 border-t border-stone-200">
-                      <div className="text-[11px] font-mono font-bold text-stone-600 flex items-center gap-1.5">
-                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>Cryptographically Anchored Citations:</span>
-                      </div>
-                      <div className="flex flex-wrap gap-1.5">
-                        {msg.responseMeta.citations.map((c: Citation, i: number) => (
-                          <CitationChip key={i} citation={c} />
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Action Bar for Assistant Messages */}
-                  {msg.sender === 'assistant' && (
-                    <div className="pt-2 flex items-center justify-between text-[11px] font-mono text-stone-500 border-t border-stone-100">
-                      <div className="flex items-center gap-2">
-                        {msg.responseMeta?.provider_tier && (
-                          <span className="px-2 py-0.5 rounded bg-stone-100 text-stone-700 font-bold">
-                            {msg.responseMeta.provider_tier}
-                          </span>
-                        )}
-                        {msg.responseMeta?.timings_ms && (
-                          <span>
-                            {msg.responseMeta.timings_ms.llm_ms || 0}ms · Verified
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          onClick={() => copyToClipboard(msg.text, msg.id)}
-                          className="p-1 rounded hover:bg-stone-100 text-stone-600 hover:text-stone-900 transition-colors flex items-center gap-1 cursor-pointer"
-                          title="Copy Answer"
-                        >
-                          {copiedId === msg.id ? (
-                            <Check className="w-3.5 h-3.5 text-emerald-600" />
-                          ) : (
-                            <Copy className="w-3.5 h-3.5" />
-                          )}
-                          <span className="text-[10px]">{copiedId === msg.id ? 'Copied' : 'Copy'}</span>
-                        </button>
-                        <button
-                          onClick={() => printLegalBrief(msg.text, msg.caseScope)}
-                          className="p-1 rounded hover:bg-stone-100 text-stone-600 hover:text-stone-900 transition-colors flex items-center gap-1 cursor-pointer"
-                          title="Print Legal Brief"
-                        >
-                          <Printer className="w-3.5 h-3.5" />
-                          <span className="text-[10px]">Print</span>
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* User Icon */}
-                {msg.sender === 'user' && (
-                  <div
-                    className="w-9 h-9 rounded-2xl flex items-center justify-center p-1.5 shrink-0 shadow-sm"
-                    style={{ background: '#565449' }}
-                  >
-                    <UserIcon className="w-5 h-5 text-amber-100" />
-                  </div>
-                )}
-              </div>
-            ))
-          )}
-
-          {/* Loading Animation Card */}
-          {loading && (
-            <div className="flex gap-3.5 justify-start items-start">
-              <div
-                className="w-9 h-9 rounded-2xl flex items-center justify-center p-1.5 shrink-0 shadow-sm animate-pulse"
-                style={{ background: '#11120D' }}
-              >
-                <Gavel className="w-5 h-5 text-amber-100" />
-              </div>
-              <div
-                className="rounded-3xl p-4 sm:p-5 border space-y-2 max-w-md"
-                style={{ background: '#FFFFFF', borderColor: '#D8CFBC' }}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-                  <span className="font-serif-judicial font-bold text-sm text-stone-900">
-                    Sovereign Legal AI Reasoning...
-                  </span>
-                  <span className="text-xs font-mono text-stone-400">({elapsedSeconds}s)</span>
-                </div>
-                <div className="text-xs font-mono text-stone-600 flex items-center gap-2">
-                  <Cpu className="w-3.5 h-3.5 text-stone-500 animate-spin" />
-                  <span>{loadingStep || 'Scoring evidence chunks...'}</span>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Bottom Input Box Console */}
-        <div
-          className="p-3 sm:p-4 border-t space-y-2.5 shrink-0"
-          style={{
-            background: '#FFFFFF',
-            borderColor: '#E8E0D1',
-          }}
-        >
-          {/* Quick Suggestion Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
-            <span className="text-[10px] font-mono font-bold text-stone-400 uppercase shrink-0">
-              Suggestions:
-            </span>
-            {SUGGESTED_PILLS.map((pill, i) => (
-              <button
-                key={i}
-                onClick={() => handleSendMessage(pill)}
-                disabled={loading}
-                className="shrink-0 px-2.5 py-1 rounded-full text-xs font-medium border transition-colors cursor-pointer disabled:opacity-50"
-                style={{
-                  background: 'rgba(216,207,188,0.2)',
-                  borderColor: '#D8CFBC',
-                  color: '#565449',
-                }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.borderColor = '#11120D';
-                  (e.currentTarget as HTMLElement).style.background = '#FFFFFF';
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.borderColor = '#D8CFBC';
-                  (e.currentTarget as HTMLElement).style.background = 'rgba(216,207,188,0.2)';
-                }}
-              >
-                {pill}
-              </button>
-            ))}
-          </div>
-
-          {/* Input Textarea Bar */}
+        <div className="flex items-center gap-3 min-w-0">
           <div
-            className="flex items-end gap-2 p-2 rounded-2xl border transition-all"
-            style={{
-              background: '#FFFBF4',
-              borderColor: '#D8CFBC',
-              boxShadow: '0 2px 12px rgba(17,18,13,0.04)',
-            }}
+            className="h-9 px-2 rounded-xl flex items-center justify-center shrink-0 border bg-white shadow-xs"
+            style={{ borderColor: '#D8CFBC' }}
           >
-            <textarea
+            <img src="/proofvault-logo.png" alt="Proof Vault" className="h-6 w-auto object-contain" />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h1 className="font-serif-judicial font-bold text-sm sm:text-base text-stone-900 truncate">
+                Judicial AI Intelligence
+              </h1>
+              <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-300">
+                <ShieldCheck className="w-3 h-3" /> Polygon Amoy (80002)
+              </span>
+            </div>
+            <p className="text-[11px] text-stone-500 font-mono truncate">
+              Scope: <strong>{selectedCase || 'All Case Dossiers'}</strong> · BSA §63 Grounded
+            </p>
+          </div>
+        </div>
+
+        {/* Header Controls */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Scope Dropdown */}
+          <div className="relative">
+            <select
+              value={selectedCase}
+              onChange={(e) => setSelectedCase(e.target.value)}
+              className="text-xs font-semibold px-2.5 py-1.5 rounded-xl border outline-none cursor-pointer pr-7 appearance-none"
+              style={{ background: '#FFFBF4', borderColor: '#D8CFBC', color: '#11120D' }}
+            >
+              <option value="">All Dossiers</option>
+              {cases.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
+            </select>
+            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 pointer-events-none text-stone-400" />
+          </div>
+
+          {/* Model Selector */}
+          <select
+            value={selectedTier}
+            onChange={(e) => setSelectedTier(e.target.value as any)}
+            className="text-xs font-mono font-semibold px-2.5 py-1.5 rounded-xl border outline-none cursor-pointer hidden md:block"
+            style={{ background: '#FFFBF4', borderColor: '#D8CFBC', color: '#11120D' }}
+          >
+            <option value="auto">⚡ Auto Cascade</option>
+            <option value="tier1">Tier 1: GPT-6 Astra</option>
+            <option value="tier2">Tier 2: Grok 4.6</option>
+            <option value="tier3">Tier 3: Nemotron 3</option>
+            <option value="tier4">Tier 4: Gemini 3.8</option>
+          </select>
+
+          {isAdmin && (
+            <button
+              onClick={() => setShowConfigModal(true)}
+              title="Configure AI API Keys"
+              className="p-2 rounded-xl border text-stone-600 hover:text-stone-900 hover:bg-stone-50 transition-colors"
+              style={{ borderColor: '#D8CFBC' }}
+            >
+              <Sliders className="w-3.5 h-3.5" />
+            </button>
+          )}
+
+          <button
+            onClick={handleClearChat}
+            title="Reset Conversation"
+            className="p-2 rounded-xl border text-stone-600 hover:text-stone-900 hover:bg-stone-50 transition-colors"
+            style={{ borderColor: '#D8CFBC' }}
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* ── Message Conversation Feed ─────────────────────────────── */}
+      <div className="flex-1 overflow-y-auto space-y-5 px-1 py-2">
+        {messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center text-center py-10 sm:py-16 space-y-4 max-w-xl mx-auto">
+            <div
+              className="h-14 px-3.5 rounded-2xl flex items-center justify-center shadow-xs border bg-white"
+              style={{ borderColor: '#D8CFBC' }}
+            >
+              <img src="/proofvault-logo.png" alt="Proof Vault" className="h-10 w-auto object-contain" />
+            </div>
+
+            <h2 className="text-2xl sm:text-3xl font-serif-judicial font-bold text-stone-900 tracking-tight">
+              What evidence would you like to examine?
+            </h2>
+
+            <p className="text-xs sm:text-sm text-stone-600 max-w-md leading-relaxed">
+              Inquire into electronic exhibits, forensic phone extractions, FIRs, and witness statements. Every claim is cross-verified with Polygon Amoy Merkle tree roots.
+            </p>
+          </div>
+        ) : (
+          messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              {/* Assistant Icon */}
+              {msg.sender === 'assistant' && (
+                <div
+                  className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border bg-white shadow-xs p-1"
+                  style={{ borderColor: '#D8CFBC' }}
+                >
+                  <Gavel className="w-4 h-4 text-stone-900" />
+                </div>
+              )}
+
+              {/* Message Bubble */}
+              <div
+                className={`max-w-[90%] sm:max-w-[80%] rounded-2xl p-4 sm:p-5 space-y-3 shadow-xs border ${
+                  msg.sender === 'user'
+                    ? 'bg-stone-900 text-amber-50 border-stone-800'
+                    : 'bg-white text-stone-900 border-[#D8CFBC]'
+                }`}
+              >
+                {/* Meta Header */}
+                <div className="flex items-center justify-between text-[11px] font-mono pb-2 border-b border-stone-200/50">
+                  <span className="font-bold flex items-center gap-1.5">
+                    {msg.sender === 'user' ? (
+                      <>
+                        <UserIcon className="w-3.5 h-3.5" />
+                        <span>{user?.role || 'INVESTIGATOR'}</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                        <span className="font-serif-judicial font-bold text-stone-900">Judicial Intelligence Output</span>
+                      </>
+                    )}
+                  </span>
+                  <span className="opacity-70">{msg.timestamp}</span>
+                </div>
+
+                {/* Tamper Alert */}
+                {msg.responseMeta?.tamper_detected ? (
+                  <TamperAlert
+                    message={msg.responseMeta?.message || msg.text}
+                    txId={msg.responseMeta?.tamper_alert_tx}
+                  />
+                ) : (
+                  <div className="text-xs sm:text-sm leading-relaxed whitespace-pre-wrap font-sans">
+                    {msg.text}
+                  </div>
+                )}
+
+                {/* Citations */}
+                {msg.responseMeta?.citations && msg.responseMeta.citations.length > 0 && (
+                  <div className="pt-2 space-y-2 border-t border-stone-200">
+                    <div className="text-[11px] font-mono font-bold text-stone-600 flex items-center gap-1.5">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Cryptographically Anchored Citations:</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {msg.responseMeta.citations.map((c: Citation, i: number) => (
+                        <CitationChip key={i} citation={c} />
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Bar for Assistant Messages */}
+                {msg.sender === 'assistant' && (
+                  <div className="pt-2 flex items-center justify-between text-[11px] font-mono text-stone-500 border-t border-stone-100">
+                    <div className="flex items-center gap-2">
+                      {msg.responseMeta?.provider_tier && (
+                        <span className="px-2 py-0.5 rounded bg-stone-100 text-stone-700 font-bold">
+                          {msg.responseMeta.provider_tier}
+                        </span>
+                      )}
+                      {msg.responseMeta?.timings_ms && (
+                        <span className="hidden sm:inline">
+                          {msg.responseMeta.timings_ms.llm_ms || 0}ms · Verified
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => copyToClipboard(msg.text, msg.id)}
+                        className="px-2 py-1 rounded hover:bg-stone-100 text-stone-600 hover:text-stone-900 transition-colors flex items-center gap-1 cursor-pointer"
+                        title="Copy Answer"
+                      >
+                        {copiedId === msg.id ? (
+                          <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        ) : (
+                          <Copy className="w-3.5 h-3.5" />
+                        )}
+                        <span className="text-[10px]">{copiedId === msg.id ? 'Copied' : 'Copy'}</span>
+                      </button>
+                      <button
+                        onClick={() => printLegalBrief(msg.text, msg.caseScope)}
+                        className="px-2 py-1 rounded hover:bg-stone-100 text-stone-600 hover:text-stone-900 transition-colors flex items-center gap-1 cursor-pointer"
+                        title="Print Statutory Brief"
+                      >
+                        <Printer className="w-3.5 h-3.5" />
+                        <span className="text-[10px]">Print</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* User Icon */}
+              {msg.sender === 'user' && (
+                <div
+                  className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border bg-stone-900 text-amber-50 shadow-xs"
+                >
+                  <UserIcon className="w-4 h-4" />
+                </div>
+              )}
+            </div>
+          ))
+        )}
+
+        {/* Loading Step Animation */}
+        {loading && (
+          <div className="flex gap-3 justify-start items-start">
+            <div
+              className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 border bg-white shadow-xs p-1 animate-pulse"
+              style={{ borderColor: '#D8CFBC' }}
+            >
+              <Gavel className="w-4 h-4 text-stone-900" />
+            </div>
+            <div
+              className="rounded-2xl p-4 border space-y-2 max-w-md bg-white shadow-xs"
+              style={{ borderColor: '#D8CFBC' }}
+            >
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                <span className="font-serif-judicial font-bold text-sm text-stone-900">
+                  Sovereign Legal AI Reasoning...
+                </span>
+                <span className="text-xs font-mono text-stone-400">({elapsedSeconds}s)</span>
+              </div>
+              <div className="text-xs font-mono text-stone-600 flex items-center gap-2">
+                <Cpu className="w-3.5 h-3.5 text-stone-500 animate-spin" />
+                <span>{loadingStep || 'Scoring evidence chunks...'}</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* ── V0-Style Interactive Input Console ────────────────────── */}
+      <div className="w-full space-y-3 pt-3">
+        {/* V0 Elevated Input Container */}
+        <div
+          className="relative bg-white rounded-2xl border transition-colors shadow-sm focus-within:border-stone-900"
+          style={{ borderColor: '#D8CFBC' }}
+        >
+          <div className="overflow-y-auto">
+            <Textarea
               ref={textareaRef}
               value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
+              onChange={(e) => {
+                setInputText(e.target.value);
+                adjustHeight();
+              }}
               onKeyDown={handleKeyDown}
               disabled={loading}
-              placeholder="Inquire with Judicial AI (e.g., 'Summarize Section 65B compliance for FIR-2024-001')..."
-              rows={1}
-              className="flex-1 bg-transparent resize-none outline-none text-xs sm:text-sm px-2 py-1 max-h-32 text-stone-900 placeholder:text-stone-400"
+              placeholder="Ask Judicial AI a question about evidence, BSA §63 admissibility, or chain of custody..."
+              className={cn(
+                "w-full px-4 pt-3.5 pb-2",
+                "resize-none",
+                "bg-transparent",
+                "border-none",
+                "text-stone-900 text-xs sm:text-sm",
+                "focus:outline-none",
+                "focus-visible:ring-0 focus-visible:ring-offset-0",
+                "placeholder:text-stone-400 placeholder:text-xs sm:placeholder:text-sm",
+                "min-h-[56px]"
+              )}
+              style={{ overflow: 'hidden' }}
             />
-
-            <button
-              onClick={() => handleSendMessage()}
-              disabled={loading || !inputText.trim()}
-              className="px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer disabled:opacity-40"
-              style={{
-                background: '#11120D',
-                color: '#FFFBF4',
-              }}
-              onMouseEnter={e => {
-                if (!loading && inputText.trim()) (e.currentTarget as HTMLElement).style.background = '#1e1f18';
-              }}
-              onMouseLeave={e => {
-                (e.currentTarget as HTMLElement).style.background = '#11120D';
-              }}
-            >
-              <span>Submit</span>
-              <Send className="w-3.5 h-3.5" />
-            </button>
           </div>
 
-          <div className="flex items-center justify-between text-[10px] font-mono text-stone-400 px-1">
-            <span>Press Enter ↵ to submit · Shift+Enter for new line</span>
-            <span>Proof Vault Sovereign Legal Intelligence · All answers verified on Polygon Amoy</span>
+          {/* V0 Bottom Action Toolbar inside box */}
+          <div className="flex items-center justify-between p-2.5 border-t" style={{ borderColor: '#F2ECE0' }}>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => handleSendMessage("List all seized forensic evidence files and documents in this case.")}
+                disabled={loading}
+                className="group px-2 py-1 hover:bg-stone-100 rounded-lg transition-colors flex items-center gap-1.5 text-xs text-stone-600 cursor-pointer disabled:opacity-50"
+                title="Attach / Inspect Case Evidence"
+              >
+                <Paperclip className="w-3.5 h-3.5 text-stone-700" />
+                <span className="hidden sm:inline font-mono text-[11px]">Exhibits</span>
+              </button>
+
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-200 hidden sm:inline">
+                Polygon Amoy EVM 80002
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleSendMessage()}
+                disabled={!inputText.trim() || loading}
+                className={cn(
+                  "p-2 rounded-xl text-xs transition-all flex items-center justify-center cursor-pointer disabled:opacity-40",
+                  inputText.trim() && !loading
+                    ? "bg-[#11120D] text-[#FFFBF4] hover:bg-[#1e1f18] shadow-xs"
+                    : "bg-stone-100 text-stone-400 border border-stone-200"
+                )}
+                title="Send Query (Enter)"
+              >
+                <ArrowUpIcon className="w-4 h-4" />
+                <span className="sr-only">Send</span>
+              </button>
+            </div>
           </div>
         </div>
-      </section>
 
-      {/* ── Admin AI Configuration Modal ──────────────────────────── */}
+        {/* V0 ActionButton Pill Carousel */}
+        <div className="flex items-center justify-start sm:justify-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          {STATUTORY_QUICK_ACTIONS.map((item, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => handleSendMessage(item.query)}
+              disabled={loading}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all shadow-xs shrink-0 cursor-pointer disabled:opacity-50"
+              style={{ background: '#FFFFFF', borderColor: '#D8CFBC', color: '#565449' }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.borderColor = '#11120D';
+                (e.currentTarget as HTMLElement).style.color = '#11120D';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.borderColor = '#D8CFBC';
+                (e.currentTarget as HTMLElement).style.color = '#565449';
+              }}
+            >
+              {item.icon}
+              <span className="text-[11px] sm:text-xs">{item.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Admin Configuration Modal ─────────────────────────────── */}
       {showConfigModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm bg-black/40">
           <div
@@ -794,14 +630,14 @@ export const AskPage: React.FC = () => {
               </div>
               <button
                 onClick={() => setShowConfigModal(false)}
-                className="p-1 rounded-lg hover:bg-stone-100 text-stone-500"
+                className="p-1 rounded-lg hover:bg-stone-100 text-stone-500 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <p className="text-xs text-stone-600">
-              Set provider API keys for the 4-tier cascading judicial reasoning pipeline. Stored locally in your browser.
+              Configure provider API keys for the 4-tier cascading judicial reasoning pipeline. Stored locally in your browser.
             </p>
 
             <form onSubmit={handleSaveKeys} className="space-y-3.5">
@@ -865,13 +701,13 @@ export const AskPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowConfigModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-stone-600 hover:bg-stone-100"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-stone-600 hover:bg-stone-100 cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl text-xs font-bold text-amber-50 bg-stone-900 hover:bg-stone-800 transition-colors flex items-center gap-1.5"
+                  className="px-5 py-2 rounded-xl text-xs font-bold text-amber-50 bg-stone-900 hover:bg-stone-800 transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   {saveSuccess ? (
                     <>
