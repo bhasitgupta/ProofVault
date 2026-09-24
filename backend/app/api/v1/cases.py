@@ -252,3 +252,5 @@ async def revoke_assignment(
     assign.is_active = False
     await session.commit()
     return {"user_id": user_id, "case_id": case_id, "revoked": True}
+
+"""Cases Router: Case docket management, assignment, and status transitions."""
