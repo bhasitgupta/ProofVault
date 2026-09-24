@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 export const POLYGON_AMOY_CHAIN_ID = 80002;
 export const POLYGON_AMOY_CHAIN_HEX = '0x13882';
 export const POLYGON_AMOY_RPC = ((import.meta as any).env?.VITE_POLYGON_RPC_URL as string) || 'https://polygon-amoy-bor-rpc.publicnode.com';
-export const EVIDENCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_EVIDENCE_REGISTRY as string) || '0xC15D29c23C72c7E6301AeD190F2FD186372b7DBe';
+export const EVIDENCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_EVIDENCE_REGISTRY as string) || '0xF022e8E8E7FD5d565fAb24dC74B6fAc1c8760a01';
 export const PROVENANCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_PROVENANCE_REGISTRY as string) || '0x11A0a778303196d735B9cCdE62eB5bC5B29a855a';
 export const POLYGONSCAN_BASE = 'https://amoy.polygonscan.com';
 
@@ -721,4 +721,117 @@ export async function isOfficialAnchoredOnChain(userId: string): Promise<boolean
     return false;
   }
 }
+
+/**
+ * Permanently anchors an Evidentiary Custody Transfer to Polygon Amoy using ProvenanceRegistry.logCase(transferTag).
+ * Enforces Web3 wallet popup (MetaMask) and returns confirmed transaction hash and explorer URL.
+ */
+export async function anchorCustodyTransferOnChain(params: {
+  caseId: string;
+  fromMsp: string;
+  toMsp: string;
+  recipientOfficerId: string;
+  reason?: string;
+}): Promise<{ txHash: string; explorerUrl: string }> {
+  const eth = (window as any).ethereum;
+  if (!eth) {
+    throw new Error('MetaMask / Web3 wallet is required to record custody transfer on Polygon blockchain. Please connect your Web3 wallet and try again.');
+  }
+
+  await ensurePolygonAmoyNetwork();
+
+  const accounts: string[] = await eth.request({ method: 'eth_requestAccounts' });
+  if (!accounts || accounts.length === 0) {
+    throw new Error('No wallet account selected. Please unlock MetaMask.');
+  }
+
+  const transferTag = `CUSTODY_TRANSFER:${params.caseId.trim().toUpperCase()}:${params.fromMsp.trim()}:${params.toMsp.trim()}:${params.recipientOfficerId.trim()}:${Date.now()}`;
+  const iface = new ethers.Interface(PROVENANCE_REGISTRY_ABI);
+  const calldata = iface.encodeFunctionData('logCase', [transferTag]);
+
+  try {
+    const txHash: string = await eth.request({
+      method: 'eth_sendTransaction',
+      params: [{
+        from: accounts[0],
+        to: PROVENANCE_REGISTRY_ADDR,
+        data: calldata,
+        value: '0x0',
+        gas: '0x30D40', // 200,000 gas limit
+        maxPriorityFeePerGas: '0x6fc23ac00', // 30 Gwei (>= 25 Gwei Amoy minimum)
+        maxFeePerGas: '0xdf8475800', // 60 Gwei
+      }],
+    });
+
+    if (!txHash || typeof txHash !== 'string') {
+      throw new Error('Transaction was not broadcasted by wallet.');
+    }
+
+    return {
+      txHash,
+      explorerUrl: `${POLYGONSCAN_BASE}/tx/${txHash}`,
+    };
+  } catch (err: any) {
+    if (err?.code === 4001 || err?.message?.includes('User denied') || err?.message?.includes('rejected')) {
+      throw new Error('MetaMask transaction rejected by user.');
+    }
+    throw new Error(`Polygon Amoy transaction failed: ${err?.message || err}`);
+  }
+}
+
+/**
+ * Permanently anchors an Officer Role Update to Polygon Amoy using ProvenanceRegistry.logCase(roleChangeTag).
+ * Enforces Web3 wallet popup (MetaMask) and returns confirmed transaction hash and explorer URL.
+ */
+export async function anchorRoleChangeOnChain(params: {
+  userId: string;
+  newRole: string;
+  adminId?: string;
+}): Promise<{ txHash: string; explorerUrl: string }> {
+  const eth = (window as any).ethereum;
+  if (!eth) {
+    throw new Error('MetaMask / Web3 wallet is required to authorize role changes on Polygon blockchain. Please connect your Web3 wallet and try again.');
+  }
+
+  await ensurePolygonAmoyNetwork();
+
+  const accounts: string[] = await eth.request({ method: 'eth_requestAccounts' });
+  if (!accounts || accounts.length === 0) {
+    throw new Error('No wallet account selected. Please unlock MetaMask.');
+  }
+
+  const roleChangeTag = `ROLE_CHANGE:${params.userId.trim().toUpperCase()}:${params.newRole.trim().toUpperCase()}:${params.adminId || 'ADMIN'}:${Date.now()}`;
+  const iface = new ethers.Interface(PROVENANCE_REGISTRY_ABI);
+  const calldata = iface.encodeFunctionData('logCase', [roleChangeTag]);
+
+  try {
+    const txHash: string = await eth.request({
+      method: 'eth_sendTransaction',
+      params: [{
+        from: accounts[0],
+        to: PROVENANCE_REGISTRY_ADDR,
+        data: calldata,
+        value: '0x0',
+        gas: '0x30D40', // 200,000 gas limit
+        maxPriorityFeePerGas: '0x6fc23ac00', // 30 Gwei (>= 25 Gwei Amoy minimum)
+        maxFeePerGas: '0xdf8475800', // 60 Gwei
+      }],
+    });
+
+    if (!txHash || typeof txHash !== 'string') {
+      throw new Error('Transaction was not broadcasted by wallet.');
+    }
+
+    return {
+      txHash,
+      explorerUrl: `${POLYGONSCAN_BASE}/tx/${txHash}`,
+    };
+  } catch (err: any) {
+    if (err?.code === 4001 || err?.message?.includes('User denied') || err?.message?.includes('rejected')) {
+      throw new Error('MetaMask transaction rejected by user.');
+    }
+    throw new Error(`Polygon Amoy transaction failed: ${err?.message || err}`);
+  }
+}
+
 
