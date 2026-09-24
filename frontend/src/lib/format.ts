@@ -22,3 +22,5 @@ export function formatClassificationBadge(level: string): { bg: string; text: st
       return { bg: 'bg-stone-100 border-stone-300', text: 'text-stone-700' };
   }
 }
+
+// Formatting utilities for judicial timestamps, hashes, and classification badges
