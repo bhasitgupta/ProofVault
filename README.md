@@ -1,13 +1,13 @@
 <div align="center">
 
-<img src="frontend/public/logo.png" alt="Proof Vault Logo" width="220" />
+<img src="frontend/public/proofvault-logo.png" alt="Proof Vault Logo" width="180" />
 
-# ⚖️ Proof Vault
+# Proof Vault
 ### Sovereign Electronic Evidence Provenance & Cryptographic Chain-of-Custody Platform
-#### *Secure Evidence • Stronger Justice • Blockchain For A Fairer Tomorrow*
+#### *Secure Evidence • Stronger Justice*
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Blockchain-Polygon%20Amoy%20(80002)-8247E5?style=for-the-badge&logo=polygon&logoColor=white" alt="Polygon Amoy" />
+  <img src="https://img.shields.io/badge/Trust%20Layer-Blockchain%20EVM-8247E5?style=for-the-badge&logo=ethereum&logoColor=white" alt="Blockchain EVM" />
   <img src="https://img.shields.io/badge/Legal%20Compliance-BSA%20%C2%A763%20%7C%20IEA%20%C2%A765B-059669?style=for-the-badge&logo=shield&logoColor=white" alt="BSA 63 Compliance" />
   <img src="https://img.shields.io/badge/Cryptography-AES--256--GCM%20%2B%20Merkle-1E293B?style=for-the-badge&logo=vault&logoColor=white" alt="Cryptography" />
   <img src="https://img.shields.io/badge/Test%20Suite-37%2F37%20Passed%20(100%25)-10B981?style=for-the-badge&logo=pytest&logoColor=white" alt="Pytest" />
@@ -156,8 +156,8 @@ Judicial analysis requires high factual fidelity and strict confidentiality:
 
 ### 1. Clone & Install Dependencies
 ```bash
-git clone https://github.com/bhasitgupta/SIH26190.git
-cd SIH-26190
+git clone https://github.com/bhasitgupta/Proof Vault Project.git
+cd proof-vault
 
 # Install Frontend dependencies
 cd frontend && npm install && cd ..
@@ -230,5 +230,5 @@ Proof Vault is pre-configured for seamless monorepo deployment on **Vercel**:
 ---
 
 <div align="center">
-  <sub>Engineered by Bhasit Gupta • Smart India Hackathon (SIH26190) • Built for Digital Sovereignty & Rule of Law</sub>
+  <sub>Engineered by Bhasit Gupta • Digital Evidence Platform (Proof Vault Project) • Built for Digital Sovereignty & Rule of Law</sub>
 </div>

@@ -2,8 +2,8 @@ import os
 from PIL import Image, ImageDraw, ImageFilter
 
 SRC_IMG = r"C:\Users\Bhasit Gupta\.gemini\antigravity-ide\brain\bc714a3a-fede-4c29-bbc2-17ad73993142\.user_uploaded\media_1789908938553.png"
-PUB_DIR = r"C:\Users\Bhasit Gupta\Desktop\SIH-26190\frontend\public"
-SRC_ASSETS_DIR = r"C:\Users\Bhasit Gupta\Desktop\SIH-26190\frontend\src\assets"
+PUB_DIR = r"C:\Users\Bhasit Gupta\Desktop\proof-vault\frontend\public"
+SRC_ASSETS_DIR = r"C:\Users\Bhasit Gupta\Desktop\proof-vault\frontend\src\assets"
 
 os.makedirs(PUB_DIR, exist_ok=True)
 os.makedirs(SRC_ASSETS_DIR, exist_ok=True)

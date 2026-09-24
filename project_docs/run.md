@@ -1,6 +1,6 @@
 # SDMS — Comprehensive System Run & Operations Guide
 
-> **Ministry of Home Affairs (MHA) Problem Statement SIH26190**  
+> **Ministry of Home Affairs (MHA) Problem Statement Proof Vault Project**  
 > Secure Digital Document Management System (SDMS) — Zero-Trust Electronic Evidence Management System.
 
 ---
@@ -54,7 +54,7 @@ npm install
 
 ### Option A: Running with Make (Recommended)
 
-From the project root directory (`sih26190/`):
+From the project root directory (`Proof Vault Project/`):
 
 ```bash
 # Terminal 1: Start FastAPI Backend (Port 8000)
@@ -89,7 +89,7 @@ npm run dev
 
 ## 3. Environment Configuration
 
-Default configuration settings reside in [`backend/app/config.py`](file:///home/dharshan/Documents/sih26190/backend/app/config.py). You can override them via an `.env` file in the root or `backend/` directory:
+Default configuration settings reside in [`backend/app/config.py`](file:///home/dharshan/Documents/Proof Vault Project/backend/app/config.py). You can override them via an `.env` file in the root or `backend/` directory:
 
 ```ini
 # Database

@@ -1,4 +1,4 @@
-# Product Requirements Document (PRD) - NYAYA-VAULT
+# Product Requirements Document (PRD) - Proof Vault
 ## Target Stakeholders: Indian Police Services, State Forensics Labs, Judicial Courts
 
 ### 1. Functional Pillars

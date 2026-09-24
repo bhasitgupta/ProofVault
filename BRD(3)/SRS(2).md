@@ -1,9 +1,9 @@
-# SRS.md — NYAYA-VAULT
+# SRS.md — Proof Vault
 
 ## Software Requirements Specification
 
-**System:** NYAYA-VAULT  
-**SIH:** SIH26190  
+**System:** Proof Vault  
+**SIH:** Proof Vault Project  
 **Version:** 1.0 Draft  
 **Target:** Government Enterprise / Security-Sensitive Deployment
 
@@ -14,7 +14,7 @@
 ## 1.1 Purpose
 
 This SRS defines functional, security, interface, data, performance and
-operational requirements for NYAYA-VAULT, a secure digital document and
+operational requirements for Proof Vault, a secure digital document and
 provenance platform for legal and investigation documents.
 
 ## 1.2 Scope

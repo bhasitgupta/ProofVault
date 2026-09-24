@@ -255,7 +255,7 @@ export async function issueCertificate(docId: string): Promise<any> {
       merkle_root: doc.chunk_merkle_root,
       ledger_tx_id: doc.ledger_tx_id,
       issued_at: new Date().toISOString(),
-      issuer: 'Nyaya-Vault Decentralized Forensic Notary',
+      issuer: 'Proof Vault Decentralized Forensic Notary',
       status: 'COURT_ADMISSIBLE',
     };
   }

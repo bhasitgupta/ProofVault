@@ -5,7 +5,7 @@
 This live demonstration script guides the presentation team through a compelling, end-to-end showcase of the **Secure Digital Document Management System (SDMS)**. It is structured to prove compliance with **Bharatiya Sakshya Adhiniyam (BSA), 2023 §63**, demonstrate zero-trust integrity verification, and execute a live red-team tamper attack.
 
 **Total Time**: 10–12 minutes  
-**Target Audience**: Smart India Hackathon (SIH) Technical & Judicial Evaluators
+**Target Audience**: Digital Evidence Platform (SIH) Technical & Judicial Evaluators
 
 ---
 

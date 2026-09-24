@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: SIH26190 Secure Digital Document Management System API
+  title: Proof Vault Project Secure Digital Document Management System API
   version: 1.0.0
   description: >
     Official REST contract for SDMS. Enables cryptographic verification,

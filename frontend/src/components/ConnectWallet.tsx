@@ -1,9 +1,14 @@
-import React, { useState } from 'react';
-import { Shield, CheckCircle2, AlertCircle, ArrowRight, Wallet, ExternalLink, RefreshCw, KeyRound, Lock, Sparkles, ShieldAlert } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import {
+  AlertCircle, ArrowRight, RefreshCw, Lock, ShieldCheck
+} from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 export type SupportedWallet = 'metamask' | 'phantom' | 'coinbase';
 export type AuthRole = 'INVESTIGATOR' | 'FORENSIC_ANALYST' | 'LEGAL_OFFICER' | 'SUPERVISOR' | 'ADMIN';
+
+// ── Admin wallet address — receives ADMIN role automatically ──────────────────
+const ADMIN_WALLET_ADDRESS = '0xc90A124b741d48a486950F668BfD62D4B5cF96b4';
 
 interface WalletOption {
   id: SupportedWallet;
@@ -66,10 +71,23 @@ interface ConnectWalletProps {
   onSuccess?: (address: string, role: string) => void;
 }
 
+/**
+ * Determines role for a connected address.
+ * Admin wallet address 0xc90A124b741d48a486950F668BfD62D4B5cF96b4
+ * always receives ADMIN role regardless of selection.
+ * All other addresses default to INVESTIGATOR.
+ */
+function resolveRole(address: string): AuthRole {
+  if (address.toLowerCase() === ADMIN_WALLET_ADDRESS.toLowerCase()) {
+    return 'ADMIN';
+  }
+  // Default — backend may override via JWT from wallet-login endpoint
+  return 'INVESTIGATOR';
+}
+
 export const ConnectWallet: React.FC<ConnectWalletProps> = ({ onSuccess }) => {
   const [connectingWallet, setConnectingWallet] = useState<SupportedWallet | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selectedRole, setSelectedRole] = useState<AuthRole>('INVESTIGATOR');
   const { saveToken } = useAuth();
 
   const walletOptions: WalletOption[] = [
@@ -102,40 +120,6 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({ onSuccess }) => {
     },
   ];
 
-  const roleOptions: { id: AuthRole; label: string; badge: string; desc: string; isSuper?: boolean }[] = [
-    {
-      id: 'INVESTIGATOR',
-      label: 'Chief Investigator',
-      badge: 'Confidential',
-      desc: 'Assigned crime dossiers & evidence capture',
-    },
-    {
-      id: 'FORENSIC_ANALYST',
-      label: 'Forensic Director',
-      badge: 'Secret',
-      desc: 'Ballistics, malware & media assays',
-    },
-    {
-      id: 'LEGAL_OFFICER',
-      label: 'Public Prosecutor',
-      badge: 'Confidential',
-      desc: 'Charge sheets & court statutory filings',
-    },
-    {
-      id: 'SUPERVISOR',
-      label: 'Supervisory Officer',
-      badge: 'Secret',
-      desc: 'Inter-agency oversight & case approvals',
-    },
-    {
-      id: 'ADMIN',
-      label: 'Root Administrator',
-      badge: 'ALL ACCESS',
-      desc: 'Full unrestricted root authority across all cases, evidence & settings',
-      isSuper: true,
-    },
-  ];
-
   const handleWalletSelect = async (wallet: WalletOption) => {
     setError(null);
     setConnectingWallet(wallet.id);
@@ -143,7 +127,7 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({ onSuccess }) => {
     try {
       let detectedAddress = '';
 
-      // 1. Try real browser provider if available
+      // 1. Try real browser provider
       const eth = (window as any).ethereum;
       const phantomEth = (window as any).phantom?.ethereum;
 
@@ -163,49 +147,47 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({ onSuccess }) => {
             detectedAddress = accounts[0];
           }
         } catch (provErr: any) {
-          console.warn('Wallet provider request failed or cancelled, using deterministic address:', provErr);
+          console.warn('Wallet provider request failed or cancelled:', provErr);
         }
       }
 
-      // 2. Fallback to deterministic sovereign address if extension absent or cancelled
-      if (!detectedAddress) {
-        const rolePrefix: Record<AuthRole, string> = {
-          INVESTIGATOR: '0x71C8366420A88301570BC86d3b36523293e8',
-          FORENSIC_ANALYST: '0x2546BcD3c84621e976D8185a91A922aE77EC',
-          LEGAL_OFFICER: '0xbDA5747bFD65F08deb54cb465eB87D40e51B',
-          SUPERVISOR: '0x90F79bf6EB2c4f870365E785982E1f101E93b906',
-          ADMIN: '0xdD870fA1b7C4700F2BD7f44238821C26f739',
-        };
-        detectedAddress = `${rolePrefix[selectedRole]}${wallet.id === 'phantom' ? '9999' : wallet.id === 'coinbase' ? '8888' : '7777'}`;
-      }
+      // 2. Determine role — admin wallet gets ADMIN, others get resolved by backend
+      const resolvedRole = detectedAddress ? resolveRole(detectedAddress) : 'INVESTIGATOR';
 
-      // 3. Authenticate with backend wallet login
-      try {
-        const apiBase = (((import.meta as any).env?.VITE_API_URL as string) || '').replace(/\/+$/, '') + '/api/v1';
-        const res = await fetch(`${apiBase}/auth/wallet-login`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            address: detectedAddress,
-            wallet_type: wallet.name,
-            role: selectedRole,
-          }),
-        });
+      // 3. Authenticate with backend
+      if (detectedAddress) {
+        try {
+          const apiBase = (((import.meta as any).env?.VITE_API_URL as string) || '').replace(/\/+$/, '') + '/api/v1';
+          const res = await fetch(`${apiBase}/auth/wallet-login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              address: detectedAddress,
+              wallet_type: wallet.name,
+              role: resolvedRole,
+            }),
+          });
 
-        const contentType = res.headers.get('content-type') || '';
-        if (res.ok && contentType.includes('application/json')) {
-          const data = await res.json();
-          if (data.access_token) {
-            saveToken(data.access_token);
-            if (onSuccess) onSuccess(detectedAddress, selectedRole);
-            return;
+          const contentType = res.headers.get('content-type') || '';
+          if (res.ok && contentType.includes('application/json')) {
+            const data = await res.json();
+            if (data.access_token) {
+              saveToken(data.access_token);
+              if (onSuccess) onSuccess(detectedAddress, resolvedRole);
+              return;
+            }
           }
+        } catch (backendErr) {
+          console.warn('Backend wallet-login unavailable, using sovereign fallback:', backendErr);
         }
-      } catch (backendErr) {
-        console.warn('Direct wallet-login route returned fallback:', backendErr);
       }
 
-      // 4. Client-side sovereign JWT generation fallback for resilience
+      // 4. Sovereign JWT fallback (dev/offline resilience)
+      if (!detectedAddress) {
+        detectedAddress = `0x000000000000000000000000000000000000${wallet.id === 'phantom' ? '9999' : wallet.id === 'coinbase' ? '8888' : '7777'}`;
+      }
+
+      const fallbackRole = resolveRole(detectedAddress);
       const subMap: Record<AuthRole, string> = {
         INVESTIGATOR: 'USR-101',
         FORENSIC_ANALYST: 'USR-102',
@@ -213,7 +195,6 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({ onSuccess }) => {
         SUPERVISOR: 'USR-104',
         ADMIN: 'USR-001',
       };
-
       const mspMap: Record<AuthRole, string> = {
         INVESTIGATOR: 'PoliceMSP',
         FORENSIC_ANALYST: 'ForensicsMSP',
@@ -225,12 +206,12 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({ onSuccess }) => {
       const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
       const payload = btoa(
         JSON.stringify({
-          sub: subMap[selectedRole],
-          role: selectedRole,
+          sub: subMap[fallbackRole],
+          role: fallbackRole,
           address: detectedAddress,
           wallet: wallet.name,
           mfa_verified: true,
-          msp_id: mspMap[selectedRole],
+          msp_id: mspMap[fallbackRole],
           exp: Math.floor(Date.now() / 1000) + 86400,
         })
       );
@@ -238,7 +219,7 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({ onSuccess }) => {
       saveToken(mockToken);
 
       if (onSuccess) {
-        onSuccess(detectedAddress, selectedRole);
+        onSuccess(detectedAddress, fallbackRole);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to establish cryptographic wallet handshake.');
@@ -248,76 +229,35 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({ onSuccess }) => {
   };
 
   return (
-    <div className="space-y-6">
-      
-      {/* 5 Institutional Roles Selector */}
-      <div className="space-y-2">
-        <label className="block text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 flex items-center justify-between">
-          <span>Institutional Clearance & Authority (5 Roles)</span>
-          <span className="text-[10px] text-indigo-700 font-semibold">Live RBAC</span>
-        </label>
-        <div className="grid grid-cols-2 gap-2 font-mono text-xs">
-          {roleOptions.map((role) => {
-            const isSelected = selectedRole === role.id;
-            return (
-              <button
-                key={role.id}
-                type="button"
-                onClick={() => setSelectedRole(role.id)}
-                className={`p-3 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden ${
-                  role.isSuper ? 'col-span-2' : ''
-                } ${
-                  isSelected
-                    ? role.isSuper
-                      ? 'bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white border-indigo-500 shadow-md ring-1 ring-indigo-400/40'
-                      : 'bg-slate-900 text-white border-slate-900 shadow-xs'
-                    : role.isSuper
-                    ? 'bg-amber-50/70 hover:bg-amber-100/70 text-slate-800 border-amber-300 shadow-xs'
-                    : 'bg-white/80 hover:bg-slate-50 text-slate-700 border-slate-200'
-                }`}
-              >
-                <div className="flex items-center justify-between gap-1.5 mb-0.5">
-                  <div className="font-bold text-xs flex items-center gap-1.5">
-                    {role.isSuper && <Sparkles className="w-3.5 h-3.5 text-amber-400" />}
-                    <span>{role.label}</span>
-                  </div>
-                  <span
-                    className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-full ${
-                      isSelected
-                        ? role.isSuper
-                          ? 'bg-amber-400 text-slate-950'
-                          : 'bg-slate-800 text-amber-300'
-                        : role.isSuper
-                        ? 'bg-amber-200/90 text-amber-950 border border-amber-300'
-                        : 'bg-slate-100 text-slate-600'
-                    }`}
-                  >
-                    {role.badge}
-                  </span>
-                </div>
-                <div className={`text-[10px] ${isSelected ? 'text-slate-300' : 'text-slate-500'} font-sans leading-tight`}>
-                  {role.desc}
-                </div>
-              </button>
-            );
-          })}
-        </div>
+    <div className="space-y-5">
+      {/* Security notice — no role selector */}
+      <div
+        className="flex items-start gap-3 p-3.5 rounded-xl text-xs"
+        style={{ background: 'rgba(216,207,188,0.25)', border: '1px solid #D8CFBC' }}
+      >
+        <ShieldCheck className="w-4 h-4 shrink-0 mt-0.5" style={{ color: '#565449' }} />
+        <p style={{ color: '#565449' }} className="leading-relaxed">
+          Your role is determined automatically by your wallet address and institutional registry. Admin access is granted to pre-authorised addresses only.
+        </p>
       </div>
 
       {error && (
-        <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2 font-mono">
+        <div
+          className="p-3 rounded-xl text-xs flex items-center gap-2 font-mono"
+          style={{ background: 'rgba(184,48,48,0.06)', border: '1px solid rgba(184,48,48,0.2)', color: '#962020' }}
+        >
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
-      {/* 3 Wallet Choices with Original Logos */}
+      {/* Wallet options */}
       <div className="space-y-3">
-        <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500 flex items-center justify-between">
+        <div className="flex items-center justify-between text-[11px] font-mono font-bold uppercase tracking-wider" style={{ color: '#565449' }}>
           <span>Select Web3 Wallet Provider</span>
-          <span className="text-[10px] text-emerald-700 flex items-center gap-1 font-bold">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            POLYGON AMOY EVM (80002)
+          <span className="flex items-center gap-1.5 font-bold" style={{ color: '#11120D' }}>
+            <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#565449' }}></span>
+            POLYGON AMOY EVM
           </span>
         </div>
 
@@ -329,24 +269,41 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({ onSuccess }) => {
                 key={wallet.id}
                 onClick={() => handleWalletSelect(wallet)}
                 disabled={connectingWallet !== null}
-                className="w-full p-4 rounded-2xl bg-white hover:bg-slate-50/90 border border-slate-200/90 hover:border-slate-800 transition-all shadow-xs flex items-center justify-between group cursor-pointer disabled:opacity-50"
+                className="w-full p-4 rounded-xl flex items-center justify-between group cursor-pointer disabled:opacity-50 transition-all"
+                style={{
+                  background: '#FFFFFF',
+                  border: '1.5px solid #D8CFBC',
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = '#565449';
+                  (e.currentTarget as HTMLElement).style.boxShadow = '0 4px 16px rgba(17,18,13,0.08)';
+                  (e.currentTarget as HTMLElement).style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = '#D8CFBC';
+                  (e.currentTarget as HTMLElement).style.boxShadow = 'none';
+                  (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
+                }}
               >
                 <div className="flex items-center gap-3.5 text-left">
                   {wallet.icon}
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-slate-900 text-sm">{wallet.name}</span>
-                      <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
+                      <span className="font-bold text-sm" style={{ color: '#11120D' }}>{wallet.name}</span>
+                      <span
+                        className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full"
+                        style={{ background: '#D8CFBC', color: '#565449' }}
+                      >
                         {wallet.badge}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 font-sans mt-0.5">{wallet.description}</p>
+                    <p className="text-xs mt-0.5" style={{ color: '#565449' }}>{wallet.description}</p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1 text-slate-400 group-hover:text-slate-900 group-hover:translate-x-0.5 transition-all">
+                <div style={{ color: '#D8CFBC' }} className="group-hover:text-olive-600 transition-colors">
                   {isConnecting ? (
-                    <RefreshCw className="w-4 h-4 text-indigo-600 animate-spin" />
+                    <RefreshCw className="w-4 h-4 animate-spin" style={{ color: '#565449' }} />
                   ) : (
                     <ArrowRight className="w-4 h-4" />
                   )}
@@ -357,15 +314,17 @@ export const ConnectWallet: React.FC<ConnectWalletProps> = ({ onSuccess }) => {
         </div>
       </div>
 
-      {/* Security Footnote */}
-      <div className="pt-2 border-t border-slate-200 text-[11px] text-slate-500 font-mono flex items-center justify-between">
-        <span className="flex items-center gap-1">
-          <Lock className="w-3 h-3 text-slate-400" />
-          Hardware & Software Signatures
+      {/* Footer */}
+      <div
+        className="pt-3 text-[11px] font-mono flex items-center justify-between"
+        style={{ borderTop: '1px solid #D8CFBC', color: '#565449' }}
+      >
+        <span className="flex items-center gap-1.5">
+          <Lock className="w-3 h-3" />
+          Hardware &amp; Software Signatures
         </span>
         <span>EIP-1193 Standard</span>
       </div>
-
     </div>
   );
 };

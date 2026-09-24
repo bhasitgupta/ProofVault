@@ -6,65 +6,112 @@ import { ChooseCryptoWalletLogin } from '../components/creative-tim/blocks/choos
 export const ChooseCryptoWalletLoginPage: React.FC = () => {
   const navigate = useNavigate();
 
-  const handleWalletSuccess = (address: string, role: string) => {
+  const handleWalletSuccess = (_address: string, _role: string) => {
     navigate('/dossiers');
   };
 
   return (
-    <div className="h-screen max-h-screen w-full overflow-hidden flex flex-col justify-center items-center p-3 sm:p-4 bg-ambient relative">
-      <div className="max-w-4xl w-full grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
-        
-        {/* Left Information Column */}
-        <div className="lg:col-span-5 hidden lg:flex flex-col justify-between p-6 rounded-3xl glass-panel shadow-sm relative overflow-hidden h-[490px]">
-          <div className="space-y-3">
-            <Link to="/" className="inline-flex items-center gap-1.5 text-xs text-stone-600 hover:text-stone-900 transition-colors font-mono">
+    <div
+      className="h-screen max-h-screen w-full overflow-hidden flex flex-col justify-center items-center p-3 sm:p-4 relative"
+      style={{ background: '#FFFBF4' }}
+    >
+      {/* Background orbs */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: 500,
+            height: 500,
+            top: '-15%',
+            right: '-8%',
+            background: 'rgba(216,207,188,0.4)',
+            filter: 'blur(80px)',
+            animation: 'drift-1 22s ease-in-out infinite',
+          }}
+        />
+        <div
+          className="absolute rounded-full"
+          style={{
+            width: 350,
+            height: 350,
+            bottom: '5%',
+            left: '-5%',
+            background: 'rgba(86,84,73,0.08)',
+            filter: 'blur(70px)',
+            animation: 'drift-2 28s ease-in-out infinite',
+          }}
+        />
+      </div>
+
+      <div className="max-w-4xl w-full grid grid-cols-1 lg:grid-cols-12 gap-5 items-center relative z-10">
+
+        {/* Left info column */}
+        <div
+          className="lg:col-span-5 hidden lg:flex flex-col justify-between p-6 rounded-3xl relative overflow-hidden h-[490px]"
+          style={{ background: '#FFFFFF', border: '1px solid #D8CFBC', boxShadow: '0 2px 24px rgba(17,18,13,0.06)' }}
+        >
+          {/* Top accent */}
+          <div
+            className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl"
+            style={{ background: 'linear-gradient(90deg, #11120D 0%, #565449 50%, #D8CFBC 100%)' }}
+          />
+
+          <div className="space-y-3 pt-2">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 text-xs font-mono transition-colors"
+              style={{ color: '#a09d8f' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.color = '#11120D'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = '#a09d8f'; }}
+            >
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back to Home</span>
             </Link>
 
-            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-crimson-50 text-crimson-800 text-[11px] font-mono border border-crimson-200/80">
-              <Landmark className="w-3 h-3 text-crimson-800" />
-              <span>CREATIVE TIM ARCHITECTURE</span>
+            <div className="flex items-center gap-2.5">
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background: '#11120D' }}
+              >
+                <img src="/proofvault.svg" alt="Proof Vault" className="w-6 h-6" />
+              </div>
+              <div>
+                <div className="font-serif-judicial font-black text-lg leading-tight" style={{ color: '#11120D' }}>Proof Vault</div>
+                <div className="text-[10px] font-mono" style={{ color: '#565449' }}>Secure Evidence · Stronger Justice</div>
+              </div>
             </div>
 
-            <h1 className="font-serif-judicial text-2xl font-black text-stone-900 tracking-tight leading-snug">
+            <h1 className="font-serif-judicial text-2xl font-black tracking-tight leading-snug" style={{ color: '#11120D' }}>
               Web3 Crypto Wallet Authentication
             </h1>
 
-            <p className="text-xs text-stone-600 leading-relaxed font-sans">
+            <p className="text-xs leading-relaxed font-sans" style={{ color: '#565449' }}>
               Choose your preferred Web3 crypto wallet to access sovereign evidence records anchored on Polygon Amoy.
             </p>
           </div>
 
-          {/* Telemetry Cards */}
           <div className="space-y-2 font-mono text-xs">
-            <div className="p-2.5 rounded-xl bg-white/80 border border-stone-200/80 space-y-0.5">
-              <div className="text-[10px] text-stone-700 font-bold uppercase tracking-wider flex items-center justify-between">
-                <span className="flex items-center gap-1.5"><ShieldCheck className="w-3.5 h-3.5 text-indigo-600" /> ENVELOPE CIPHER</span>
-                <span className="text-stone-900 font-bold">AES-256-GCM</span>
+            {[
+              { icon: <ShieldCheck className="w-3.5 h-3.5" style={{ color: '#565449' }} />, label: 'ENVELOPE CIPHER', value: 'AES-256-GCM', sub: 'Per-document DEK with doc_id AAD' },
+              { icon: <Database className="w-3.5 h-3.5" style={{ color: '#565449' }} />, label: 'TRUST ANCHOR', value: 'BLOCKCHAIN EVM', sub: 'Evidence Registry Smart Contract' },
+              { icon: <Scale className="w-3.5 h-3.5" style={{ color: '#565449' }} />, label: 'COURT ADMISSIBILITY', value: 'BSA §63 / IEA §65B', sub: 'Statutory Certificate Generation' },
+            ].map((card, i) => (
+              <div
+                key={i}
+                className="p-2.5 rounded-xl space-y-0.5"
+                style={{ background: 'rgba(255,251,244,0.8)', border: '1px solid #D8CFBC' }}
+              >
+                <div className="text-[10px] font-bold uppercase tracking-wider flex items-center justify-between" style={{ color: '#a09d8f' }}>
+                  <span className="flex items-center gap-1.5">{card.icon} {card.label}</span>
+                  <span className="font-bold" style={{ color: '#11120D' }}>{card.value}</span>
+                </div>
+                <div className="text-[10px]" style={{ color: '#a09d8f' }}>{card.sub}</div>
               </div>
-              <div className="text-[10px] text-stone-500 font-sans">Per-document DEK with doc_id AAD</div>
-            </div>
-
-            <div className="p-2.5 rounded-xl bg-white/80 border border-stone-200/80 space-y-0.5">
-              <div className="text-[10px] text-stone-700 font-bold uppercase tracking-wider flex items-center justify-between">
-                <span className="flex items-center gap-1.5"><Database className="w-3.5 h-3.5 text-emerald-600" /> TRUST NETWORK</span>
-                <span className="text-stone-900 font-bold">POLYGON AMOY</span>
-              </div>
-              <div className="text-[10px] text-stone-500 font-sans">EVM Chain 80002 EvidenceRegistry</div>
-            </div>
-
-            <div className="p-2.5 rounded-xl bg-white/80 border border-stone-200/80 space-y-0.5">
-              <div className="text-[10px] text-stone-700 font-bold uppercase tracking-wider flex items-center justify-between">
-                <span className="flex items-center gap-1.5"><Scale className="w-3.5 h-3.5 text-amber-600" /> COURT ADMISSIBILITY</span>
-                <span className="text-stone-900 font-bold">BSA §63 / IEA §65B</span>
-              </div>
-              <div className="text-[10px] text-stone-500 font-sans">Statutory Certificate Generation</div>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Right Creative Tim Block Column */}
+        {/* Right creative tim block */}
         <div className="lg:col-span-7">
           <ChooseCryptoWalletLogin onSuccess={handleWalletSuccess} />
         </div>

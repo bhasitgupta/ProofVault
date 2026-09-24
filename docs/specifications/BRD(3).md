@@ -1,9 +1,9 @@
-# BRD.md — NYAYA-VAULT
+# BRD.md — Proof Vault
 
 ## Business Requirements Document
 
 **Business Owner Context:** Ministry of Home Affairs / NCRB  
-**Problem Statement:** SIH26190  
+**Problem Statement:** Proof Vault Project  
 **Purpose:** Business and operational requirements for a secure
 legal/investigation document-management and provenance platform
 
@@ -11,7 +11,7 @@ legal/investigation document-management and provenance platform
 
 ## 1. Business Context
 
-SIH26190 describes a growing need for secure management of legal and
+Proof Vault Project describes a growing need for secure management of legal and
 investigation documents across law-enforcement, legal, court and
 investigative stakeholders.
 
@@ -36,7 +36,7 @@ therefore know:
 
 ## 2. Strategic Alignment
 
-NYAYA-VAULT is designed around the direction already visible in India's
+Proof Vault is designed around the direction already visible in India's
 criminal-justice digitization:
 
 - ICJS integrates major criminal-justice pillars;
@@ -50,7 +50,7 @@ criminal-justice digitization:
 
 Therefore:
 
-> NYAYA-VAULT should not compete with these systems on their primary
+> Proof Vault should not compete with these systems on their primary
 > functions. It should provide an interoperable document trust,
 > provenance, access-control and verification layer that can connect to
 > them.
@@ -178,7 +178,7 @@ Existing Criminal Justice Systems
     Integration / Trust Boundary
             |
             v
-       NYAYA-VAULT
+       Proof Vault
             |
      +------+------+
      |             |
@@ -585,7 +585,7 @@ are themselves new.
 
 The proposition is:
 
-> “NYAYA-VAULT provides a verifiable document-trust and provenance layer
+> “Proof Vault provides a verifiable document-trust and provenance layer
 > for the existing criminal-justice ecosystem.”
 
 This avoids claiming that ICJS, DEMS or e-Sakshya do not exist.
@@ -610,7 +610,7 @@ This avoids claiming that ICJS, DEMS or e-Sakshya do not exist.
 
 ## 25. Final Business Position
 
-NYAYA-VAULT should be presented as **government infrastructure**, not a
+Proof Vault should be presented as **government infrastructure**, not a
 consumer DMS.
 
 The value proposition is:

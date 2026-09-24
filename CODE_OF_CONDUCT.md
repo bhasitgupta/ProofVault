@@ -2,7 +2,7 @@
 
 ## Our Commitment
 
-NYAYA-VAULT is a security-focused collaborative project developed in the context of **Smart India Hackathon 2026 — SIH26190: Secure Digital Document Management System for Legal and Investigation Documents**.
+Proof Vault is a security-focused collaborative project developed in the context of **Digital Evidence Platform 2026 — Proof Vault Project: Secure Digital Document Management System for Legal and Investigation Documents**.
 
 We want the project community to be professional, technically rigorous, inclusive, and respectful.
 
@@ -42,7 +42,7 @@ The objective is to improve the system, not to win an argument.
 
 ## Security and Confidentiality
 
-NYAYA-VAULT concerns legal and investigation documents and therefore requires a particularly high standard of information handling.
+Proof Vault concerns legal and investigation documents and therefore requires a particularly high standard of information handling.
 
 Never publicly disclose:
 
@@ -213,7 +213,7 @@ This Code of Conduct applies within:
 - Project documentation
 - Official project communication channels
 - Project events and meetings
-- Other spaces when an individual is representing NYAYA-VAULT
+- Other spaces when an individual is representing Proof Vault
 
 ## Attribution
 
@@ -221,7 +221,7 @@ This document is inspired by established open-source community standards, includ
 
 ## Final Principle
 
-NYAYA-VAULT is intended to explore technology for a sensitive public-sector domain.
+Proof Vault is intended to explore technology for a sensitive public-sector domain.
 
 **Build responsibly. Review rigorously. Protect confidential information. Challenge ideas, not people.**
 

@@ -3,7 +3,7 @@
 ## About This Policy
 
 Proof Vault is a security-first research and prototype project for
-**SIH26190 — Secure Digital Document Management System for Legal and
+**Proof Vault Project — Secure Digital Document Management System for Legal and
 Investigation Documents**.
 
 Because the project is intended for a sensitive public-sector domain,

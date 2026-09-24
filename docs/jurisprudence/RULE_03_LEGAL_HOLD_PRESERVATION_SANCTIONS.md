@@ -14,4 +14,4 @@ Failure to produce verifiable Polygon blockchain custody receipts permits advers
 
 ### Automated Smart Contract Lock
 
-NYAYA-VAULT LegalHoldRegistry smart contract executes irreversible preservation lock.
+Proof Vault LegalHoldRegistry smart contract executes irreversible preservation lock.

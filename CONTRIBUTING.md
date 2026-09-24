@@ -1,10 +1,10 @@
-# Contributing to NYAYA-VAULT
+# Contributing to Proof Vault
 
-Thank you for contributing to **NYAYA-VAULT**.
+Thank you for contributing to **Proof Vault**.
 
-NYAYA-VAULT is an enterprise-oriented, security-first platform for trusted management, provenance, verification, and controlled access to legal and investigation documents. Because the project concerns sensitive government workflows and digital evidence, contributions must prioritize security, integrity, privacy, interoperability, auditability, and maintainability.
+Proof Vault is an enterprise-oriented, security-first platform for trusted management, provenance, verification, and controlled access to legal and investigation documents. Because the project concerns sensitive government workflows and digital evidence, contributions must prioritize security, integrity, privacy, interoperability, auditability, and maintainability.
 
-> **Important:** This repository is an SIH26190 research/prototype project. Do not commit real FIRs, witness statements, investigation records, personally identifiable information (PII), forensic material, credentials, production secrets, or confidential government data.
+> **Important:** This repository is an Proof Vault Project research/prototype project. Do not commit real FIRs, witness statements, investigation records, personally identifiable information (PII), forensic material, credentials, production secrets, or confidential government data.
 
 ## 1. Contribution Principles
 
@@ -467,4 +467,4 @@ Before opening a PR:
 - [ ] Commit messages are clear
 - [ ] PR is focused and reviewable
 
-Thank you for helping build NYAYA-VAULT with the security and engineering discipline expected of a sensitive, government-oriented system.
+Thank you for helping build Proof Vault with the security and engineering discipline expected of a sensitive, government-oriented system.

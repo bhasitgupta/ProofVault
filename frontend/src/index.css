@@ -1,77 +1,57 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600;700&family=Merriweather:ital,wght@0,400;0,700;0,900;1,400&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* =========================================================================
-   Zen Linen Theme - Light Mode (PRIMARY DEFAULT)
-   Inter · radius 0.5rem
+   Proof Vault — Brand Palette (Light Mode Only)
+   Smoky Black  #11120D  ·  Olive Drab  #565449
+   Bone         #D8CFBC  ·  Floral White #FFFBF4
+   Distribution: Floral White bg · Bone surfaces · Olive accents · Smoky text/CTA
    ========================================================================= */
 
 :root {
-  --background: #FAF8F5;
-  --foreground: #18181B;
-  --card: #FFFFFF;
-  --card-foreground: #18181B;
-  --popover: #FFFFFF;
-  --popover-foreground: #18181B;
-  --primary: #18181B;
-  --primary-foreground: #FAF8F5;
-  --secondary: #F4F1EA;
-  --secondary-foreground: #18181B;
-  --muted: #F4F1EA;
-  --muted-foreground: #78716C;
-  --accent: #EBE7DF;
-  --accent-foreground: #18181B;
-  --destructive: #F26A4B;
-  --destructive-foreground: #FFFFFF;
-  --border: #D2CBBB;
-  --input: #D2CBBB;
-  --ring: #2C2C2C;
-  --radius: 0.5rem;
+  --pv-smoky:   #11120D;
+  --pv-olive:   #565449;
+  --pv-bone:    #D8CFBC;
+  --pv-floral:  #FFFBF4;
 
-  --chart-1: #F26A4B;
-  --chart-2: #D9CFC2;
-  --chart-3: #8E8A83;
-  --chart-4: #5C5A56;
-  --chart-5: #3B3B3B;
+  --background:        #FFFBF4;
+  --surface:           #FFFFFF;
+  --surface-raised:    #FDF9F2;
+  --foreground:        #11120D;
+  --foreground-muted:  #565449;
+  --border:            #D8CFBC;
+  --border-strong:     #b0a68e;
+  --ring:              #565449;
+  --radius: 0.75rem;
 
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color-scheme: light;
   letter-spacing: -0.011em;
 }
 
-/* =========================================================================
-   Zen Linen Theme - Dark Mode (TOGGLEABLE)
-   ========================================================================= */
-
-.dark {
-  --background: #141414;
-  --foreground: #EDE8DF;
-  --card: #1C1C1C;
-  --card-foreground: #EDE8DF;
-  --popover: #1C1C1C;
-  --popover-foreground: #EDE8DF;
-  --primary: #EDE8DF;
-  --primary-foreground: #141414;
-  --secondary: #2C2C2C;
-  --secondary-foreground: #EDE8DF;
-  --muted: #242424;
-  --muted-foreground: #8E8A83;
-  --accent: #2C2C2C;
-  --accent-foreground: #EDE8DF;
-  --destructive: #F26A4B;
-  --destructive-foreground: #FFFFFF;
-  --border: #2C2C2C;
-  --input: #2C2C2C;
-  --ring: #D1CFC0;
-
-  color-scheme: dark;
+/* ── Reset ────────────────────────────────────────────────── */
+html {
+  background-color: var(--pv-floral);
+  color: var(--pv-smoky);
+  scroll-behavior: smooth;
 }
 
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  background-color: var(--pv-floral);
+  color: var(--pv-smoky);
+  overflow-x: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ── Typography ───────────────────────────────────────────── */
 .font-serif-judicial {
-  font-family: 'Inter', 'Merriweather', Georgia, serif;
+  font-family: 'Merriweather', Georgia, serif;
   font-weight: 700;
   letter-spacing: -0.015em;
 }
@@ -81,342 +61,417 @@ code, kbd, samp, pre, .font-mono {
   letter-spacing: normal;
 }
 
-html {
-  background-color: #FAF8F5;
-  color: #18181B;
-  scroll-behavior: auto;
-}
-
-html.dark {
-  background-color: #141414;
-  color: #EDE8DF;
-}
-
-body {
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  background-color: #FAF8F5;
-  color: #18181B;
-  overflow-x: hidden;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-.dark body, body.dark {
-  background-color: #141414;
-  color: #EDE8DF;
-}
-
-/* Plain, Clean, Premium Professional Surfaces */
+/* ── Ambient Background ───────────────────────────────────── */
 .bg-ambient, .bg-parchment {
-  background-color: #FAF8F5 !important;
-  background-image: none !important;
-}
-
-.dark .bg-ambient, .dark .bg-parchment {
-  background-color: #141414 !important;
+  background-color: var(--pv-floral) !important;
   background-image: none !important;
 }
 
 /* =========================================================================
-   Zen Linen Surfaces & Glassmorphism (Light Default)
+   Surface System
    ========================================================================= */
 
-.glass-panel {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid #D2CBBB;
-  border-radius: 0.5rem;
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
-}
-
-.dark .glass-panel {
-  background: rgba(28, 28, 28, 0.92) !important;
-  border-color: #2C2C2C !important;
-  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.6) !important;
-}
-
-.glass-nav-obsidian {
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid #C8C0AF;
-  border-radius: 1rem;
-  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.08);
-}
-
-.dark .glass-nav-obsidian {
-  background: rgba(20, 20, 20, 0.94) !important;
-  border-color: #2C2C2C !important;
-  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.75) !important;
-}
-
+/* Main card surface — pure white with bone border */
 .glass-card {
   background: #FFFFFF;
-  border: 1px solid #D2CBBB;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 10px -2px rgba(0, 0, 0, 0.04);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid var(--pv-bone);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 4px 0 rgba(17,18,13,0.06), 0 4px 16px -4px rgba(17,18,13,0.04);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.dark .glass-card {
-  background: #1C1C1C !important;
-  border-color: #2C2C2C !important;
-  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.4) !important;
-}
-
-.glass-card-hover:hover {
-  background: #FAF8F5;
-  border-color: #A89F8F;
+.glass-card:hover, .glass-card-hover:hover {
+  border-color: var(--pv-olive);
+  box-shadow: 0 4px 24px -4px rgba(17,18,13,0.10);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.08);
 }
 
-.dark .glass-card-hover:hover {
-  background: #242424 !important;
-  border-color: #3B3B3B !important;
-  box-shadow: 0 12px 28px -6px rgba(0, 0, 0, 0.6) !important;
+/* Elevated panel — floral-tinted with subtle shadow */
+.glass-panel {
+  background: rgba(255, 251, 244, 0.96);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--pv-bone);
+  border-radius: var(--radius);
+  box-shadow: 0 2px 12px -2px rgba(17,18,13,0.07);
 }
 
-.glass-tile {
-  background: #FFFFFF;
-  border: 1px solid #D2CBBB;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.03);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.dark .glass-tile {
-  background: #1C1C1C !important;
-  border-color: #2C2C2C !important;
-}
-
-.glass-pill {
-  background: rgba(245, 242, 235, 0.9);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid #D2CBBB;
-  border-radius: 9999px;
-}
-
-.dark .glass-pill {
-  background: rgba(28, 28, 28, 0.8) !important;
-  border-color: #2C2C2C !important;
-}
-
-.glass-modal {
-  background: #FFFFFF;
+/* Nav glass — crisp, floating */
+.glass-nav-obsidian {
+  background: rgba(255, 251, 244, 0.97);
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
-  border: 1px solid #D2CBBB;
-  border-radius: 0.5rem;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(216, 207, 188, 0.8);
+  border-radius: 1rem;
+  box-shadow:
+    0 2px 8px -2px rgba(17,18,13,0.08),
+    0 0 0 0.5px rgba(216,207,188,0.5) inset;
 }
 
-.dark .glass-modal {
-  background: rgba(28, 28, 28, 0.96) !important;
-  border-color: #2C2C2C !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8) !important;
-}
-
-.glass-ivory {
+/* Tile — compact surface */
+.glass-tile {
   background: #FFFFFF;
-  border: 1px solid #D2CBBB;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--pv-bone);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 4px rgba(17,18,13,0.05);
+  transition: all 0.2s ease;
 }
 
-.dark .glass-ivory {
-  background: #1C1C1C !important;
-  border-color: #2C2C2C !important;
-  box-shadow: 0 8px 24px -6px rgba(0, 0, 0, 0.4) !important;
+.glass-tile:hover {
+  border-color: var(--pv-olive);
+  box-shadow: 0 4px 16px rgba(17,18,13,0.08);
+}
+
+/* Modal */
+.glass-modal {
+  background: #FFFFFF;
+  border: 1px solid var(--pv-bone);
+  border-radius: 1rem;
+  box-shadow: 0 20px 60px -12px rgba(17,18,13,0.20);
+}
+
+/* Ivory surface (chat bubbles, info cards) */
+.glass-ivory {
+  background: var(--pv-floral);
+  border: 1px solid var(--pv-bone);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 4px rgba(17,18,13,0.04);
 }
 
 .glass-ivory-hover:hover {
-  background: #FAF8F5;
-  border-color: #A89F8F;
-  transform: translateY(-2px);
+  border-color: var(--pv-olive);
+  background: #FFFFFF;
 }
 
-.dark .glass-ivory-hover:hover {
-  background: #242424 !important;
-  border-color: #3B3B3B !important;
+/* Pill badge */
+.glass-pill {
+  background: rgba(216, 207, 188, 0.25);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(216, 207, 188, 0.7);
+  border-radius: 9999px;
 }
 
 .border-crimson-gold {
-  border: 1px solid #D2CBBB;
-}
-
-.dark .border-crimson-gold {
-  border-color: #2C2C2C !important;
+  border: 1px solid var(--pv-bone);
 }
 
 /* =========================================================================
-   Form Controls & Buttons (Radius 0.5rem)
+   Olive Accent Surface (for highlighted cards)
+   ========================================================================= */
+.surface-olive {
+  background: #565449;
+  color: #FFFBF4;
+  border-radius: var(--radius);
+}
+
+.surface-smoky {
+  background: #11120D;
+  color: #FFFBF4;
+  border-radius: var(--radius);
+}
+
+.surface-bone {
+  background: #D8CFBC;
+  color: #11120D;
+  border-radius: var(--radius);
+}
+
+/* =========================================================================
+   Buttons
+   ========================================================================= */
+
+/* Primary — Smoky Black */
+.btn-zen-primary {
+  background-color: var(--pv-smoky);
+  color: var(--pv-floral);
+  border: 1px solid var(--pv-smoky);
+  border-radius: var(--radius);
+  font-weight: 600;
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+
+.btn-zen-primary:hover {
+  background-color: #1e1f18;
+  box-shadow: 0 4px 16px rgba(17,18,13,0.25);
+  transform: translateY(-1px);
+}
+
+/* Secondary — Olive */
+.btn-zen-secondary {
+  background-color: transparent;
+  color: var(--pv-olive);
+  border: 1.5px solid var(--pv-bone);
+  border-radius: var(--radius);
+  font-weight: 500;
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+
+.btn-zen-secondary:hover {
+  background-color: rgba(216, 207, 188, 0.2);
+  border-color: var(--pv-olive);
+}
+
+.btn-zen-destructive {
+  background-color: #b83030;
+  color: #FFFBF4;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+
+.btn-zen-destructive:hover {
+  background-color: #962020;
+}
+
+/* =========================================================================
+   Forms
    ========================================================================= */
 
 input:not([type='checkbox']):not([type='radio']),
 select,
 textarea {
   background-color: #FFFFFF !important;
-  color: #18181B !important;
-  border: 1px solid #D2CBBB !important;
-  border-radius: 0.5rem !important;
+  color: var(--pv-smoky) !important;
+  border: 1.5px solid var(--pv-bone) !important;
+  border-radius: var(--radius) !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
 }
 
 input:not([type='checkbox']):not([type='radio'])::placeholder,
 textarea::placeholder {
-  color: #78716C !important;
+  color: #a09d8f !important;
 }
 
 input:focus, select:focus, textarea:focus {
   outline: none !important;
-  border-color: #18181B !important;
-  box-shadow: 0 0 0 1px #18181B !important;
+  border-color: var(--pv-olive) !important;
+  box-shadow: 0 0 0 3px rgba(86, 84, 73, 0.12) !important;
 }
 
-.dark input:not([type='checkbox']):not([type='radio']),
-.dark select,
-.dark textarea {
-  background-color: #181818 !important;
-  color: #EDE8DF !important;
-  border-color: #2C2C2C !important;
-}
+/* =========================================================================
+   Badges
+   ========================================================================= */
 
-.dark input:not([type='checkbox']):not([type='radio'])::placeholder,
-.dark textarea::placeholder {
-  color: #8E8A83 !important;
-}
-
-.dark input:focus, .dark select:focus, .dark textarea:focus {
-  border-color: #D1CFC0 !important;
-  box-shadow: 0 0 0 1px #D1CFC0 !important;
-}
-
-/* Buttons in Zen Linen */
-.btn-zen-primary {
-  background-color: #18181B;
-  color: #FAF8F5;
-  border: 1px solid #18181B;
-  border-radius: 0.5rem;
-  font-weight: 600;
-  transition: all 0.15s ease;
-}
-
-.btn-zen-primary:hover {
-  background-color: #27272A;
-}
-
-.dark .btn-zen-primary {
-  background-color: #EDE8DF !important;
-  color: #141414 !important;
-  border-color: #EDE8DF !important;
-}
-
-.dark .btn-zen-primary:hover {
-  background-color: #D9CFC2 !important;
-}
-
-.btn-zen-secondary {
-  background-color: #F4F1EA;
-  color: #18181B;
-  border: 1px solid #D2CBBB;
-  border-radius: 0.5rem;
-}
-
-.btn-zen-secondary:hover {
-  background-color: #EBE7DF;
-}
-
-.dark .btn-zen-secondary {
-  background-color: #2C2C2C !important;
-  color: #EDE8DF !important;
-  border-color: #2C2C2C !important;
-}
-
-.dark .btn-zen-secondary:hover {
-  background-color: #363636 !important;
-}
-
-.btn-zen-destructive {
-  background-color: #F26A4B;
-  color: #FFFFFF;
-  border-radius: 0.5rem;
-}
-
-.btn-zen-destructive:hover {
-  background-color: #e05638;
-}
-
-/* Badges */
 .badge-secret {
-  background: rgba(242, 106, 75, 0.12) !important;
-  color: #F26A4B !important;
-  border: 1px solid rgba(242, 106, 75, 0.3) !important;
+  background: rgba(17,18,13,0.08) !important;
+  color: #11120D !important;
+  border: 1px solid rgba(17,18,13,0.2) !important;
   border-radius: 0.5rem !important;
   font-weight: 600;
 }
 
 .badge-confidential {
-  background: rgba(210, 203, 187, 0.35) !important;
-  color: #78716C !important;
-  border: 1px solid #D2CBBB !important;
+  background: rgba(86,84,73,0.10) !important;
+  color: #565449 !important;
+  border: 1px solid rgba(86,84,73,0.25) !important;
   border-radius: 0.5rem !important;
   font-weight: 600;
-}
-
-.dark .badge-confidential {
-  background: rgba(217, 207, 194, 0.12) !important;
-  color: #D9CFC2 !important;
-  border-color: rgba(217, 207, 194, 0.3) !important;
 }
 
 .badge-restricted {
-  background: rgba(142, 138, 131, 0.15) !important;
-  color: #57534E !important;
-  border: 1px solid rgba(142, 138, 131, 0.3) !important;
+  background: rgba(216,207,188,0.35) !important;
+  color: #565449 !important;
+  border: 1px solid rgba(216,207,188,0.8) !important;
   border-radius: 0.5rem !important;
   font-weight: 600;
 }
 
-/* Scrollbars */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
+/* =========================================================================
+   Scrollbars — bone-tinted
+   ========================================================================= */
 
-::-webkit-scrollbar-track {
-  background: #FAF8F5;
-}
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--pv-floral); }
+::-webkit-scrollbar-thumb { background: var(--pv-bone); border-radius: 0.5rem; }
+::-webkit-scrollbar-thumb:hover { background: var(--pv-olive); }
 
-.dark ::-webkit-scrollbar-track {
-  background: #141414;
-}
+/* =========================================================================
+   Decorative Animations
+   ========================================================================= */
 
-::-webkit-scrollbar-thumb {
-  background: #D2CBBB;
-  border-radius: 0.5rem;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: #2C2C2C;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #A89F8F;
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #3B3B3B;
-}
-
-/* Subtle Micro-Animations */
 @keyframes subtle-float {
   0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-4px); }
+  50% { transform: translateY(-6px); }
 }
 
 .animate-subtle-float {
-  animation: subtle-float 6s ease-in-out infinite;
+  animation: subtle-float 7s ease-in-out infinite;
+}
+
+@keyframes drift-1 {
+  0%   { transform: translate(0, 0) scale(1); }
+  33%  { transform: translate(30px, -20px) scale(1.05); }
+  66%  { transform: translate(-15px, 15px) scale(0.97); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes drift-2 {
+  0%   { transform: translate(0, 0) scale(1); }
+  40%  { transform: translate(-25px, 20px) scale(1.03); }
+  70%  { transform: translate(20px, -15px) scale(0.98); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+.animate-drift-1 { animation: drift-1 18s ease-in-out infinite; }
+.animate-drift-2 { animation: drift-2 22s ease-in-out infinite; }
+
+@keyframes shimmer-bg {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.shimmer-line {
+  background: linear-gradient(90deg, var(--pv-bone) 25%, #FFFBF4 50%, var(--pv-bone) 75%);
+  background-size: 800px 100%;
+  animation: shimmer-bg 2s infinite linear;
+  border-radius: 0.5rem;
+}
+
+/* ── Hero Mesh Background ─────────────────────────────────── */
+.hero-mesh {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.hero-mesh::before {
+  content: '';
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(ellipse, rgba(216,207,188,0.35) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: drift-1 20s ease-in-out infinite;
+}
+
+.hero-mesh::after {
+  content: '';
+  position: absolute;
+  bottom: -10%;
+  left: -5%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(ellipse, rgba(86,84,73,0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: drift-2 25s ease-in-out infinite;
+}
+
+/* ── Tubelight Nav Active Indicator ──────────────────────── */
+.nav-link-active {
+  color: var(--pv-smoky);
+  font-weight: 700;
+}
+
+/* ── Prose Text Selection ─────────────────────────────────── */
+::selection {
+  background: rgba(86, 84, 73, 0.2);
+  color: var(--pv-smoky);
+}
+
+/* ── Chat Bubble Variants ─────────────────────────────────── */
+.chat-bubble-user {
+  background: var(--pv-smoky);
+  color: var(--pv-floral);
+  border-radius: 1rem 1rem 0.25rem 1rem;
+}
+
+.chat-bubble-ai {
+  background: #FFFFFF;
+  border: 1px solid var(--pv-bone);
+  color: var(--pv-smoky);
+  border-radius: 1rem 1rem 1rem 0.25rem;
+}
+
+/* ── Metric Cards ─────────────────────────────────────────── */
+.metric-card {
+  background: #FFFFFF;
+  border: 1px solid var(--pv-bone);
+  border-radius: var(--radius);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.metric-card:hover {
+  border-color: var(--pv-olive);
+  box-shadow: 0 6px 24px -4px rgba(17,18,13,0.10);
+  transform: translateY(-3px);
+}
+
+/* ── Striped Table Rows ───────────────────────────────────── */
+.table-row-even { background: #FFFFFF; }
+.table-row-odd  { background: var(--pv-floral); }
+
+/* ── Judicial AI Chat typing indicator ───────────────────── */
+@keyframes typing-dot {
+  0%, 80%, 100% { transform: scale(0.8); opacity: 0.4; }
+  40%            { transform: scale(1.1); opacity: 1; }
+}
+
+.typing-dot:nth-child(1) { animation: typing-dot 1.2s ease-in-out infinite 0ms; }
+.typing-dot:nth-child(2) { animation: typing-dot 1.2s ease-in-out infinite 150ms; }
+.typing-dot:nth-child(3) { animation: typing-dot 1.2s ease-in-out infinite 300ms; }
+
+/* ── Olive underline decoration ──────────────────────────── */
+.underline-olive {
+  position: relative;
+}
+.underline-olive::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--pv-olive);
+  border-radius: 1px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+.underline-olive:hover::after { transform: scaleX(1); }
+
+/* ── Verdict / Status Pills ──────────────────────────────── */
+.pill-verified {
+  background: rgba(17,18,13,0.06);
+  color: #11120D;
+  border: 1px solid rgba(17,18,13,0.15);
+  border-radius: 9999px;
+  padding: 2px 10px;
+  font-size: 0.6875rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 700;
+}
+
+.pill-active {
+  background: rgba(86,84,73,0.10);
+  color: #565449;
+  border: 1px solid rgba(86,84,73,0.25);
+  border-radius: 9999px;
+  padding: 2px 10px;
+  font-size: 0.6875rem;
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 700;
+}
+
+/* ── Sidebar Nav (Admin) ─────────────────────────────────── */
+.admin-tab-active {
+  background: var(--pv-smoky);
+  color: var(--pv-floral);
+  font-weight: 700;
+}
+
+.admin-tab-inactive {
+  background: transparent;
+  color: var(--pv-olive);
+  font-weight: 500;
+}
+
+.admin-tab-inactive:hover {
+  background: rgba(216,207,188,0.3);
+  color: var(--pv-smoky);
 }

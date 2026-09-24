@@ -1,7 +1,7 @@
-# SIH26190 — Secure Digital Document Management System
+# Proof Vault Project — Secure Digital Document Management System
 ## Prototype Implementation Plan (Internal Selection Round)
 
-**Problem Statement:** SIH26190 — Secure Digital Document Management System for Legal and Investigation Documents
+**Problem Statement:** Proof Vault Project — Secure Digital Document Management System for Legal and Investigation Documents
 **Ministry:** Ministry of Home Affairs · **Theme:** Smart Automation · **Category:** Software
 **Target:** Working demo prototype where every feature except horizontal scalability is genuinely implemented.
 
@@ -9,7 +9,7 @@
 
 # Part 0 — Corrections to the Current Report and Diagram
 
-These are issues I found while reading `SIH26190_Detailed_Report-1.md` against the architecture diagram. Several are things a sharp judge will attack, so fix them in the PPT *and* in the code.
+These are issues I found while reading `Proof Vault Project_Detailed_Report-1.md` against the architecture diagram. Several are things a sharp judge will attack, so fix them in the PPT *and* in the code.
 
 ## 0.1 Flow errors in the diagram
 
@@ -1168,4 +1168,4 @@ That last row is worth the effort: it turns "we used hybrid retrieval" from a cl
 
 ---
 
-*Prepared for SIH 2026 · PS SIH26190 · Ministry of Home Affairs*
+*Prepared for SIH 2026 · PS Proof Vault Project · Ministry of Home Affairs*

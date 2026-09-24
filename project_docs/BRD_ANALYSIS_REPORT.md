@@ -1,6 +1,6 @@
-# NYAYA-VAULT: Comprehensive BRD Specification & Architectural Analysis Report
+# Proof Vault: Comprehensive BRD Specification & Architectural Analysis Report
 
-**Document Reference:** SIH26190 — Secure Legal & Investigation Document Management System  
+**Document Reference:** Proof Vault Project — Secure Legal & Investigation Document Management System  
 **Authority Context:** Ministry of Home Affairs (MHA) / NCRB Guidelines  
 **Source Specification Folder:** `BRD(3)/`  
 **Analyzed Source Artifacts:**
@@ -22,7 +22,7 @@ The platform must cryptographically resolve:
 - **Chain of Custody:** Who accessed, transferred, redacted, or analyzed the evidence.
 - **Data-Plane Isolation:** The blockchain must strictly remain a trust anchor, **never** a document or PII storage store.
 
-### 1.2 Interoperability Boundary (What NYAYA-VAULT Complements vs Competes With)
+### 1.2 Interoperability Boundary (What Proof Vault Complements vs Competes With)
 As established in `BRD.md §2` and `PRD.md §2`:
 - **ICJS:** Integrates Police, Courts, Prisons, Forensics, and Prosecution.
 - **CCTNS:** Core police investigation workflows.
@@ -30,7 +30,7 @@ As established in `BRD.md §2` and `PRD.md §2`:
 - **e-Prosecution:** Prosecution docket management.
 - **e-Sakshya:** Primary digital evidence capture (crime scene audio/video).
 - **C-DAC DEMS:** Digital evidence custody management.
-- **NYAYA-VAULT Positioning:** Interoperable, high-assurance digital provenance and trust anchor layer providing cryptographic non-repudiation, envelope encryption, and verifiable on-chain anchoring across all pillars.
+- **Proof Vault Positioning:** Interoperable, high-assurance digital provenance and trust anchor layer providing cryptographic non-repudiation, envelope encryption, and verifiable on-chain anchoring across all pillars.
 
 ---
 

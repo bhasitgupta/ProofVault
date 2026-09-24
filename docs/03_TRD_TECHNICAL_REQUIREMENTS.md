@@ -1,4 +1,4 @@
-# Technical Requirements Document (TRD) - NYAYA-VAULT
+# Technical Requirements Document (TRD) - Proof Vault
 ## Architecture Specifications
 
 - **Backend**: FastAPI, Python 3.11, Pydantic v2, Web3.py, Cryptography AES-GCM

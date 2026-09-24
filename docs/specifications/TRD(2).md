@@ -1,8 +1,8 @@
-# TRD.md — NYAYA-VAULT
+# TRD.md — Proof Vault
 
 ## Technical Requirements & Reference Architecture
 
-**Project:** SIH26190 — Secure Digital Document Management System for
+**Project:** Proof Vault Project — Secure Digital Document Management System for
 Legal and Investigation Documents  
 **Architecture Target:** Government Enterprise / Security-Sensitive  
 **Primary Architecture:** API-first, zero-trust, modular service
@@ -708,7 +708,7 @@ SIEM Adapter
 Canonical Integration API
        |
        v
-NYAYA-VAULT
+Proof Vault
 ```
 
 Each adapter must support:

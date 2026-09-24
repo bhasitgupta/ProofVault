@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <!-- Outer hexagon -->
+  <polygon points="50,4 92,27 92,73 50,96 8,73 8,27" fill="#11120D"/>
+  <!-- Inner ring gap (bone color) -->
+  <polygon points="50,12 84,31 84,69 50,88 16,69 16,31" fill="#D8CFBC"/>
+  <!-- Inner hexagon fill -->
+  <polygon points="50,20 76,35 76,65 50,80 24,65 24,35" fill="#11120D"/>
+  <!-- Vault door cut (right side gap) -->
+  <rect x="76" y="43" width="16" height="14" fill="#D8CFBC"/>
+  <!-- Document icon -->
+  <rect x="36" y="34" width="22" height="28" rx="2" fill="#D8CFBC"/>
+  <line x1="40" y1="43" x2="54" y2="43" stroke="#11120D" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="40" y1="49" x2="54" y2="49" stroke="#11120D" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Check mark -->
+  <polyline points="39,56 44,61 56,50" stroke="#565449" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

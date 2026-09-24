@@ -1,7 +1,7 @@
 const hre = require("hardhat");
 
 async function main() {
-  console.log("--> Initiating NYAYA-VAULT Smart Contract Deployment to Polygon Amoy (ChainId 80002)...");
+  console.log("--> Initiating Proof Vault Smart Contract Deployment to Polygon Amoy (ChainId 80002)...");
   console.log("--> Standard: Strict TRD §12.1 Specification (EvidenceRegistry & ProvenanceRegistry)");
 
   const [deployer] = await hre.ethers.getSigners();
@@ -21,7 +21,7 @@ async function main() {
   const provenanceAddr = await provenanceRegistry.getAddress();
   console.log("--> 2. ProvenanceRegistry deployed at:", provenanceAddr);
 
-  console.log("\n--> Both NYAYA-VAULT TRD §12.1 smart contracts deployed successfully to Polygon Amoy!");
+  console.log("\n--> Both Proof Vault TRD §12.1 smart contracts deployed successfully to Polygon Amoy!");
   console.log("\nConfiguration environment snippet:");
   console.log(`POLYGON_EVIDENCE_REGISTRY_ADDRESS=${evidenceAddr}`);
   console.log(`POLYGON_PROVENANCE_REGISTRY_ADDRESS=${provenanceAddr}`);

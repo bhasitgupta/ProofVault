@@ -1,9 +1,9 @@
-# Test.md — NYAYA-VAULT
+# Test.md — Proof Vault
 
 ## Test Strategy, Test Plan & Acceptance Suite
 
-**System:** NYAYA-VAULT  
-**SIH:** SIH26190  
+**System:** Proof Vault  
+**SIH:** Proof Vault Project  
 **Target:** Government Enterprise / Security-Sensitive  
 **Test Data:** Synthetic and authorized non-sensitive datasets only
 

@@ -1,13 +1,13 @@
-# PRD.md — NYAYA-VAULT
+# PRD.md — Proof Vault
 
 ## Secure Digital Document & Evidence Provenance Platform for Legal and Investigation Records
 
-**Project:** Smart India Hackathon 2026 — SIH26190  
+**Project:** Digital Evidence Platform 2026 — Proof Vault Project  
 **Problem Statement:** Secure Digital Document Management System for
 Legal and Investigation Documents  
 **Sponsor / Department:** Ministry of Home Affairs / National Crime
 Records Bureau (NCRB), Women Safety Division  
-**Product Working Name:** NYAYA-VAULT  
+**Product Working Name:** Proof Vault  
 **Document Status:** Draft — SIH 2026 / Government Enterprise
 Architecture Concept  
 **Security Posture:** Security-sensitive / confidential-data capable;
@@ -24,17 +24,17 @@ e-Forensics, e-Prosecution, e-Sakshya, NAFIS or C-DAC DEMS.
 
 ## 1. Executive Summary
 
-SIH26190 asks for a secure, scalable and intelligent digital document
+Proof Vault Project asks for a secure, scalable and intelligent digital document
 management system for legal and investigation documents. The statement
 identifies fragmented records, difficult retrieval, unauthorized access,
 tampering risk, weak version control, inefficient collaboration, delays,
 and poor auditability/compliance as the core problem.
 
-The proposed product is **NYAYA-VAULT**, an enterprise
+The proposed product is **Proof Vault**, an enterprise
 document-and-provenance platform designed as a **trust layer around
 India's existing criminal-justice digital ecosystem**.
 
-NYAYA-VAULT does not attempt to become a replacement for ICJS or an
+Proof Vault does not attempt to become a replacement for ICJS or an
 alternative national evidence-collection system. Instead, it provides a
 controlled document lifecycle and evidence-provenance layer that can:
 
@@ -87,7 +87,7 @@ MinIO/S3-compatible storage, Keycloak, OCR, local LLMs and Hyperledger
 Fabric. The blockchain choice is intentionally revised in this project
 to **Polygon**, while preserving the off-chain evidence-storage model.
 
-### Existing government ecosystem that NYAYA-VAULT must complement
+### Existing government ecosystem that Proof Vault must complement
 
 1.  **ICJS** already integrates Police/CCTNS, Courts/e-Courts,
     Prisons/e-Prisons, Forensics/e-Forensics and
@@ -161,7 +161,7 @@ also:
 verifiable identity, controlled lifecycle and independently checkable
 provenance.”**
 
-NYAYA-VAULT should make document integrity and access accountability
+Proof Vault should make document integrity and access accountability
 **system properties**, not manual responsibilities.
 
 ------------------------------------------------------------------------
@@ -214,7 +214,7 @@ partitioning.
 
 ## 6. Non-Goals
 
-NYAYA-VAULT is not intended to:
+Proof Vault is not intended to:
 
 - replace ICJS;
 - replace CCTNS;
@@ -658,16 +658,16 @@ evaluator can:
 
 ## 17. Source Integrity Note
 
-The supplied SIH sample deck contains the working NYAYA-VAULT concept
+The supplied SIH sample deck contains the working Proof Vault concept
 and original Hyperledger-based stack. It is a team working artifact, not
 itself the government system specification.
 
-The publicly mirrored SIH26190 statement contains an apparent
+The publicly mirrored Proof Vault Project statement contains an apparent
 inconsistency: the main body describes a legal/investigation DMS, while
 the final “Expected Solution” line in several mirrors refers to
 monitoring and managing police assets through their lifecycle. This
 conflict must be verified against the official SIH portal before
 treating the stray asset-management sentence as a requirement. This PRD
-is based on the main SIH26190 body and title because those sections
+is based on the main Proof Vault Project body and title because those sections
 consistently describe the legal/investigation document-management
 problem.
