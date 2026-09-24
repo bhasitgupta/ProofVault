@@ -4,3 +4,5 @@ export default {
     autoprefixer: {},
   },
 };
+
+// PostCSS configuration loading Tailwind CSS and Autoprefixer plugins
