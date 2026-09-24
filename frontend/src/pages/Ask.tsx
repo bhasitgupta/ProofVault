@@ -203,7 +203,7 @@ export const AskPage: React.FC = () => {
             <Gavel className="w-5 h-5" style={{ color: '#D8CFBC' }} />
             <span
               className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full ring-2"
-              style={{ background: '#565449', ringColor: '#11120D' }}
+              style={{ background: '#565449' }}
             />
           </div>
           <div>

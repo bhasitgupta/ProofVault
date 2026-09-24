@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
-import { Folder, Upload, HelpCircle, ShieldAlert, LogOut, FileText, Lock } from 'lucide-react';
+import { Scale, Folder, Upload, HelpCircle, ShieldAlert, LogOut, FileText, Lock } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { LandingPage } from './pages/Landing';
 import { Login } from './pages/Login';
@@ -125,9 +125,9 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
             <span>Proof Vault · Electronic Evidence Management · BSA §63 &amp; IEA §65B Admissible</span>
           </div>
           <div className="text-[11px] flex items-center gap-2">
-            <span>Polygon Amoy Network</span>
+            <span>Blockchain EVM</span>
             <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#565449' }}></span>
-            <span>Deterministic EVM Storage</span>
+            <span>Deterministic Evidence Storage</span>
           </div>
         </div>
       </footer>
