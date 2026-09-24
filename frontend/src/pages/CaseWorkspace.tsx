@@ -21,15 +21,18 @@ import {
   Copy,
   Check,
   RefreshCw,
-  AlertTriangle
+  AlertTriangle,
+  ShieldCheck
 } from 'lucide-react';
 import { getCases, createCase, updateCaseStatus, recordCustodyEvent } from '../api/audit';
 import { Case } from '../lib/types';
 import { formatClassificationBadge } from '../lib/format';
-import { ensurePolygonAmoyNetwork, POLYGONSCAN_BASE, PROVENANCE_REGISTRY_ADDR, anchorCaseOnChain } from '../lib/polygon';
+import { ensurePolygonAmoyNetwork, POLYGONSCAN_BASE, PROVENANCE_REGISTRY_ADDR, anchorCaseOnChain, anchorCustodyTransferOnChain } from '../lib/polygon';
 import { ethers } from 'ethers';
 
-const EVIDENCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_EVIDENCE_REGISTRY as string) || '0xC15D29c23C72c7E6301AeD190F2FD186372b7DBe';
+const SUPABASE_URL = ((import.meta as any).env?.VITE_SUPABASE_URL as string) || 'https://kraxwwwkhprczuiqkxuw.supabase.co';
+const SUPABASE_KEY = ((import.meta as any).env?.VITE_SUPABASE_ANON_KEY as string) || 'sb_publishable_yBEvcnfdSVjN_5ZlxSw_5w_bDe53Czq';
+const EVIDENCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_EVIDENCE_REGISTRY as string) || '0xF022e8E8E7FD5d565fAb24dC74B6fAc1c8760a01';
 
 export const CaseWorkspace: React.FC = () => {
   const [cases, setCases] = useState<Case[]>([]);
@@ -59,12 +62,13 @@ export const CaseWorkspace: React.FC = () => {
   const [transferOfficerId, setTransferOfficerId] = useState('');
   const [transferReason, setTransferReason] = useState('');
   const [transferring, setTransferring] = useState(false);
+  const [transferError, setTransferError] = useState<string | null>(null);
 
   // Chain anchor toast
-  const [chainToast, setChainToast] = useState<{ caseId: string; txHash: string; url: string } | null>(null);
-  const showChainToast = (caseId: string, txHash: string) => {
+  const [chainToast, setChainToast] = useState<{ caseId: string; txHash: string; url: string; title?: string; subtitle?: string } | null>(null);
+  const showChainToast = (caseId: string, txHash: string, title = 'Anchored on Polygon Amoy ✓', subtitle = '') => {
     const url = `${POLYGONSCAN_BASE}/tx/${txHash}`;
-    setChainToast({ caseId, txHash, url });
+    setChainToast({ caseId, txHash, url, title, subtitle });
     setTimeout(() => setChainToast(null), 12000);
   };
 
@@ -106,7 +110,7 @@ export const CaseWorkspace: React.FC = () => {
       );
       setCases(prev => prev.map(item => (item.case_id === c.case_id ? { ...item, status: newStatus } : item)));
     } catch (err: any) {
-      alert(`Status update failed: ${err.message}`);
+      setFormError(`Status update failed: ${err.message}`);
     }
   };
 
@@ -138,7 +142,7 @@ export const CaseWorkspace: React.FC = () => {
       setNewCaseId('');
       setNewCaseTitle('');
       setNewCaseDesc('');
-      showChainToast(caseIdNorm, txHash);
+      showChainToast(caseIdNorm, txHash, 'Docket Anchored on Polygon Amoy ✓', `Case ${caseIdNorm} permanently registered on-chain`);
     } catch (err: any) {
       setFormError(err.message || 'Failed to initialize case on Polygon blockchain');
     } finally {
@@ -146,16 +150,27 @@ export const CaseWorkspace: React.FC = () => {
     }
   };
 
-
-
   const handleTransferSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activeTransferCase || !transferOfficerId.trim()) {
-      alert('Recipient Officer ID is required');
+    if (!activeTransferCase) return;
+    if (!transferOfficerId.trim()) {
+      setTransferError('Recipient Officer ID is required');
       return;
     }
     setTransferring(true);
+    setTransferError(null);
     try {
+      // Step 1: Enforce on-chain custody transfer on Polygon Amoy via MetaMask wallet popup
+      const { txHash, explorerUrl } = await anchorCustodyTransferOnChain({
+        caseId: activeTransferCase.case_id,
+        fromMsp: activeTransferCase.owning_msp || 'PoliceMSP',
+        toMsp: transferToMsp,
+        recipientOfficerId: transferOfficerId.trim(),
+        reason: transferReason.trim(),
+      });
+      console.info(`[Chain] anchorCustodyTransferOnChain(${activeTransferCase.case_id}) confirmed: ${txHash}`);
+
+      // Step 2: Record custody event in database with immutable on-chain tx reference
       await recordCustodyEvent({
         actorId: localStorage.getItem('sdms_user_id') || 'USR-001',
         actorRole: 'INVESTIGATOR',
@@ -163,14 +178,41 @@ export const CaseWorkspace: React.FC = () => {
         action: 'CUSTODY_TRANSFER',
         caseId: activeTransferCase.case_id,
         outcome: 'ALLOW',
-        reason: `Formal evidentiary custody transferred to ${transferToMsp} (Officer: ${transferOfficerId}). Purpose: ${transferReason || 'Statutory Forensic Evaluation'}`,
+        reason: `Formal evidentiary custody transferred to ${transferToMsp} (Officer: ${transferOfficerId.trim()}). Purpose: ${transferReason.trim() || 'Statutory Forensic Evaluation'}`,
+        ledgerTxId: txHash,
       });
-      alert(`Evidentiary custody for ${activeTransferCase.case_id} transferred to ${transferToMsp}`);
+
+      // Step 3: Update case owning_msp in Supabase
+      try {
+        await fetch(`${SUPABASE_URL}/rest/v1/cases?case_id=eq.${encodeURIComponent(activeTransferCase.case_id)}`, {
+          method: 'PATCH',
+          headers: {
+            apikey: SUPABASE_KEY,
+            Authorization: `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            owning_msp: transferToMsp,
+            updated_at: new Date().toISOString(),
+          }),
+        });
+      } catch (dbErr) {
+        console.warn('Failed to update case owning_msp in database:', dbErr);
+      }
+
+      // Step 4: Update local state & show elegant on-chain toast (no browser alert())
+      setCases(prev => prev.map(item => (item.case_id === activeTransferCase.case_id ? { ...item, owning_msp: transferToMsp } : item)));
       setIsTransferModalOpen(false);
       setTransferReason('');
       setTransferOfficerId('');
+      showChainToast(
+        activeTransferCase.case_id,
+        txHash,
+        'Custody Transferred on Polygon Amoy ✓',
+        `Transferred from ${activeTransferCase.owning_msp || 'PoliceMSP'} to ${transferToMsp} (Officer ${transferOfficerId.trim()})`
+      );
     } catch (err: any) {
-      alert(`Transfer failed: ${err.message}`);
+      setTransferError(err.message || 'Custody transfer failed on Polygon blockchain');
     } finally {
       setTransferring(false);
     }
@@ -723,6 +765,12 @@ export const CaseWorkspace: React.FC = () => {
               </div>
             </div>
 
+            {transferError && (
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-800">
+                {transferError}
+              </div>
+            )}
+
             <form onSubmit={handleTransferSubmit} className="space-y-3.5 text-xs">
               <div>
                 <label className="font-bold text-stone-700 font-mono uppercase text-[11px] block mb-1">
@@ -767,6 +815,14 @@ export const CaseWorkspace: React.FC = () => {
                 />
               </div>
 
+              <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl flex items-center justify-between text-xs text-stone-800">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-emerald-700 flex-shrink-0" />
+                  <span>On-Chain Custody Transfer: Signs and anchors immutable transfer log to <strong>Polygon Amoy (80002)</strong>.</span>
+                </div>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300 font-bold ml-2">METAMASK</span>
+              </div>
+
               <div className="pt-3 border-t border-stone-200 flex items-center justify-end gap-2">
                 <button
                   type="button"
@@ -778,9 +834,19 @@ export const CaseWorkspace: React.FC = () => {
                 <button
                   type="submit"
                   disabled={transferring}
-                  className="px-5 py-2 bg-indigo-700 hover:bg-indigo-600 text-white font-semibold rounded-xl text-xs shadow-sm cursor-pointer disabled:opacity-50"
+                  className="flex items-center gap-2 px-5 py-2 bg-indigo-700 hover:bg-indigo-600 disabled:opacity-50 text-white font-semibold rounded-xl text-xs shadow-sm cursor-pointer"
                 >
-                  {transferring ? 'Recording Transfer...' : 'Sign & Record Custody Transfer'}
+                  {transferring ? (
+                    <>
+                      <span className="inline-block w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      <span>Awaiting MetaMask & Anchoring...</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>Sign & Record Custody Transfer</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>
