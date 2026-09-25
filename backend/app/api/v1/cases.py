@@ -28,6 +28,7 @@ class CreateCaseRequest(BaseModel):
 class AssignUserRequest(BaseModel):
     user_id: str
     case_id: str
+    blockchain_tx: Optional[str] = None
 
 
 @router.post("", status_code=status.HTTP_201_CREATED)

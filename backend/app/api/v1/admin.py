@@ -376,6 +376,7 @@ class CreateCaseRequest(BaseModel):
 
 class AssignUserRequest(BaseModel):
     user_id: str
+    blockchain_tx: Optional[str] = None
 
 
 @router.get("/cases")

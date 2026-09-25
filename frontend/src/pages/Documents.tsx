@@ -302,7 +302,7 @@ export const DocumentsPage: React.FC = () => {
     <div className="space-y-8 max-w-[1600px] mx-auto pb-16">
       {/* In-app notification toast */}
       {docToast && (
-        <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999, maxWidth: '420px' }}>
+        <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 9999, maxWidth: '420px', animation: 'slideInRight 0.3s ease' }}>
           <div style={{
             background: docToast.type === 'error' ? 'linear-gradient(135deg, #1c1917 0%, #3f1717 100%)' : 'linear-gradient(135deg, #0f172a 0%, #1e3a2f 100%)',
             border: docToast.type === 'error' ? '1px solid #ef4444' : '1px solid #22c55e',

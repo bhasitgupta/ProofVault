@@ -33,7 +33,7 @@ import { apiFetch } from '../api/client';
 import { useAuth } from '../hooks/useAuth';
 import { getAIProviderConfigs } from '../api/query';
 import { recordCustodyEvent } from '../api/audit';
-import { ensurePolygonAmoyNetwork, POLYGONSCAN_BASE, PROVENANCE_REGISTRY_ADDR, anchorCaseOnChain, anchorOfficialOnChain, anchorRoleChangeOnChain } from '../lib/polygon';
+import { ensurePolygonAmoyNetwork, POLYGONSCAN_BASE, PROVENANCE_REGISTRY_ADDR, anchorCaseOnChain, anchorOfficialOnChain, anchorRoleChangeOnChain, anchorCaseAssignmentOnChain, anchorCaseRevocationOnChain } from '../lib/polygon';
 import { ethers } from 'ethers';
 
 const SUPABASE_URL = ((import.meta as any).env?.VITE_SUPABASE_URL as string) || 'https://kraxwwwkhprczuiqkxuw.supabase.co';
@@ -194,6 +194,9 @@ export const AdminPage: React.FC = () => {
   const [caseAssignments, setCaseAssignments] = useState<Record<string, any[]>>({});
   const [assignUserId, setAssignUserId] = useState('');
   const [assignError, setAssignError] = useState<string | null>(null);
+  const [assignLoading, setAssignLoading] = useState(false);
+  const [assigningCaseId, setAssigningCaseId] = useState<string | null>(null);
+  const [revokingKey, setRevokingKey] = useState<string | null>(null);
 
   // Create User form
   const [showCreateUser, setShowCreateUser] = useState(false);
@@ -618,72 +621,103 @@ export const AdminPage: React.FC = () => {
   const handleAssign = async (caseId: string) => {
     if (!assignUserId.trim()) return;
     setAssignError(null);
+    setAssignLoading(true);
+    setAssigningCaseId(caseId);
     const targetUserId = assignUserId.trim();
-    let assigned = false;
+    const targetUser = users.find((u) => u.id === targetUserId);
 
-    // 1. Try FastAPI backend
     try {
-      await apiFetch(`/admin/cases/${caseId}/assign`, {
-        method: 'POST',
-        body: JSON.stringify({ user_id: targetUserId }),
+      // Step 1: Enforce on-chain case assignment on Polygon Amoy via MetaMask wallet popup
+      const { txHash, explorerUrl } = await anchorCaseAssignmentOnChain({
+        caseId,
+        userId: targetUserId,
+        role: targetUser?.role || 'OFFICER',
+        adminId: user?.id || localStorage.getItem('sdms_user_id') || 'ADMIN',
       });
-      assigned = true;
-    } catch (backendErr) {
-      console.warn('Backend assign failed, attempting Supabase direct fallback:', backendErr);
-    }
+      console.info(`[Chain] anchorCaseAssignmentOnChain(${caseId}, ${targetUserId}) confirmed: ${txHash}`);
 
-    // 2. Direct Supabase fallback
-    if (!assigned) {
+      // Step 2: Show on-chain toast banner
+      showChainToast(caseId, txHash, 'Official Assigned on Polygon Amoy ✓', 'Assignment');
+
+      // Step 3: Try FastAPI backend
+      let assigned = false;
       try {
-        const checkRes = await fetch(
-          `${SUPABASE_URL}/rest/v1/assignments?case_id=eq.${encodeURIComponent(caseId)}&user_id=eq.${encodeURIComponent(targetUserId)}`,
-          {
-            headers: {
-              apikey: SUPABASE_KEY,
-              Authorization: `Bearer ${SUPABASE_KEY}`,
-            },
-          }
-        );
-        const existing = checkRes.ok ? await checkRes.json() : [];
-        if (existing && existing.length > 0) {
-          await fetch(
+        await apiFetch(`/admin/cases/${caseId}/assign`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: targetUserId, blockchain_tx: txHash }),
+        });
+        assigned = true;
+      } catch (backendErr) {
+        console.warn('Backend assign failed, attempting Supabase direct fallback:', backendErr);
+      }
+
+      // Step 4: Direct Supabase fallback
+      if (!assigned) {
+        try {
+          const checkRes = await fetch(
             `${SUPABASE_URL}/rest/v1/assignments?case_id=eq.${encodeURIComponent(caseId)}&user_id=eq.${encodeURIComponent(targetUserId)}`,
             {
-              method: 'PATCH',
+              headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`,
+              },
+            }
+          );
+          const existing = checkRes.ok ? await checkRes.json() : [];
+          if (existing && existing.length > 0) {
+            await fetch(
+              `${SUPABASE_URL}/rest/v1/assignments?case_id=eq.${encodeURIComponent(caseId)}&user_id=eq.${encodeURIComponent(targetUserId)}`,
+              {
+                method: 'PATCH',
+                headers: {
+                  apikey: SUPABASE_KEY,
+                  Authorization: `Bearer ${SUPABASE_KEY}`,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ is_active: true }),
+              }
+            );
+          } else {
+            await fetch(`${SUPABASE_URL}/rest/v1/assignments`, {
+              method: 'POST',
               headers: {
                 apikey: SUPABASE_KEY,
                 Authorization: `Bearer ${SUPABASE_KEY}`,
                 'Content-Type': 'application/json',
+                Prefer: 'return=representation',
               },
-              body: JSON.stringify({ is_active: true }),
-            }
-          );
-        } else {
-          await fetch(`${SUPABASE_URL}/rest/v1/assignments`, {
-            method: 'POST',
-            headers: {
-              apikey: SUPABASE_KEY,
-              Authorization: `Bearer ${SUPABASE_KEY}`,
-              'Content-Type': 'application/json',
-              Prefer: 'return=representation',
-            },
-            body: JSON.stringify({
-              id: `asgn_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-              user_id: targetUserId,
-              case_id: caseId,
-              is_active: true,
-            }),
-          });
+              body: JSON.stringify({
+                id: `asgn_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+                user_id: targetUserId,
+                case_id: caseId,
+                is_active: true,
+              }),
+            });
+          }
+          assigned = true;
+        } catch (supaErr: any) {
+          console.error('Supabase assignment fallback failed:', supaErr);
         }
-        assigned = true;
-      } catch (supaErr: any) {
-        setAssignError(supaErr.message || 'Failed to assign official');
-        return;
       }
-    }
 
-    // 3. Reload assignments
-    try {
+      // Step 5: Write immutable audit log with transaction hash
+      try {
+        await recordCustodyEvent({
+          actorId: localStorage.getItem('sdms_user_id') || user?.id || 'ADMIN',
+          actorRole: user?.role || 'ADMIN',
+          actorMSP: user?.msp_id || 'PoliceMSP',
+          action: 'OFFICIAL_ASSIGNED',
+          caseId: caseId,
+          outcome: 'ALLOW',
+          reason: `Official ${targetUserId} (${targetUser?.username || 'Unknown'}) assigned to case ${caseId} on Polygon Amoy EVM.`,
+          ledgerTxId: txHash,
+        });
+      } catch (auditErr) {
+        console.warn('Audit log write failed:', auditErr);
+      }
+
+      // Step 6: Reload assignments
       let assignments: any[] = [];
       try {
         assignments = await apiFetch<any[]>(`/admin/cases/${caseId}/assignments`);
@@ -693,38 +727,72 @@ export const AdminPage: React.FC = () => {
       setCaseAssignments((prev) => ({ ...prev, [caseId]: assignments }));
       setAssignUserId('');
       await loadAdminData();
+      showAppToast(`Official assigned to ${caseId} & anchored on Polygon Amoy`, 'success');
     } catch (err: any) {
-      setAssignError(err.message || 'Failed to refresh assignments');
+      console.error('Failed to assign official on-chain:', err);
+      setAssignError(err.message || 'Failed to assign official on Polygon blockchain');
+      showAppToast(err.message || 'Blockchain assignment failed', 'error');
+    } finally {
+      setAssignLoading(false);
+      setAssigningCaseId(null);
     }
   };
 
   const handleRevoke = async (caseId: string, userId: string) => {
-    let revoked = false;
+    const key = `${caseId}_${userId}`;
+    setRevokingKey(key);
     try {
-      await apiFetch(`/admin/cases/${caseId}/assign/${userId}`, { method: 'DELETE' });
-      revoked = true;
-    } catch {
-      try {
-        await fetch(
-          `${SUPABASE_URL}/rest/v1/assignments?case_id=eq.${encodeURIComponent(caseId)}&user_id=eq.${encodeURIComponent(userId)}`,
-          {
-            method: 'PATCH',
-            headers: {
-              apikey: SUPABASE_KEY,
-              Authorization: `Bearer ${SUPABASE_KEY}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ is_active: false }),
-          }
-        );
-        revoked = true;
-      } catch (supaErr: any) {
-        showAppToast(supaErr.message || 'Failed to revoke assignment', 'error');
-        return;
-      }
-    }
+      // Step 1: Enforce on-chain revocation on Polygon Amoy via MetaMask wallet popup
+      const { txHash, explorerUrl } = await anchorCaseRevocationOnChain({
+        caseId,
+        userId,
+        adminId: user?.id || localStorage.getItem('sdms_user_id') || 'ADMIN',
+      });
+      console.info(`[Chain] anchorCaseRevocationOnChain(${caseId}, ${userId}) confirmed: ${txHash}`);
 
-    try {
+      // Step 2: Show on-chain toast banner
+      showChainToast(caseId, txHash, 'Revocation Anchored on Polygon Amoy ✓', 'Revocation');
+
+      let revoked = false;
+      try {
+        await apiFetch(`/admin/cases/${caseId}/assign/${userId}`, { method: 'DELETE' });
+        revoked = true;
+      } catch {
+        try {
+          await fetch(
+            `${SUPABASE_URL}/rest/v1/assignments?case_id=eq.${encodeURIComponent(caseId)}&user_id=eq.${encodeURIComponent(userId)}`,
+            {
+              method: 'PATCH',
+              headers: {
+                apikey: SUPABASE_KEY,
+                Authorization: `Bearer ${SUPABASE_KEY}`,
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ is_active: false }),
+            }
+          );
+          revoked = true;
+        } catch (supaErr: any) {
+          console.error('Supabase revocation fallback failed:', supaErr);
+        }
+      }
+
+      // Step 3: Write immutable audit log
+      try {
+        await recordCustodyEvent({
+          actorId: localStorage.getItem('sdms_user_id') || user?.id || 'ADMIN',
+          actorRole: user?.role || 'ADMIN',
+          actorMSP: user?.msp_id || 'PoliceMSP',
+          action: 'ASSIGNMENT_REVOKED',
+          caseId: caseId,
+          outcome: 'ALLOW',
+          reason: `Assignment for official ${userId} on case ${caseId} revoked on Polygon Amoy EVM.`,
+          ledgerTxId: txHash,
+        });
+      } catch (auditErr) {
+        console.warn('Audit log write failed:', auditErr);
+      }
+
       let assignments: any[] = [];
       try {
         assignments = await apiFetch<any[]>(`/admin/cases/${caseId}/assignments`);
@@ -733,9 +801,12 @@ export const AdminPage: React.FC = () => {
       }
       setCaseAssignments((prev) => ({ ...prev, [caseId]: assignments }));
       await loadAdminData();
-      showAppToast('Official assignment revoked successfully', 'success');
+      showAppToast(`Official access revoked & anchored on Polygon Amoy`, 'success');
     } catch (err: any) {
-      showAppToast(err.message || 'Failed to revoke assignment', 'error');
+      console.error('Failed to revoke assignment on-chain:', err);
+      showAppToast(err.message || 'Failed to revoke assignment on Polygon blockchain', 'error');
+    } finally {
+      setRevokingKey(null);
     }
   };
 
@@ -864,7 +935,7 @@ export const AdminPage: React.FC = () => {
 
       {/* Chain Anchor Toast — shown after successful Polygon Amoy TX */}
       {chainToast && (
-        <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999, maxWidth: '420px', animation: 'slideInRight 0.3s ease' }}>
+        <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 9999, maxWidth: '420px', animation: 'slideInRight 0.3s ease' }}>
           <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a2f 100%)', border: '1px solid #22c55e', borderRadius: '14px', padding: '16px 20px', boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 30px rgba(34,197,94,0.15)', color: '#fff' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
               <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(34,197,94,0.15)', border: '1px solid #22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -888,7 +959,7 @@ export const AdminPage: React.FC = () => {
 
       {/* App Notification Toast — clean modern banner replacing browser alert() */}
       {appToast && (
-        <div style={{ position: 'fixed', top: chainToast ? '160px' : '20px', right: '20px', zIndex: 9998, maxWidth: '420px', animation: 'slideInRight 0.3s ease' }}>
+        <div style={{ position: 'fixed', bottom: chainToast ? '160px' : '24px', right: '24px', zIndex: 9998, maxWidth: '420px', animation: 'slideInRight 0.3s ease' }}>
           <div style={{
             background: appToast.type === 'success' ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' : 'linear-gradient(135deg, #450a0a 0%, #1e1b1b 100%)',
             border: `1px solid ${appToast.type === 'success' ? '#22c55e' : '#f43f5e'}`,
@@ -1373,10 +1444,15 @@ export const AdminPage: React.FC = () => {
                                       {a.is_active && (
                                         <button
                                           onClick={() => handleRevoke(c.case_id, a.user_id)}
-                                          className="ml-1 text-rose-600 hover:text-rose-800"
-                                          title="Revoke access"
+                                          disabled={revokingKey === `${c.case_id}_${a.user_id}`}
+                                          className="ml-1 text-rose-600 hover:text-rose-800 disabled:opacity-50"
+                                          title="Revoke access on Polygon blockchain"
                                         >
-                                          <UserMinus className="w-3 h-3" />
+                                          {revokingKey === `${c.case_id}_${a.user_id}` ? (
+                                            <RefreshCw className="w-3 h-3 animate-spin text-rose-600" />
+                                          ) : (
+                                            <UserMinus className="w-3 h-3" />
+                                          )}
                                         </button>
                                       )}
                                     </div>
@@ -1388,9 +1464,10 @@ export const AdminPage: React.FC = () => {
                             {/* Assign new user */}
                             <div className="flex items-center gap-2 mt-2">
                               <select
-                                className="bg-white border border-stone-200 rounded-xl px-3 py-1.5 text-xs text-stone-800 font-mono focus:outline-none focus:border-crimson-700 flex-1 shadow-sm"
+                                className="bg-white border border-stone-200 rounded-xl px-3 py-1.5 text-xs text-stone-800 font-mono focus:outline-none focus:border-crimson-700 flex-1 shadow-sm disabled:opacity-60"
                                 value={assignUserId}
                                 onChange={(e) => { setAssignUserId(e.target.value); setAssignError(null); }}
+                                disabled={assignLoading}
                               >
                                 <option value="">— Select official to assign —</option>
                                 {users.filter((u) => u.is_active).map((u) => (
@@ -1401,10 +1478,20 @@ export const AdminPage: React.FC = () => {
                               </select>
                               <button
                                 onClick={() => handleAssign(c.case_id)}
-                                disabled={!assignUserId}
-                                className="flex items-center gap-1 px-3.5 py-1.5 bg-crimson-800 hover:bg-crimson-700 disabled:opacity-40 text-white text-xs font-semibold rounded-xl shadow-sm"
+                                disabled={!assignUserId || assignLoading}
+                                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-crimson-800 hover:bg-crimson-700 disabled:opacity-40 text-white text-xs font-semibold rounded-xl shadow-sm transition-all"
                               >
-                                <UserPlus className="w-3 h-3" /> Assign
+                                {assignLoading && assigningCaseId === c.case_id ? (
+                                  <>
+                                    <RefreshCw className="w-3 h-3 animate-spin" />
+                                    <span>Anchoring On-Chain...</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <UserPlus className="w-3 h-3" />
+                                    <span>Assign On-Chain</span>
+                                  </>
+                                )}
                               </button>
                             </div>
 

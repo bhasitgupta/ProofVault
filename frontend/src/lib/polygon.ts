@@ -2,7 +2,12 @@ import { ethers } from 'ethers';
 
 export const POLYGON_AMOY_CHAIN_ID = 80002;
 export const POLYGON_AMOY_CHAIN_HEX = '0x13882';
-export const POLYGON_AMOY_RPC = ((import.meta as any).env?.VITE_POLYGON_RPC_URL as string) || 'https://polygon-amoy-bor-rpc.publicnode.com';
+export const POLYGON_AMOY_RPCS = [
+  'https://polygon-amoy.drpc.org',
+  'https://80002.rpc.thirdweb.com',
+  'https://polygon-amoy-bor-rpc.publicnode.com',
+];
+export const POLYGON_AMOY_RPC = ((import.meta as any).env?.VITE_POLYGON_RPC_URL as string) || POLYGON_AMOY_RPCS[0];
 export const EVIDENCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_EVIDENCE_REGISTRY as string) || '0xF022e8E8E7FD5d565fAb24dC74B6fAc1c8760a01';
 export const PROVENANCE_REGISTRY_ADDR = ((import.meta as any).env?.VITE_POLYGON_PROVENANCE_REGISTRY as string) || '0x11A0a778303196d735B9cCdE62eB5bC5B29a855a';
 export const POLYGONSCAN_BASE = 'https://amoy.polygonscan.com';
@@ -27,6 +32,80 @@ export const PROVENANCE_REGISTRY_ABI = [
   'function getTotalCasesAnchored() external view returns (uint256)',
   'event CaseAnchored(bytes32 indexed caseIdHash, string caseId, address indexed anchoredBy, uint256 timestamp)'
 ];
+
+/**
+ * Executes a JSON-RPC contract call with automatic fallback across multi-RPC pool.
+ */
+export async function withRpcFallback<T>(fn: (provider: ethers.JsonRpcProvider) => Promise<T>): Promise<T> {
+  const pool = [POLYGON_AMOY_RPC, ...POLYGON_AMOY_RPCS.filter((r) => r !== POLYGON_AMOY_RPC)];
+  let lastErr: any = null;
+  for (const rpc of pool) {
+    try {
+      const provider = new ethers.JsonRpcProvider(rpc);
+      return await fn(provider);
+    } catch (err: any) {
+      lastErr = err;
+      console.warn(`[Polygon RPC] ${rpc} failed or rate limited, trying next fallback:`, err?.message || err);
+    }
+  }
+  throw lastErr || new Error('All Polygon Amoy RPC endpoints failed.');
+}
+
+/**
+ * Calculates a safe gas limit with 40% margin, subject to a minimum of 500,000 gas.
+ * Prevents on-chain out-of-gas reverts when writing long audit strings.
+ */
+export async function estimateSafeGasLimit(eth: any, from: string, to: string, data: string): Promise<string> {
+  const MIN_SAFE_GAS = 500000n; // 500,000 gas minimum
+  try {
+    const est = await eth.request({
+      method: 'eth_estimateGas',
+      params: [{ from, to, data }],
+    });
+    if (est) {
+      const estimated = BigInt(est);
+      const withBuffer = (estimated * 140n) / 100n;
+      const finalGas = withBuffer > MIN_SAFE_GAS ? withBuffer : MIN_SAFE_GAS;
+      return '0x' + finalGas.toString(16);
+    }
+  } catch (estErr) {
+    console.warn('Gas estimation fallback to 500k:', estErr);
+  }
+  return '0x7A120'; // 500,000 gas limit fallback
+}
+
+/**
+ * Waits for on-chain block mining and receipt confirmation across fallback RPC pool.
+ * Throws immediately if transaction reverted on-chain (status === 0).
+ */
+export async function waitForTxReceipt(txHash: string, timeoutMs = 60000): Promise<ethers.TransactionReceipt> {
+  const startTime = Date.now();
+  const pool = [POLYGON_AMOY_RPC, ...POLYGON_AMOY_RPCS.filter((r) => r !== POLYGON_AMOY_RPC)];
+
+  while (Date.now() - startTime < timeoutMs) {
+    for (const rpc of pool) {
+      try {
+        const provider = new ethers.JsonRpcProvider(rpc);
+        const receipt = await provider.getTransactionReceipt(txHash);
+        if (receipt) {
+          if (receipt.status === 0) {
+            throw new Error(`Transaction reverted on-chain (status 0). Gas used: ${receipt.gasUsed?.toString() || 'unknown'}. TX: ${txHash}`);
+          }
+          if (receipt.status === 1) {
+            return receipt;
+          }
+        }
+      } catch (err: any) {
+        if (err?.message?.includes('reverted on-chain')) {
+          throw err;
+        }
+        // If rate limited (429) or connection error, continue to next RPC in pool
+      }
+    }
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+  }
+  throw new Error(`Transaction pending confirmation timeout after 60s. TX: ${txHash}`);
+}
 
 /**
  * Generates W3C-compliant Decentralized Identifier (DID)
@@ -373,6 +452,7 @@ export async function anchorEvidenceToPolygon(params: {
           });
 
           if (txHash && typeof txHash === 'string') {
+            await waitForTxReceipt(txHash);
             return {
               txHash,
               explorerUrl: `${POLYGONSCAN_BASE}/tx/${txHash}`,
@@ -606,6 +686,7 @@ export async function anchorCaseOnChain(caseId: string): Promise<{ txHash: strin
 
   const iface = new ethers.Interface(PROVENANCE_REGISTRY_ABI);
   const calldata = iface.encodeFunctionData('logCase', [caseId]);
+  const gasLimit = await estimateSafeGasLimit(eth, accounts[0], PROVENANCE_REGISTRY_ADDR, calldata);
 
   try {
     const txHash: string = await eth.request({
@@ -615,7 +696,7 @@ export async function anchorCaseOnChain(caseId: string): Promise<{ txHash: strin
         to: PROVENANCE_REGISTRY_ADDR,
         data: calldata,
         value: '0x0',
-        gas: '0x30D40', // 200,000 gas limit
+        gas: gasLimit,
         maxPriorityFeePerGas: '0x6fc23ac00', // 30 Gwei (>= 25 Gwei Amoy minimum)
         maxFeePerGas: '0xdf8475800', // 60 Gwei
       }],
@@ -624,6 +705,9 @@ export async function anchorCaseOnChain(caseId: string): Promise<{ txHash: strin
     if (!txHash || typeof txHash !== 'string') {
       throw new Error('Transaction was not broadcasted by wallet.');
     }
+
+    // Wait for on-chain inclusion & confirmation before returning hash
+    await waitForTxReceipt(txHash);
 
     return {
       txHash,
@@ -642,9 +726,10 @@ export async function anchorCaseOnChain(caseId: string): Promise<{ txHash: strin
  */
 export async function isCaseAnchoredOnChain(caseId: string): Promise<boolean> {
   try {
-    const provider = new ethers.JsonRpcProvider(POLYGON_AMOY_RPC);
-    const contract = new ethers.Contract(PROVENANCE_REGISTRY_ADDR, PROVENANCE_REGISTRY_ABI, provider);
-    return await contract.isCaseAnchored(caseId);
+    return await withRpcFallback(async (provider) => {
+      const contract = new ethers.Contract(PROVENANCE_REGISTRY_ADDR, PROVENANCE_REGISTRY_ABI, provider);
+      return await contract.isCaseAnchored(caseId);
+    });
   } catch (err) {
     console.warn('Failed to verify case anchor on-chain:', err);
     return false;
@@ -676,6 +761,7 @@ export async function anchorOfficialOnChain(params: {
   const officialTag = `OFFICIAL:${params.userId.trim().toUpperCase()}:${params.username.trim()}:${params.role.trim().toUpperCase()}:${(params.mspId || 'PoliceMSP').trim()}`;
   const iface = new ethers.Interface(PROVENANCE_REGISTRY_ABI);
   const calldata = iface.encodeFunctionData('logCase', [officialTag]);
+  const gasLimit = await estimateSafeGasLimit(eth, accounts[0], PROVENANCE_REGISTRY_ADDR, calldata);
 
   try {
     const txHash: string = await eth.request({
@@ -685,15 +771,17 @@ export async function anchorOfficialOnChain(params: {
         to: PROVENANCE_REGISTRY_ADDR,
         data: calldata,
         value: '0x0',
-        gas: '0x30D40', // 200,000 gas limit
-        maxPriorityFeePerGas: '0x6fc23ac00', // 30 Gwei (>= 25 Gwei Amoy minimum)
-        maxFeePerGas: '0xdf8475800', // 60 Gwei
+        gas: gasLimit,
+        maxPriorityFeePerGas: '0x6fc23ac00',
+        maxFeePerGas: '0xdf8475800',
       }],
     });
 
     if (!txHash || typeof txHash !== 'string') {
       throw new Error('Transaction was not broadcasted by wallet.');
     }
+
+    await waitForTxReceipt(txHash);
 
     return {
       txHash,
@@ -712,10 +800,11 @@ export async function anchorOfficialOnChain(params: {
  */
 export async function isOfficialAnchoredOnChain(userId: string): Promise<boolean> {
   try {
-    const provider = new ethers.JsonRpcProvider(POLYGON_AMOY_RPC);
-    const contract = new ethers.Contract(PROVENANCE_REGISTRY_ADDR, PROVENANCE_REGISTRY_ABI, provider);
-    const filter = `OFFICIAL:${userId.trim().toUpperCase()}`;
-    return await contract.isCaseAnchored(filter);
+    return await withRpcFallback(async (provider) => {
+      const contract = new ethers.Contract(PROVENANCE_REGISTRY_ADDR, PROVENANCE_REGISTRY_ABI, provider);
+      const filter = `OFFICIAL:${userId.trim().toUpperCase()}`;
+      return await contract.isCaseAnchored(filter);
+    });
   } catch (err) {
     console.warn('Failed to verify official anchor on-chain:', err);
     return false;
@@ -748,6 +837,7 @@ export async function anchorCustodyTransferOnChain(params: {
   const transferTag = `CUSTODY_TRANSFER:${params.caseId.trim().toUpperCase()}:${params.fromMsp.trim()}:${params.toMsp.trim()}:${params.recipientOfficerId.trim()}:${Date.now()}`;
   const iface = new ethers.Interface(PROVENANCE_REGISTRY_ABI);
   const calldata = iface.encodeFunctionData('logCase', [transferTag]);
+  const gasLimit = await estimateSafeGasLimit(eth, accounts[0], PROVENANCE_REGISTRY_ADDR, calldata);
 
   try {
     const txHash: string = await eth.request({
@@ -757,15 +847,18 @@ export async function anchorCustodyTransferOnChain(params: {
         to: PROVENANCE_REGISTRY_ADDR,
         data: calldata,
         value: '0x0',
-        gas: '0x30D40', // 200,000 gas limit
-        maxPriorityFeePerGas: '0x6fc23ac00', // 30 Gwei (>= 25 Gwei Amoy minimum)
-        maxFeePerGas: '0xdf8475800', // 60 Gwei
+        gas: gasLimit,
+        maxPriorityFeePerGas: '0x6fc23ac00',
+        maxFeePerGas: '0xdf8475800',
       }],
     });
 
     if (!txHash || typeof txHash !== 'string') {
       throw new Error('Transaction was not broadcasted by wallet.');
     }
+
+    // Wait for on-chain block mining and verify status == 1
+    await waitForTxReceipt(txHash);
 
     return {
       txHash,
@@ -803,6 +896,7 @@ export async function anchorRoleChangeOnChain(params: {
   const roleChangeTag = `ROLE_CHANGE:${params.userId.trim().toUpperCase()}:${params.newRole.trim().toUpperCase()}:${params.adminId || 'ADMIN'}:${Date.now()}`;
   const iface = new ethers.Interface(PROVENANCE_REGISTRY_ABI);
   const calldata = iface.encodeFunctionData('logCase', [roleChangeTag]);
+  const gasLimit = await estimateSafeGasLimit(eth, accounts[0], PROVENANCE_REGISTRY_ADDR, calldata);
 
   try {
     const txHash: string = await eth.request({
@@ -812,15 +906,17 @@ export async function anchorRoleChangeOnChain(params: {
         to: PROVENANCE_REGISTRY_ADDR,
         data: calldata,
         value: '0x0',
-        gas: '0x30D40', // 200,000 gas limit
-        maxPriorityFeePerGas: '0x6fc23ac00', // 30 Gwei (>= 25 Gwei Amoy minimum)
-        maxFeePerGas: '0xdf8475800', // 60 Gwei
+        gas: gasLimit,
+        maxPriorityFeePerGas: '0x6fc23ac00',
+        maxFeePerGas: '0xdf8475800',
       }],
     });
 
     if (!txHash || typeof txHash !== 'string') {
       throw new Error('Transaction was not broadcasted by wallet.');
     }
+
+    await waitForTxReceipt(txHash);
 
     return {
       txHash,
@@ -833,5 +929,123 @@ export async function anchorRoleChangeOnChain(params: {
     throw new Error(`Polygon Amoy transaction failed: ${err?.message || err}`);
   }
 }
+
+/**
+ * Permanently anchors a Case Official Assignment to Polygon Amoy using ProvenanceRegistry.logCase(assignmentTag).
+ * Enforces Web3 wallet popup (MetaMask) and returns confirmed transaction hash and explorer URL.
+ */
+export async function anchorCaseAssignmentOnChain(params: {
+  caseId: string;
+  userId: string;
+  role?: string;
+  adminId?: string;
+}): Promise<{ txHash: string; explorerUrl: string }> {
+  const eth = (window as any).ethereum;
+  if (!eth) {
+    throw new Error('MetaMask / Web3 wallet is required to anchor case assignment on Polygon blockchain. Please connect your Web3 wallet and try again.');
+  }
+
+  await ensurePolygonAmoyNetwork();
+
+  const accounts: string[] = await eth.request({ method: 'eth_requestAccounts' });
+  if (!accounts || accounts.length === 0) {
+    throw new Error('No wallet account selected. Please unlock MetaMask.');
+  }
+
+  const assignmentTag = `CASE_ASSIGNMENT:${params.caseId.trim().toUpperCase()}:${params.userId.trim().toUpperCase()}:${(params.role || 'OFFICER').trim().toUpperCase()}:${Date.now()}`;
+  const iface = new ethers.Interface(PROVENANCE_REGISTRY_ABI);
+  const calldata = iface.encodeFunctionData('logCase', [assignmentTag]);
+  const gasLimit = await estimateSafeGasLimit(eth, accounts[0], PROVENANCE_REGISTRY_ADDR, calldata);
+
+  try {
+    const txHash: string = await eth.request({
+      method: 'eth_sendTransaction',
+      params: [{
+        from: accounts[0],
+        to: PROVENANCE_REGISTRY_ADDR,
+        data: calldata,
+        value: '0x0',
+        gas: gasLimit,
+        maxPriorityFeePerGas: '0x6fc23ac00',
+        maxFeePerGas: '0xdf8475800',
+      }],
+    });
+
+    if (!txHash || typeof txHash !== 'string') {
+      throw new Error('Transaction was not broadcasted by wallet.');
+    }
+
+    await waitForTxReceipt(txHash);
+
+    return {
+      txHash,
+      explorerUrl: `${POLYGONSCAN_BASE}/tx/${txHash}`,
+    };
+  } catch (err: any) {
+    if (err?.code === 4001 || err?.message?.includes('User denied') || err?.message?.includes('rejected')) {
+      throw new Error('MetaMask transaction rejected by user.');
+    }
+    throw new Error(`Polygon Amoy transaction failed: ${err?.message || err}`);
+  }
+}
+
+/**
+ * Permanently anchors an Official Revocation from a Case to Polygon Amoy using ProvenanceRegistry.logCase(revokeTag).
+ * Enforces Web3 wallet popup (MetaMask) and returns confirmed transaction hash and explorer URL.
+ */
+export async function anchorCaseRevocationOnChain(params: {
+  caseId: string;
+  userId: string;
+  adminId?: string;
+}): Promise<{ txHash: string; explorerUrl: string }> {
+  const eth = (window as any).ethereum;
+  if (!eth) {
+    throw new Error('MetaMask / Web3 wallet is required to anchor case revocation on Polygon blockchain. Please connect your Web3 wallet and try again.');
+  }
+
+  await ensurePolygonAmoyNetwork();
+
+  const accounts: string[] = await eth.request({ method: 'eth_requestAccounts' });
+  if (!accounts || accounts.length === 0) {
+    throw new Error('No wallet account selected. Please unlock MetaMask.');
+  }
+
+  const revokeTag = `CASE_REVOCATION:${params.caseId.trim().toUpperCase()}:${params.userId.trim().toUpperCase()}:${Date.now()}`;
+  const iface = new ethers.Interface(PROVENANCE_REGISTRY_ABI);
+  const calldata = iface.encodeFunctionData('logCase', [revokeTag]);
+  const gasLimit = await estimateSafeGasLimit(eth, accounts[0], PROVENANCE_REGISTRY_ADDR, calldata);
+
+  try {
+    const txHash: string = await eth.request({
+      method: 'eth_sendTransaction',
+      params: [{
+        from: accounts[0],
+        to: PROVENANCE_REGISTRY_ADDR,
+        data: calldata,
+        value: '0x0',
+        gas: gasLimit,
+        maxPriorityFeePerGas: '0x6fc23ac00',
+        maxFeePerGas: '0xdf8475800',
+      }],
+    });
+
+    if (!txHash || typeof txHash !== 'string') {
+      throw new Error('Transaction was not broadcasted by wallet.');
+    }
+
+    await waitForTxReceipt(txHash);
+
+    return {
+      txHash,
+      explorerUrl: `${POLYGONSCAN_BASE}/tx/${txHash}`,
+    };
+  } catch (err: any) {
+    if (err?.code === 4001 || err?.message?.includes('User denied') || err?.message?.includes('rejected')) {
+      throw new Error('MetaMask transaction rejected by user.');
+    }
+    throw new Error(`Polygon Amoy transaction failed: ${err?.message || err}`);
+  }
+}
+
 
 

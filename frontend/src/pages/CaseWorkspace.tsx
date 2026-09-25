@@ -244,7 +244,7 @@ export const CaseWorkspace: React.FC = () => {
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Chain Anchor Toast */}
       {chainToast && (
-        <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 9999, maxWidth: '420px' }}>
+        <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 9999, maxWidth: '420px', animation: 'slideInRight 0.3s ease' }}>
           <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e3a2f 100%)', border: '1px solid #22c55e', borderRadius: '14px', padding: '16px 20px', boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 30px rgba(34,197,94,0.15)', color: '#fff' }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
               <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(34,197,94,0.15)', border: '1px solid #22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

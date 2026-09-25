@@ -39,11 +39,11 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
   return (
     <div className="min-h-screen flex flex-col" style={{ background: '#FFFBF4' }}>
       {/* Floating Header */}
-      <header className="sticky top-3 z-40 max-w-7xl mx-auto px-4 sm:px-6 w-full pointer-events-none">
+      <header className="sticky top-3 z-40 max-w-[98%] 2xl:max-w-[1720px] mx-auto px-1 sm:px-3 w-full pointer-events-none">
         <div
-          className="px-4 sm:px-5 h-[60px] flex items-center justify-between pointer-events-auto gap-3 overflow-hidden"
+          className="px-3 sm:px-6 h-[64px] flex items-center justify-between pointer-events-auto gap-2 lg:gap-6 overflow-visible w-full"
           style={{
-            background: 'rgba(255,251,244,0.85)',
+            background: 'rgba(255,251,244,0.92)',
             backdropFilter: 'blur(20px)',
             WebkitBackdropFilter: 'blur(20px)',
             border: '1px solid rgba(216,207,188,0.6)',
@@ -52,7 +52,7 @@ const NavigationLayout: React.FC<{ children: React.ReactNode }> = ({ children })
           }}
         >
           {/* Brand + Nav */}
-          <div className="flex items-center gap-3 lg:gap-5 min-w-0 flex-1">
+          <div className="flex items-center gap-2 sm:gap-4 lg:gap-6 min-w-0 flex-1">
             <Link to="/dossiers" className="flex items-center gap-2.5 group shrink-0">
               <div
                 className="h-10 px-2 rounded-xl flex items-center justify-center shadow-xs shrink-0 transition-transform group-hover:scale-105 border bg-white"

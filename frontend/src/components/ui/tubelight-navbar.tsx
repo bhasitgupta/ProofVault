@@ -46,7 +46,7 @@ export function NavBar({ items, className }: NavBarProps) {
               key={item.name}
               to={item.url}
               className={cn(
-                "relative cursor-pointer text-xs sm:text-sm font-semibold px-3 sm:px-3.5 py-1.5 rounded-full transition-colors flex items-center gap-2 whitespace-nowrap select-none",
+                "relative cursor-pointer text-xs lg:text-sm font-semibold px-2.5 sm:px-3 lg:px-3.5 py-1.5 rounded-full transition-colors flex items-center gap-1.5 sm:gap-2 whitespace-nowrap select-none",
                 "text-[#565449] hover:text-[#11120D]",
                 isActive && "text-[#11120D] font-bold",
                 item.highlight && !isActive && "text-emerald-800 font-bold"
